@@ -3,8 +3,7 @@ from typing import Dict
 
 from kedro.pipeline import Pipeline
 
-from gid_ml_framework.pipelines import data_processing as dp
-from gid_ml_framework.pipelines import data_science as ds
+from gid_ml_framework.pipelines import sample_data as sd
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -14,11 +13,9 @@ def register_pipelines() -> Dict[str, Pipeline]:
         A mapping from a pipeline name to a ``Pipeline`` object.
 
     """
-    data_processing_pipeline = dp.create_pipeline()
-    data_science_pipeline = ds.create_pipeline()
+    sample_data_pipeline = sd.create_pipeline()
 
     return {
-        "__default__": data_processing_pipeline + data_science_pipeline,
-        "dp": data_processing_pipeline,
-        "ds": data_science_pipeline,
+        "__default__": sample_data_pipeline,
+        "sd": sample_data_pipeline,
     }
