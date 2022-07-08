@@ -1,7 +1,7 @@
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from .nodes import auto_eda
+from .nodes import auto_eda, manual_eda
 
 def create_pipeline(**kwargs) -> Pipeline:
     auto_eda_pipeline = pipeline(
@@ -27,7 +27,16 @@ def create_pipeline(**kwargs) -> Pipeline:
         ],
     )
 
-    manual_eda_pipeline = pipeline([])
+    manual_eda_pipeline = pipeline(
+        [
+            node(
+                func=manual_eda,
+                inputs=["articles", "transactions"],
+                outputs=None,
+                name="manual_eda_node",
+            ),
+        ],
+    )
 
     return pipeline(
         pipe=auto_eda_pipeline + manual_eda_pipeline,
