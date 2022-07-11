@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is your new Kedro project, which was generated using `Kedro 0.17.7`, with the completed version of the [spaceflights tutorial](https://kedro.readthedocs.io/en/stable/03_tutorial/01_spaceflights_tutorial.html) and the data necessary to run the project.
+Machine learning framework for solving standard analytical problems. Includes data storage, exploratory data analysis, feature engineering, modeling, monitoring etc.
 
 Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get started.
 
@@ -15,14 +15,51 @@ In order to get the best out of the template:
 * Don't commit data to your repository
 * Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
 
-## How to install dependencies
+## How to setup Poetry
 
-Declare any dependencies in `src/requirements.txt` for `pip` installation and `src/environment.yml` for `conda` installation.
+The project is using Poetry depenendency management. To install Poetry, follow [these steps](https://python-poetry.org/docs/#installation) for your operating system.
 
-To install them, run:
-
+If you wish to include the virtual environment folder in the project, make a following change in Poetry's config:
 ```
-pip install -r src/requirements.txt
+poetry config virtualenvs.in-project true --local
+poetry config virtualenvs.create true --local
+poetry config settings.virtualenvs.in-project true
+```
+
+To specify version of Python to use in the project:
+```
+poetry env use 3.8.12
+```
+You may also specify a full path to your Python version
+
+To initialise a pre-populated directory do the following:
+```
+cd gid-ml-framework
+poetry init
+```
+
+## How to install dependencies with Poetry
+
+To add and install dependencies with:
+```
+poetry add <package_name>
+
+# dev dependencies
+poetry add -D <package_name>
+```
+
+If you have the libraries declared in the pyproject.toml file, you may install them with this command:
+```
+poetry install
+```
+
+The commands for working with virtual environment:
+```
+# activating venv
+poetry shell
+
+# deactivating venv
+exit
 ```
 
 ## How to run Kedro
