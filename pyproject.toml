@@ -36,6 +36,10 @@ matplotlib = "3.5.2"
 openpyxl = "^3.0.6"
 scikit-learn = "~=1.0"
 wheel = ">=0.35,<0.37"
+pytorch-lightning = "^1.6.4"
+torchvision = "^0.13.0"
+Pillow = "^9.2.0"
+pyarrow = "^8.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "21.5b1"

@@ -1,0 +1,8 @@
+image_path: data/01_raw/images_128_128
+encoder: SimpleEncoder
+decoder: SimpleDecoder
+batch_size: 32
+embedding_size: 32
+num_epochs: 20
+save_model: True
+model_name: pl_image_embeddings
