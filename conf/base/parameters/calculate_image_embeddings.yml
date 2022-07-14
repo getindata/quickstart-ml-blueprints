@@ -1,0 +1,4 @@
+inference:
+  RUN_ID: 986aee371a2a44d38a58d1bb48398db9
+  image_path: data/01_raw/images_128_128
+  batch_size: 64
