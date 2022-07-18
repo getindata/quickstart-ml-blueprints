@@ -1,9 +1,14 @@
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=DeprecationWarning)
+    import pytorch_lightning as pl
+
 from gid_ml_framework.image_embeddings.data.hm_data import HMDataLoader
 from gid_ml_framework.image_embeddings.model.pl_autoencoder_module import LitAutoEncoder
 from gid_ml_framework.image_embeddings.model import pl_encoders, pl_decoders
-import pytorch_lightning as pl
 import mlflow.pytorch
 from pytorch_lightning.utilities.seed import seed_everything
+from typing import List
 
 
 seed_everything(321, True)
@@ -14,7 +19,8 @@ def train_image_embeddings(
     encoder: str,
     decoder: str,
     batch_size: int = 32,
-    embedding_size: int = 32,
+    image_size: int = 128,
+    embedding_size: List[int] = 32,
     num_epochs: int = 5,
     save_model: bool = False,
     model_name: str = "image_embeddings_model") -> None:
@@ -24,8 +30,8 @@ def train_image_embeddings(
     hm_decoder = getattr(pl_decoders, decoder)
 
     hm_autoencoder = LitAutoEncoder(
-        encoder=hm_encoder(embedding_size),
-        decoder=hm_decoder(embedding_size)
+        encoder=hm_encoder(embedding_size, image_size),
+        decoder=hm_decoder(embedding_size, image_size)
         )
     
     early_stop_callback = pl.callbacks.early_stopping.EarlyStopping(

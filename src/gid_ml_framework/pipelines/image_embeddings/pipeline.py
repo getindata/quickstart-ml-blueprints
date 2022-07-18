@@ -11,14 +11,15 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=train_image_embeddings,
                 name="train_image_embeddings",
                 inputs=[
-                    "params:image_path",
-                    "params:encoder",
-                    "params:decoder",
-                    "params:batch_size",
-                    "params:embedding_size",
-                    "params:num_epochs",
-                    "params:save_model",
-                    "params:model_name"
+                    "params:image_embeddings.image_path",
+                    "params:image_embeddings.encoder",
+                    "params:image_embeddings.decoder",
+                    "params:image_embeddings.batch_size",
+                    "params:image_embeddings.image_size",
+                    "params:image_embeddings.embedding_size",
+                    "params:image_embeddings.num_epochs",
+                    "params:image_embeddings.save_model",
+                    "params:image_embeddings.model_name"
                     ],
                 outputs=None,
             ),

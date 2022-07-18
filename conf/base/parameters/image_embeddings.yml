@@ -1,8 +1,10 @@
-image_path: data/01_raw/images_128_128
-encoder: SimpleEncoder
-decoder: SimpleDecoder
-batch_size: 32
-embedding_size: 32
-num_epochs: 10
-save_model: True
-model_name: pl_image_embeddings
+image_embeddings:
+  image_path: data/01_raw/images_128_128
+  encoder: EncoderLinearLin1024
+  decoder: DecoderLinearLin1024
+  batch_size: 32
+  image_size: [128, 128]
+  embedding_size: 32
+  num_epochs: 20
+  save_model: True
+  model_name: pl_image_embeddings

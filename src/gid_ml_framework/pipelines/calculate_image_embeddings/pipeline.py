@@ -11,9 +11,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=calculate_image_embeddings,
                 name="calculate_image_embeddings",
                 inputs=[
-                    "params:inference.RUN_ID",
-                    "params:inference.image_path",
-                    "params:inference.batch_size",
+                    "params:image_embeddings_inference.RUN_ID",
+                    "params:image_embeddings_inference.image_path",
+                    "params:image_embeddings_inference.batch_size",
                     ],
                 outputs="image_embeddings",
             ),
