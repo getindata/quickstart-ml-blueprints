@@ -1,18 +1,12 @@
-from gid_ml_framework.image_embeddings.data.hm_data import HMDataset
+from gid_ml_framework.image_embeddings.data.hm_data import HMDataLoader
 from gid_ml_framework.image_embeddings.model.pl_autoencoder_module import LitAutoEncoder
 from gid_ml_framework.image_embeddings.model import pl_encoders, pl_decoders
-from torchvision import transforms
-from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 import mlflow.pytorch
 from pytorch_lightning.utilities.seed import seed_everything
-from kedro_mlflow.config import get_mlflow_config
+
 
 seed_everything(321, True)
-
-print('\n\n\n\n')
-print(get_mlflow_config())
-print('\n\n\n\n')
 
 
 def train_image_embeddings(
@@ -25,9 +19,7 @@ def train_image_embeddings(
     save_model: bool = False,
     model_name: str = "image_embeddings_model") -> None:
 
-    hm_dataset = HMDataset(img_dir, transform=transforms.ToTensor())
-    hm_dataloader = DataLoader(dataset=hm_dataset, batch_size=batch_size, drop_last=True, shuffle=True, num_workers=0)
-
+    hm_dataloader = HMDataLoader(img_dir, batch_size=batch_size)
     hm_encoder = getattr(pl_encoders, encoder)
     hm_decoder = getattr(pl_decoders, decoder)
 
@@ -35,9 +27,6 @@ def train_image_embeddings(
         encoder=hm_encoder(embedding_size),
         decoder=hm_decoder(embedding_size)
         )
-    
-    # checkpoint_callback = ModelCheckpoint(dirpath='', save_top_k=1, verbose=True, monitor="train_loss", mode="min")
-    # lr_logger = LearningRateMonitor()
     
     early_stop_callback = pl.callbacks.early_stopping.EarlyStopping(
         monitor='train_loss',
@@ -50,6 +39,7 @@ def train_image_embeddings(
     hm_trainer = pl.Trainer(limit_train_batches=100,
         max_epochs=num_epochs, 
         logger=False, # disabling pytorch_lightning default logging, because we have mlflow
+        enable_checkpointing=False,
         callbacks=[early_stop_callback])
 
     mlflow.pytorch.autolog(log_models=save_model, registered_model_name=model_name)

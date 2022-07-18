@@ -1,18 +1,12 @@
 from typing import List, Union
-from gid_ml_framework.image_embeddings.data.hm_data import HMDataset
+from gid_ml_framework.image_embeddings.data.hm_data import HMDataLoader
 import mlflow.pytorch
 from mlflow.tracking import MlflowClient
-from torch.utils.data import DataLoader
 import pytorch_lightning as pl
-from torchvision import transforms
-import mlflow
 import torch
 import numpy as np
 import pandas as pd
 from itertools import chain
-# protobuf warnings
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
 def _stack_predictions(predictions: List, emb_size: Union[int, str]) -> pd.DataFrame:
 
@@ -38,8 +32,7 @@ def calculate_image_embeddings(
     logged_model_uri = f'runs:/{RUN_ID}/model'
     loaded_model = mlflow.pytorch.load_model(logged_model_uri)
 
-    hm_dataset = HMDataset(img_dir, transform=transforms.ToTensor())
-    hm_dataloader = DataLoader(dataset=hm_dataset, batch_size=batch_size, drop_last=False, shuffle=False, num_workers=0)
+    hm_dataloader = HMDataLoader(img_dir, batch_size)
 
     trainer = pl.Trainer(max_epochs=1, logger=False)
     predictions = trainer.predict(loaded_model, dataloaders=hm_dataloader)
