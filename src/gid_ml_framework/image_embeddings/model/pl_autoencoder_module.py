@@ -46,13 +46,17 @@ class LitAutoEncoder(pl.LightningModule):
         embedding = self.encoder(x)
         return embedding, y
 
-    def validation_epoch_end(self, outputs):
+    def validation_epoch_end(self, outputs, no_plot_images=8):
         results = outputs[0]
-        fig, axarr = plt.subplots(4, 2)
-        for i in range(4):
+        self._save_reconstructed_plots(results, self.current_epoch, no_plot_images)
+
+    @staticmethod
+    def _save_reconstructed_plots(results, current_epoch, no_plot_images=8):
+        fig, axarr = plt.subplots(no_plot_images, 2, figsize=(8, no_plot_images*1.5))
+        for i in range(no_plot_images):
             img_reconstructed = results['x_hat'][i, :].reshape(3, 128, 128)
             img_original = results['x'][i, :].reshape(3, 128, 128)
             axarr[i, 0].imshow(np.transpose(img_reconstructed.numpy(), (1, 2, 0)))
             axarr[i, 1].imshow(np.transpose(img_original.numpy(), (1, 2, 0)))
-        mlflow.log_figure(plt.gcf(), f'reconstructed/img_reconstructed_{self.current_epoch}.png')
+        mlflow.log_figure(plt.gcf(), f'reconstructed/img_reconstructed_{current_epoch}.png')
         plt.close()

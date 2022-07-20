@@ -6,5 +6,6 @@ image_embeddings:
   image_size: [128, 128]
   embedding_size: 32
   num_epochs: 20
-  save_model: True
+  shuffle_val: True
+  save_model: False
   model_name: pl_image_embeddings
