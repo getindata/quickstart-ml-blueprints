@@ -1,92 +1,170 @@
-# gid-ml-framework
+# GetInData ML Framework
+
+## Overview
 
 Machine learning framework for solving standard analytical problems. Includes data storage, exploratory data analysis, feature engineering, modeling, monitoring etc.
 
-## Getting started
+Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get started.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Rules and guidelines
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+In order to get the best out of the template:
 
-## Add your files
+* Don't remove any lines from the `.gitignore` file we provide
+* Make sure your results can be reproduced by following a [data engineering convention](https://kedro.readthedocs.io/en/stable/faq/faq.html#what-is-data-engineering-convention)
+* Don't commit data to your repository
+* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Data
+Easiest way to download data is by creating Kaggle account and downloading data from [here](https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations/data). You can also download tabular data from [Google Drive](https://drive.google.com/drive/folders/1sdV7_nGqC-MvE4GXwC12btCGDIZplHa4?usp=sharing) (and sample of images).
+
+## Python version management
+
+The project is using pyenv Python version management. It lets you easily install and switch between multiple versions of Python. To install pyenv, follow [these steps](https://github.com/pyenv/pyenv#installation=) for your operating system. You may also use other alternatives like [conda](https://stackoverflow.com/questions/70851048/does-it-make-sense-to-use-conda-poetry).
+
+To install a specific Python version use this command:
+```
+pyenv install <version> # 3.8.12
+```
+
+## How to setup Poetry
+
+The project is using Poetry depenendency management. To install Poetry, follow [these steps](https://python-poetry.org/docs/#installation) for your operating system.
+
+If you wish to include the virtual environment folder in the project, make a following change in Poetry's config:
+```
+poetry config virtualenvs.in-project true --local
+poetry config virtualenvs.create true --local
+poetry config virtualenvs.in-project true
+```
+
+To specify version of Python to use in the project:
+```
+poetry env use <version/full_path> # 3.8.12
+```
+You may also specify a full path to your Python version
+
+To initialise a pre-populated directory do the following:
+```
+cd gid-ml-framework
+poetry init
+```
+
+## How to install dependencies with Poetry
+
+To add and install dependencies with:
+```
+poetry add <package_name>
+
+# dev dependencies
+poetry add -D <package_name>
+```
+
+If you have the libraries declared in the pyproject.toml file, you may install them with this command:
+```
+poetry install
+```
+
+The commands for working with virtual environment:
+```
+# activating venv
+poetry shell
+
+# deactivating venv
+exit
+```
+
+## How to run Kedro
+
+You can run your Kedro project with:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/gid-aa/coe/gid-ml-framework.git
-git branch -M main
-git push -uf origin main
+kedro run
 ```
 
-## Integrate with your tools
+## How to test your Kedro project
 
-- [ ] [Set up project integrations](https://gitlab.com/gid-aa/coe/gid-ml-framework/-/settings/integrations)
+Have a look at the file `src/tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
 
-## Collaborate with your team
+```
+kedro test
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+To configure the coverage threshold, look at the `.coveragerc` file.
 
-## Test and Deploy
 
-Use the built-in continuous integration in GitLab.
+## Project dependencies
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+To generate or update the dependency requirements for your project:
 
-***
+```
+kedro build-reqs
+```
 
-# Editing this README
+This will copy the contents of `src/requirements.txt` into a new file `src/requirements.in` which will be used as the source for [`pip-compile`](https://github.com/jazzband/pip-tools#example-usage-for-pip-compile). You can see the output of the resolution by opening `src/requirements.txt`.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+After this, if you'd like to update your project requirements, please update `src/requirements.in` and re-run `kedro build-reqs`.
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+[Further information about project dependencies](https://kedro.readthedocs.io/en/stable/04_kedro_project_setup/01_dependencies.html#project-specific-dependencies)
 
-## Name
-Choose a self-explaining name for your project.
+## How to work with Kedro and notebooks
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+> Note: Using `kedro jupyter` or `kedro ipython` to run your notebook provides these variables in scope: `context`, `catalog`, and `startup_error`.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Jupyter
+To use Jupyter notebooks in your Kedro project, you need to install Jupyter:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```
+pip install jupyter
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+After installing Jupyter, you can start a local notebook server:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```
+kedro jupyter notebook
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### JupyterLab
+To use JupyterLab, you need to install it:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```
+pip install jupyterlab
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+You can also start JupyterLab:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```
+kedro jupyter lab
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### IPython
+And if you want to run an IPython session:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```
+kedro ipython
+```
 
-## License
-For open source projects, say how it is licensed.
+### How to convert notebook cells to nodes in a Kedro project
+You can move notebook code over into a Kedro project structure using a mixture of [cell tagging](https://jupyter-notebook.readthedocs.io/en/stable/changelog.html#cell-tags) and Kedro CLI commands.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+By adding the `node` tag to a cell and running the command below, the cell's source code will be copied over to a Python file within `src/<package_name>/nodes/`:
+
+```
+kedro jupyter convert <filepath_to_my_notebook>
+```
+> *Note:* The name of the Python file matches the name of the original notebook.
+
+Alternatively, you may want to transform all your notebooks in one go. Run the following command to convert all notebook files found in the project root directory and under any of its sub-folders:
+
+```
+kedro jupyter convert --all
+```
+
+### How to ignore notebook output cells in `git`
+To automatically strip out all output cell contents before committing to `git`, you can run `kedro activate-nbstripout`. This will add a hook in `.git/config` which will run `nbstripout` before anything is committed to `git`.
+
+> *Note:* Your output cells will be retained locally.
+
+## Package your Kedro project
+
+[Further information about building project documentation and packaging your project](https://kedro.readthedocs.io/en/stable/03_tutorial/05_package_a_project.html)
