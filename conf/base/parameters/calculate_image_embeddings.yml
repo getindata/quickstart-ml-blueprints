@@ -1,0 +1,4 @@
+image_embeddings_inference:
+  RUN_ID: bcaab28da441450a86c8ea6276169c23
+  image_path: data/01_raw/images_128_128
+  batch_size: 64

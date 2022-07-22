@@ -5,6 +5,8 @@ from kedro.pipeline import Pipeline
 
 from gid_ml_framework.pipelines import sample_data as sd
 from gid_ml_framework.pipelines import exploratory_data_analysis as eda
+from gid_ml_framework.pipelines import image_embeddings as ie
+from gid_ml_framework.pipelines import calculate_image_embeddings as cie
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -16,9 +18,13 @@ def register_pipelines() -> Dict[str, Pipeline]:
     """
     sample_data_pipeline = sd.create_pipeline()
     eda_pipeline = eda.create_pipeline()
+    image_embeddings_pipeline = ie.create_pipeline()
+    calculate_image_embeddings_pipeline = cie.create_pipeline()
 
     return {
         "__default__": sample_data_pipeline,
         "sd": sample_data_pipeline,
-        "eda": eda_pipeline
+        "eda": eda_pipeline,
+        "ie": image_embeddings_pipeline,
+        "cie": calculate_image_embeddings_pipeline,
     }

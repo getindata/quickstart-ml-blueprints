@@ -89,3 +89,10 @@ articles_sample:
     dtype:
       article_id: str
   
+
+image_embeddings:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/image_embeddings.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
