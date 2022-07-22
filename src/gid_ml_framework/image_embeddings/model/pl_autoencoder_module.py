@@ -4,16 +4,19 @@ import mlflow
 import matplotlib.pyplot as plt
 import numpy as np
 from kedro_mlflow.config import kedro_mlflow_config
+import random
 
 # it's needed, so matplotlib artifacts are saved together with the mlflow run
 mlflow.set_experiment(experiment_name=kedro_mlflow_config.get_mlflow_config().tracking.experiment.name)
 
 
 class LitAutoEncoder(pl.LightningModule):
-    def __init__(self, encoder, decoder):
+    def __init__(self, encoder, decoder, shuffle_reconstructions=False):
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder
+        self.shuffle_reconstructions = shuffle_reconstructions
+        self.no_plot_images = 8
 
     def forward(self, x):
         embedding = self.encoder(x)
@@ -46,9 +49,13 @@ class LitAutoEncoder(pl.LightningModule):
         embedding = self.encoder(x)
         return embedding, y
 
-    def validation_epoch_end(self, outputs, no_plot_images=8):
-        results = outputs[0]
-        self._save_reconstructed_plots(results, self.current_epoch, no_plot_images)
+    def validation_epoch_end(self, outputs):
+        if self.shuffle_reconstructions:
+            random_int = random.randint(0, len(outputs)-1)
+            results = outputs[random_int]
+        else:
+            results = outputs[0]
+        self._save_reconstructed_plots(results, self.current_epoch, self.no_plot_images)
 
     @staticmethod
     def _save_reconstructed_plots(results, current_epoch, no_plot_images=8):

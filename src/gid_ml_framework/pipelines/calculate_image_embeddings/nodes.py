@@ -7,6 +7,10 @@ import torch
 import numpy as np
 import pandas as pd
 from itertools import chain
+import logging
+
+
+log = logging.getLogger(__name__)
 
 def _stack_predictions(predictions: List, emb_size: Union[int, str]) -> pd.DataFrame:
 
@@ -20,16 +24,16 @@ def _stack_predictions(predictions: List, emb_size: Union[int, str]) -> pd.DataF
     return pd.DataFrame(data=embeddings, index=article_ids, columns=column_names)
 
 def calculate_image_embeddings(
-    RUN_ID: str,
+    run_id: str,
     img_dir: str,
     batch_size: int) -> None:
 
     client = MlflowClient()
-    run = client.get_run(RUN_ID)
-    print("run_id: {}".format(run.info.run_id))
-    print("params: {}".format(run.data.params))
-    print("status: {}".format(run.info.status))
-    logged_model_uri = f'runs:/{RUN_ID}/model'
+    run = client.get_run(run_id)
+    log.info("run_id: {}".format(run.info.run_id))
+    log.info("params: {}".format(run.data.params))
+    log.info("status: {}".format(run.info.status))
+    logged_model_uri = f'runs:/{run_id}/model'
     loaded_model = mlflow.pytorch.load_model(logged_model_uri)
 
     hm_dataloader = HMDataLoader(img_dir, batch_size)

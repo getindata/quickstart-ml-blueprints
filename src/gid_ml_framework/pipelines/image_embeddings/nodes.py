@@ -1,16 +1,10 @@
-import warnings
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore",category=DeprecationWarning)
-    import pytorch_lightning as pl
+import pytorch_lightning as pl
 from gid_ml_framework.image_embeddings.data.hm_data import HMDataLoader
 from gid_ml_framework.image_embeddings.model.pl_autoencoder_module import LitAutoEncoder
 from gid_ml_framework.image_embeddings.model import pl_encoders, pl_decoders
 import mlflow.pytorch
 from pytorch_lightning.utilities.seed import seed_everything
 from typing import List
-
-
-seed_everything(321, True)
 
 
 def train_image_embeddings(
@@ -21,21 +15,25 @@ def train_image_embeddings(
     image_size: List[int] = [128, 128],
     embedding_size: int = 32,
     num_epochs: int = 5,
-    shuffle_val: bool = False,
+    shuffle_reconstructions: bool = False,
     save_model: bool = False,
-    model_name: str = "image_embeddings_model") -> None:
+    model_name: str = "image_embeddings_model",
+    seed: int = 321) -> None:
 
-    hm_dataloader = HMDataLoader(img_dir, batch_size=batch_size, shuffle_val=shuffle_val)
+    seed_everything(seed, True)
+
+    hm_dataloader = HMDataLoader(img_dir, batch_size=batch_size)
     hm_encoder = getattr(pl_encoders, encoder)
     hm_decoder = getattr(pl_decoders, decoder)
 
     hm_autoencoder = LitAutoEncoder(
         encoder=hm_encoder(embedding_size, image_size),
-        decoder=hm_decoder(embedding_size, image_size)
+        decoder=hm_decoder(embedding_size, image_size),
+        shuffle_reconstructions=shuffle_reconstructions
         )
     
     early_stop_callback = pl.callbacks.early_stopping.EarlyStopping(
-        monitor='train_loss',
+        monitor='val_loss',
         min_delta=0.00001,
         patience=5,
         verbose=True,

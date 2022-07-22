@@ -18,9 +18,10 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:image_embeddings.image_size",
                     "params:image_embeddings.embedding_size",
                     "params:image_embeddings.num_epochs",
-                    "params:image_embeddings.shuffle_val",
+                    "params:image_embeddings.shuffle_reconstructions",
                     "params:image_embeddings.save_model",
-                    "params:image_embeddings.model_name"
+                    "params:image_embeddings.model_name",
+                    "params:image_embeddings.seed"
                     ],
                 outputs=None,
             ),
