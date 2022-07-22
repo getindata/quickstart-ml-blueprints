@@ -2,8 +2,6 @@
 
 ## Overview
 
-This is your new Kedro project, which was generated using `Kedro 0.17.7`, with the completed version of the [spaceflights tutorial](https://kedro.readthedocs.io/en/stable/03_tutorial/01_spaceflights_tutorial.html) and the data necessary to run the project.
-
 Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get started.
 
 ## Rules and guidelines
@@ -11,18 +9,67 @@ Take a look at the [Kedro documentation](https://kedro.readthedocs.io) to get st
 In order to get the best out of the template:
 
 * Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a [data engineering convention](https://kedro.readthedocs.io/en/stable/11_faq/01_faq.html#what-is-data-engineering-convention)
+* Make sure your results can be reproduced by following a [data engineering convention](https://kedro.readthedocs.io/en/stable/faq/faq.html#what-is-data-engineering-convention)
 * Don't commit data to your repository
 * Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
 
-## How to install dependencies
+## Data
+Easiest way to download data is by creating Kaggle account and downloading data from [here](https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations/data). You can also download tabular data from [Google Drive](https://drive.google.com/drive/folders/1sdV7_nGqC-MvE4GXwC12btCGDIZplHa4?usp=sharing) (and sample of images).
 
-Declare any dependencies in `src/requirements.txt` for `pip` installation and `src/environment.yml` for `conda` installation.
+## Python version management
 
-To install them, run:
+The project is using pyenv Python version management. It lets you easily install and switch between multiple versions of Python. To install pyenv, follow [these steps](https://github.com/pyenv/pyenv#installation=) for your operating system. You may also use other alternatives like [conda](https://stackoverflow.com/questions/70851048/does-it-make-sense-to-use-conda-poetry).
 
+To install a specific Python version use this command:
 ```
-pip install -r src/requirements.txt
+pyenv install <version> # 3.8.12
+```
+
+## How to setup Poetry
+
+The project is using Poetry depenendency management. To install Poetry, follow [these steps](https://python-poetry.org/docs/#installation) for your operating system.
+
+If you wish to include the virtual environment folder in the project, make a following change in Poetry's config:
+```
+poetry config virtualenvs.in-project true --local
+poetry config virtualenvs.create true --local
+poetry config virtualenvs.in-project true
+```
+
+To specify version of Python to use in the project:
+```
+poetry env use <version/full_path> # 3.8.12
+```
+You may also specify a full path to your Python version
+
+To initialise a pre-populated directory do the following:
+```
+cd gid-ml-framework
+poetry init
+```
+
+## How to install dependencies with Poetry
+
+To add and install dependencies with:
+```
+poetry add <package_name>
+
+# dev dependencies
+poetry add -D <package_name>
+```
+
+If you have the libraries declared in the pyproject.toml file, you may install them with this command:
+```
+poetry install
+```
+
+The commands for working with virtual environment:
+```
+# activating venv
+poetry shell
+
+# deactivating venv
+exit
 ```
 
 ## How to run Kedro

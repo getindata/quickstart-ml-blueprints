@@ -60,6 +60,8 @@ transactions:
     dtype:
       article_id: str
 
+# SAMPLE
+
 customers_sample:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/customers_sample.csv
@@ -73,3 +75,17 @@ transactions_sample:
   layer: intermediate
   save_args:
     index: False
+  load_args:
+    dtype:
+      article_id: str
+
+articles_sample:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/articles_sample.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+  
