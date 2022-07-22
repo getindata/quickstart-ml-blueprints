@@ -1,0 +1,58 @@
+[tool.kedro]
+package_name = "gid_ml_framework"
+project_name = "GetInData ML Framework"
+project_version = "0.17.7"
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+known_third_party = "kedro"
+
+[tool.pytest.ini_options]
+addopts = """
+--cov-report term-missing \
+--cov src/gid_ml_framework -ra"""
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
+
+[tool.poetry]
+name = "gid-ml-framework"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "3.8.12"
+black = "21.5b1"
+flake8 = "^3.7.9"
+ipython = "^7.31.1"
+isort = "~=5.0"
+jupyter = "~=1.0"
+jupyter-client = ">=5.1,<7.0"
+jupyterlab = "~=3.0"
+kedro = {version = "0.17.7", extras = ["pandas.ExcelDataSet", "pandas.ParquetDataSet", "pandas.CSVDataSet"]}
+kedro-mlflow = "0.8.1"
+kedro-telemetry = "~=0.1.0"
+kedro-viz = "~=4.0"
+matplotlib = "3.5.2"
+nbstripout = "~=0.4"
+openpyxl = "^3.0.6"
+pytest = "~=6.2"
+pytest-cov = "~=3.0"
+pytest-mock = "^1.7.1"
+scikit-learn = "~=1.0"
+wheel = ">=0.35,<0.37"
+
+
+[tool.poetry.dev-dependencies]
+pandas-profiling = "^3.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
