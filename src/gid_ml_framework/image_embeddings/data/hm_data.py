@@ -30,12 +30,11 @@ class HMDataset(Dataset):
 
 
 class HMDataLoader(pl.LightningDataModule):
-    def __init__(self, data_dir: str, batch_size: int=32, num_workers=0, shuffle_val=False):
+    def __init__(self, data_dir: str, batch_size: int=32, num_workers: int=0):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
-        self.shuffle_val = shuffle_val
         self.transform = transforms.Compose([
             transforms.ToTensor()
         ])
@@ -52,7 +51,7 @@ class HMDataLoader(pl.LightningDataModule):
         return DataLoader(self.hm_train, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
 
     def val_dataloader(self):
-        return DataLoader(self.hm_val, batch_size=self.batch_size, shuffle=self.shuffle_val, num_workers=self.num_workers)
+        return DataLoader(self.hm_val, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
     def predict_dataloader(self):
         return DataLoader(self.hm_predict, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
