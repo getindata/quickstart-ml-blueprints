@@ -39,6 +39,7 @@
 # (transcoding), templating and a way to reuse arguments that are frequently repeated. See more here:
 # https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
 
+# INPUT DATA
 articles:
   type: pandas.CSVDataSet
   filepath: data/01_raw/articles.csv
@@ -61,7 +62,6 @@ transactions:
       article_id: str
 
 # SAMPLE
-
 customers_sample:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/customers_sample.csv
@@ -89,7 +89,20 @@ articles_sample:
     dtype:
       article_id: str
   
+# RESIZING IMAGES
+input_images:
+  type: gid_ml_framework.extras.datasets.image_dataset.DirWithImagesDataSet
+  dir: data/01_raw/images/010/
+  load_args:
+    img_extension: jpg
 
+resized_images:
+  type: gid_ml_framework.extras.datasets.image_dataset.DirWithImagesDataSet
+  dir: data/02_intermediate/results
+  save_args:
+    img_extension: jpg
+
+# EMBEDDINGS
 image_embeddings:
   type: pandas.ParquetDataSet
   filepath: data/04_feature/image_embeddings.pq
