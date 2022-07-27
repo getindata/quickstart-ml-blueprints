@@ -96,3 +96,10 @@ image_embeddings:
   layer: feature
   load_args:
     engine: pyarrow
+
+text_embeddings:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/text_embeddings.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
