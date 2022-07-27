@@ -19,7 +19,7 @@ def _stack_predictions(predictions: List, emb_size: Union[int, str]) -> pd.DataF
         out_emb.append(emb)
         out_labels.append(labels)
     article_ids = [article_id.split('.')[0] for article_id in chain(*out_labels)]
-    column_names = [f'emb_{i+1}' for i in range(int(emb_size))]
+    column_names = [f'img_emb_{i+1}' for i in range(int(emb_size))]
     embeddings = torch.cat(out_emb).numpy()
     return pd.DataFrame(data=embeddings, index=article_ids, columns=column_names)
 
