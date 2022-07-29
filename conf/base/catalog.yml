@@ -116,3 +116,11 @@ text_embeddings:
   layer: feature
   load_args:
     engine: pyarrow
+
+# CANDIDATE GENERATION
+candidates:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/candidates.pq
+  layer: primary
+  load_args:
+    engine: pyarrow
