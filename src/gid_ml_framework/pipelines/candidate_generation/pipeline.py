@@ -5,6 +5,7 @@ from .nodes import (
     collect_global_articles, global_articles,
     segment_by_customer_age, collect_segment_articles, segment_articles,
     previously_bought_articles, previously_bought_prod_name_articles,
+    similar_embeddings,
     collect_all_candidates
 )
 
@@ -99,6 +100,46 @@ def create_pipeline(**kwargs) -> Pipeline:
         outputs=["prev_bought_df", "prev_bought_prod_name_df"],
     )
 
+    closest_image_embeddings_pipeline = pipeline(
+        [    
+            node(
+                func=similar_embeddings,
+                inputs=[
+                    "transactions_sample",
+                    "image_embeddings",
+                    "params:candidate_generation.image_embeddings.n_last_bought",
+                    "params:candidate_generation.image_embeddings.k_closest",
+                    "params:candidate_generation.image_embeddings.name",
+                    ],
+                outputs="closest_image_embeddings_df",
+                name="closest_image_embeddings_node",
+            ),
+        ],
+        namespace="closest_image_embeddings_candidate_generation",
+        inputs=["transactions_sample", "image_embeddings"],
+        outputs=["closest_image_embeddings_df"],
+    )
+
+    closest_text_embeddings_pipeline = pipeline(
+        [    
+            node(
+                func=similar_embeddings,
+                inputs=[
+                    "transactions_sample",
+                    "text_embeddings",
+                    "params:candidate_generation.text_embeddings.n_last_bought",
+                    "params:candidate_generation.text_embeddings.k_closest",
+                    "params:candidate_generation.text_embeddings.name",
+                    ],
+                outputs="closest_text_embeddings_df",
+                name="closest_text_embeddings_node",
+            ),
+        ],
+        namespace="closest_text_embeddings_candidate_generation",
+        inputs=["transactions_sample", "text_embeddings"],
+        outputs=["closest_text_embeddings_df"],
+    )
+
     collect_candidates_pipeline = pipeline(
         [    
             node(
@@ -108,14 +149,30 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "segment_articles_df",
                     "prev_bought_df",
                     "prev_bought_prod_name_df",
+                    "closest_image_embeddings_df",
+                    "closest_text_embeddings_df",
                     ],
                 outputs="candidates",
                 name="collect_all_candidates_node",
             ),
         ],
         namespace="collect_all_candidates",
-        inputs=["global_articles_df", "segment_articles_df", "prev_bought_df", "prev_bought_prod_name_df"],
+        inputs=[
+            "global_articles_df",
+            "segment_articles_df",
+            "prev_bought_df",
+            "prev_bought_prod_name_df",
+            "closest_image_embeddings_df",
+            "closest_text_embeddings_df",
+            ],
         outputs=["candidates"],
     )
 
-    return global_pipeline + segment_pipeline + previously_bought_pipeline + collect_candidates_pipeline
+    return (
+        global_pipeline + 
+        segment_pipeline + 
+        previously_bought_pipeline + 
+        closest_image_embeddings_pipeline +
+        closest_text_embeddings_pipeline +
+        collect_candidates_pipeline
+        )

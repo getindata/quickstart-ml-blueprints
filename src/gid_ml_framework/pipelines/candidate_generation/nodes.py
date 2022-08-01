@@ -1,6 +1,7 @@
 import pandas as pd
-from typing import Union, Set, List, Dict
+from typing import Union, Set, List, Dict, Iterable
 import logging
+from sklearn.neighbors import KDTree
 
 
 log = logging.getLogger(__name__)
@@ -45,7 +46,9 @@ def collect_global_articles(transactions: pd.DataFrame, n_days_list: List[Union[
 
 def global_articles(customers: pd.DataFrame, articles: ArticlesSet) -> pd.DataFrame:
     all_customers = customers[['customer_id']].copy()
-    all_customers.loc[:, 'global_articles'] = pd.Series(list(articles) * len(all_customers))
+    log.info(f'Number of all customers: {len(all_customers)}')
+    all_customers.loc[:, 'global_articles'] = [list(articles) for i in all_customers.index]
+    log.info(f'{all_customers.shape=}')
     return all_customers
 
 # SEGMENT ARTICLES
@@ -112,13 +115,64 @@ def previously_bought_prod_name_articles(transactions: pd.DataFrame, articles: p
     prev_bought_prod_name = prev_bought_prod_name.groupby(['customer_id'])['article_id'].apply(list).reset_index(name='previously_bought_prod_name')
     return prev_bought_prod_name
 
+# SIMILAR IMAGES/TEXT EMBEDDINGS
+def _build_tree(embeddings: pd.DataFrame) -> KDTree:
+    log.info('Building KDTree')
+    tree = KDTree(embeddings.values, leaf_size=5)
+    return tree
+
+def _find_similar_vectors(query_id: str, embeddings: pd.DataFrame, tree: KDTree, k_closest: int) -> Union[List[str], None]:
+    try:
+        _, ind = tree.query(embeddings.loc[query_id].values.reshape(1, -1), k=k_closest)
+    except KeyError:
+        return None
+    closest_embedding_idx = embeddings.iloc[ind[0]].index.tolist()
+    return closest_embedding_idx
+
+def _create_embedding_dictionary(items: Iterable[str], embeddings: pd.DataFrame, k_closest: int) -> Dict:
+    tree = _build_tree(embeddings)
+    closest_dict = dict()
+    log.info('Started querying similar vectors')
+    for item in items:
+        if (similar_vectors := _find_similar_vectors(item, embeddings, tree, k_closest)):
+            closest_dict[item] = similar_vectors
+    log.info('Finished querying similar vectors')
+    return closest_dict
+
+def _cleanup_closest_embeddings(embeddings: pd.DataFrame, name: str) -> pd.DataFrame:
+    log.info(f'Closest embeddings df shape before cleanup: {embeddings.shape}')
+    embeddings.dropna(axis=0, how='any', inplace=True)
+    embeddings = embeddings.explode(column=name)
+    embeddings.drop_duplicates(inplace=True)
+    # filter out querying item from results
+    embeddings = embeddings[embeddings[name]!=embeddings['article_id']]
+    embeddings.drop(['article_id'], axis=1, inplace=True)
+    embeddings = embeddings.groupby(['customer_id'])[name].apply(list).reset_index(name=name)
+    log.info(f'Closest embeddings df shape after cleanup: {embeddings.shape}')
+    return embeddings
+
+def similar_embeddings(transactions: pd.DataFrame, embeddings: pd.DataFrame, n_last_bought: int = 5, k_closest: int = 5, name: str = 'closest_emb') -> pd.DataFrame:
+    transactions.sort_values(by='t_dat', ascending=False, inplace=True)
+    transactions = transactions.groupby(['customer_id']).head(n_last_bought)
+    log.info(f'Selecting latest {n_last_bought} articles for each customer')
+    all_items = list(transactions['article_id'].unique())
+    log.info(f'Number of unique articles left: {len(all_items)}')
+    closest_dict = _create_embedding_dictionary(all_items, embeddings, k_closest)
+    closest_embeddings = transactions[['customer_id', 'article_id']].copy()
+    closest_embeddings[name] = closest_embeddings['article_id'].map(closest_dict)
+    closest_embeddings = _cleanup_closest_embeddings(closest_embeddings, name)
+    return closest_embeddings
+
 # COLLECT ALL
 def collect_all_candidates(global_articles: pd.DataFrame, segment_articles: pd.DataFrame,
-                prev_bought_articles: pd.DataFrame, prev_bough_prod_name: pd.DataFrame) -> pd.DataFrame:
+                prev_bought_articles: pd.DataFrame, prev_bough_prod_name: pd.DataFrame,
+                closest_image_embeddings: pd.DataFrame, closest_text_embeddings: pd.DataFrame) -> pd.DataFrame:
     collected_df = (
         global_articles
         .merge(segment_articles, on='customer_id', how='left')
         .merge(prev_bought_articles, on='customer_id', how='left')
         .merge(prev_bough_prod_name, on='customer_id', how='left')
+        .merge(closest_image_embeddings, on='customer_id', how='left')
+        .merge(closest_text_embeddings, on='customer_id', how='left')
         )
     return collected_df

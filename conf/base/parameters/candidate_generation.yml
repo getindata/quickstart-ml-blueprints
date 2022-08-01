@@ -6,3 +6,11 @@ candidate_generation:
     no_segments: 5
     n_days: [7, 30, 90, null]
     top_n: [100, 100, 100, 100]
+  image_embeddings:
+    n_last_bought: 5
+    k_closest: 5
+    name: closest_image_embeddings
+  text_embeddings:
+    n_last_bought: 5
+    k_closest: 5
+    name: closest_text_embeddings
