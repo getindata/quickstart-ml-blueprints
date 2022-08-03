@@ -117,6 +117,27 @@ text_embeddings:
   load_args:
     engine: pyarrow
 
+# TRAIN VAL SPLIT
+train_transactions:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/train_transactions.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+
+val_transactions:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/val_transactions.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+
 # CANDIDATE GENERATION
 candidates:
   type: pandas.ParquetDataSet
