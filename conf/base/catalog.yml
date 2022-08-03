@@ -117,6 +117,16 @@ text_embeddings:
   load_args:
     engine: pyarrow
 
+# CANDIDATE GENERATION
+candidates:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/candidates.pq
+  layer: primary
+  load_args:
+    engine: pyarrow
+
+
+### RECALL MAXIMIZATION - CANDIDATE GENERATION
 # TRAIN VAL SPLIT
 train_transactions:
   type: pandas.CSVDataSet
@@ -137,11 +147,11 @@ val_transactions:
   load_args:
     dtype:
       article_id: str
-
-# CANDIDATE GENERATION
-candidates:
+  
+train_candidates:
   type: pandas.ParquetDataSet
-  filepath: data/03_primary/candidates.pq
+  filepath: data/03_primary/train_candidates.pq
   layer: primary
   load_args:
     engine: pyarrow
+

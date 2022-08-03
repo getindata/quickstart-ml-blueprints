@@ -11,6 +11,7 @@ from gid_ml_framework.pipelines import text_embeddings as te
 from gid_ml_framework.pipelines import image_resizer as ir
 from gid_ml_framework.pipelines import candidate_generation as cg
 from gid_ml_framework.pipelines import train_val_split as tvs
+from gid_ml_framework.pipelines import candidate_generation_validation as cgv
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -28,6 +29,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
     image_resizer_pipeline = ir.create_pipeline()
     candidate_generation_pipeline = cg.create_pipeline()
     train_val_split_pipeline = tvs.create_pipeline()
+    candidate_generation_validation_pipeline = cgv.create_pipeline()
 
     return {
         "__default__": sample_data_pipeline,
@@ -39,4 +41,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "ir": image_resizer_pipeline,
         "cg": candidate_generation_pipeline,
         "tvs": train_val_split_pipeline,
+        "cgv": candidate_generation_validation_pipeline,
     }
