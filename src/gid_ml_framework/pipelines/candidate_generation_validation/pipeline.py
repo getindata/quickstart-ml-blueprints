@@ -13,10 +13,10 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "val_transactions",
                     ],
                 outputs=None,
-                name="train_val_split_node",
+                name="log_retrieval_recall_node",
             ),
         ],
-        namespace="train_val_split",
+        namespace="log_retrieval_recall",
         inputs=[
             "train_candidates",
             "val_transactions",],

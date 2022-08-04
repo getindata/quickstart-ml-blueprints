@@ -42,4 +42,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "cg": candidate_generation_pipeline,
         "tvs": train_val_split_pipeline,
         "cgv": candidate_generation_validation_pipeline,
+        "candidate_generation": (train_val_split_pipeline + candidate_generation_pipeline + candidate_generation_validation_pipeline)
     }
