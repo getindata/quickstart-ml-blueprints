@@ -116,3 +116,18 @@ text_embeddings:
   layer: feature
   load_args:
     engine: pyarrow
+
+# AUTOMATED FEATURE ENGINEERING
+automated_articles_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/automated_articles_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+automated_customers_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/automated_customers_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow

@@ -1,0 +1,7 @@
+automated_feature_engineering:
+  articles:
+    feature_selection: true
+    null_threshold: 0.9
+  customers:
+    feature_selection: true
+    null_threshold: 0.9
