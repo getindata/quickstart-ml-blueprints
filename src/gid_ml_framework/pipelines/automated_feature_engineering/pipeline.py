@@ -1,39 +1,40 @@
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from .nodes import create_entity_set, create_static_articles_features, create_static_customer_features
+from .nodes import create_static_features, feature_selection
 
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         [
             node(
-                func=create_entity_set,
-                name="create_entity_set",
+                func=create_static_features,
+                name="create_static_features_node",
                 inputs=[
                     "transactions_sample",
                     "customers_sample",
                     "articles_sample",
+                    "params:automated_feature_engineering.n_days",
                     ],
-                outputs="entity_set",
+                outputs=["automated_articles_features_temp", "automated_customers_features_temp"],
             ),
             node(
-                func=create_static_articles_features,
-                name="create_static_articles_features",
+                func=feature_selection,
+                name="feature_selection_articles_node",
                 inputs=[
-                    "entity_set",
+                    "automated_articles_features_temp",
                     "params:automated_feature_engineering.articles.feature_selection",
-                    "params:automated_feature_engineering.articles.null_threshold",
+                    "params:automated_feature_engineering.articles.feature_selection_params",
                     ],
                 outputs="automated_articles_features",
             ),
             node(
-                func=create_static_customer_features,
-                name="create_static_customer_features",
+                func=feature_selection,
+                name="feature_selection_customers_node",
                 inputs=[
-                    "entity_set",
+                    "automated_customers_features_temp",
                     "params:automated_feature_engineering.customers.feature_selection",
-                    "params:automated_feature_engineering.customers.null_threshold",
+                    "params:automated_feature_engineering.customers.feature_selection_params",
                     ],
                 outputs="automated_customers_features",
             ),
