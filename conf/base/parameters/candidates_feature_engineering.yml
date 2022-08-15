@@ -1,4 +1,9 @@
 candidates_feature_engineering:
+  last_n_rows: 5
   jaccard:
     attribute_cols: [product_type_name, product_group_name, graphical_appearance_name, colour_group_name, perceived_colour_value_name, perceived_colour_master_name, index_name, index_group_name, section_name, garment_group_name]
-    last_n_rows: 5
+  cosine:
+    image:
+      col_name: image
+    text:
+      col_name: text
