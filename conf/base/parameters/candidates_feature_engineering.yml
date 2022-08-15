@@ -1,5 +1,4 @@
-# This is a boilerplate parameters config generated for pipeline 'candidates_feature_engineering'
-# using Kedro 0.17.7.
-#
-# Documentation for this file format can be found in "Parameters"
-# Link: https://kedro.readthedocs.io/en/0.17.7/04_kedro_project_setup/02_configuration.html#parameters
+candidates_feature_engineering:
+  jaccard:
+    attribute_cols: [product_type_name, product_group_name, graphical_appearance_name, colour_group_name, perceived_colour_value_name, perceived_colour_master_name, index_name, index_group_name, section_name, garment_group_name]
+    last_n_rows: 5

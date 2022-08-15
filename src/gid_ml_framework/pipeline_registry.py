@@ -11,6 +11,7 @@ from gid_ml_framework.pipelines import text_embeddings as te
 from gid_ml_framework.pipelines import image_resizer as ir
 from gid_ml_framework.pipelines import manual_feature_engineering as mfe
 from gid_ml_framework.pipelines import automated_feature_engineering as afe
+from gid_ml_framework.pipelines import candidates_feature_engineering as cfe
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -28,6 +29,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
     image_resizer_pipeline = ir.create_pipeline()
     manual_feature_engineering_pipeline = mfe.create_pipeline()
     automated_feature_engineering_pipeline = afe.create_pipeline()
+    candidates_feature_engineering_pipeline = cfe.create_pipeline()
 
     return {
         "__default__": sample_data_pipeline,
@@ -39,4 +41,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "ir": image_resizer_pipeline,
         "mfe": manual_feature_engineering_pipeline,
         "afe": automated_feature_engineering_pipeline,
+        "cfe": candidates_feature_engineering_pipeline,
     }

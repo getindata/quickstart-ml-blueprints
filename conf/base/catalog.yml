@@ -117,6 +117,14 @@ text_embeddings:
   load_args:
     engine: pyarrow
 
+# CANDIDATE GENERATION
+candidates_sample:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/candidates_sample.pq
+  layer: primary
+  load_args:
+    engine: pyarrow
+
 # AUTOMATED FEATURE ENGINEERING
 automated_articles_features:
   type: pandas.ParquetDataSet
@@ -151,5 +159,13 @@ manual_customer_prod_group_features:
   type: pandas.ParquetDataSet
   filepath: data/04_feature/manual_customer_prod_group_features.pq
   layer: feature
+  load_args:
+    engine: pyarrow
+
+# CANDIDATES FEATURE ENGINEERING
+similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/similarity_features.pq
+  layer: model_input
   load_args:
     engine: pyarrow
