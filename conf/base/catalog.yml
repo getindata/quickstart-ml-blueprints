@@ -131,3 +131,25 @@ automated_customers_features:
   layer: feature
   load_args:
     engine: pyarrow
+
+# MANUAL FEATURE ENGINEERING
+manual_article_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/manual_article_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+manual_customer_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/manual_customer_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+manual_customer_prod_group_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/manual_customer_prod_group_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
