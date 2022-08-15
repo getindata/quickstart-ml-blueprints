@@ -10,6 +10,7 @@ from gid_ml_framework.pipelines import calculate_image_embeddings as cie
 from gid_ml_framework.pipelines import text_embeddings as te
 from gid_ml_framework.pipelines import image_resizer as ir
 from gid_ml_framework.pipelines import manual_feature_engineering as mfe
+from gid_ml_framework.pipelines import automated_feature_engineering as afe
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -26,6 +27,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
     text_embeddings_pipeline = te.create_pipeline()
     image_resizer_pipeline = ir.create_pipeline()
     manual_feature_engineering_pipeline = mfe.create_pipeline()
+    automated_feature_engineering_pipeline = afe.create_pipeline()
 
     return {
         "__default__": sample_data_pipeline,
@@ -36,4 +38,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "te": text_embeddings_pipeline,
         "ir": image_resizer_pipeline,
         "mfe": manual_feature_engineering_pipeline,
+        "afe": automated_feature_engineering_pipeline,
     }
