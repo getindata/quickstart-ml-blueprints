@@ -107,9 +107,11 @@ def create_article_features(transactions: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: article dataframe with multiple features
     """
     # features
+    logger.info('Calculating article features...')
     df_rebought = _rebuying_articles(transactions)
     df_mean_sales_channel_id = _mean_perc_sales_channel_id(transactions)
     # concat
+    logger.info('Concatenating article features...')
     df_result = _concat_dataframes_on_index([df_rebought, df_mean_sales_channel_id], 'article_id')
     return df_result
 
@@ -252,6 +254,7 @@ def create_customer_features(transactions: pd.DataFrame, articles: pd.DataFrame,
         pd.DataFrame: customer dataframe with multiple features
     """
     # different time windows features
+    logger.info('Calculating time window customer features...')
     dfs_list = list()
     for n_days in n_days_list:
         suffix_str = '_all' if n_days is None else f'_{n_days}'
@@ -263,12 +266,14 @@ def create_customer_features(transactions: pd.DataFrame, articles: pd.DataFrame,
         dfs_list.append(df_count_pg)
 
     # another features
+    logger.info('Calculating customer features...')
     df_days_since_first = _days_since_first_transactions(transactions)
     df_days_since_last = _days_since_last_transactions(transactions)
     df_purchase_span = _average_purchase_span(transactions)
     df_sales_channel_id = _perc_sales_channel_id(transactions)
 
     # concat
+    logger.info('Concatenating customer features...')
     df_result = _concat_dataframes_on_index(
         [df_days_since_first, df_days_since_last, df_purchase_span, df_sales_channel_id, *dfs_list],
         'customer_id')
@@ -305,7 +310,9 @@ def create_customer_product_group_features(transactions: pd.DataFrame, articles:
         pd.DataFrame: customer x product_group_name dataframe with multiple features
     """
     # features
+    logger.info('Calculating customer x product_group_name features...')
     df_count_article = _count_of_article_id_per_customer_product_group(transactions, articles)
     # concat
+    logger.info('Concatenating customer x product_group_name features...')
     df_result = _concat_dataframes_on_index([df_count_article], ['customer_id', 'product_group_name'])
     return df_result
