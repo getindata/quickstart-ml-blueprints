@@ -120,7 +120,7 @@ text_embeddings:
 # CANDIDATE GENERATION
 candidates_sample:
   type: pandas.ParquetDataSet
-  filepath: data/03_primary/candidates_sample.pq
+  filepath: data/03_primary/candidates.pq
   layer: primary
   load_args:
     engine: pyarrow
