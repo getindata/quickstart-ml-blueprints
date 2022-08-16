@@ -89,7 +89,7 @@ def create_set_of_attributes(articles: pd.DataFrame, attribute_cols: List) -> pd
     return articles_attributes
 
 def apply_avg_jaccard_similarity(candidates_df: pd.DataFrame, article_attributes: pd.DataFrame, transactions: pd.DataFrame) -> pd.DataFrame:
-    """Calculates average Jaccard similarity for all candidates, given transactions history.
+    """Calculates average Jaccard similarity for all candidates, given transaction history.
 
     Args:
         candidates_df (pd.DataFrame): candidates (must have article_id, customer_id columns)
@@ -110,11 +110,29 @@ def apply_avg_jaccard_similarity(candidates_df: pd.DataFrame, article_attributes
 
 ## COSINE SIMILARITY
 def _mean_customer_embeddings(transactions: pd.DataFrame, embeddings: pd.DataFrame) -> pd.DataFrame:
+    """Calculates embeddings for a single customer as a mean of his previous article purchases.
+
+    Args:
+        transactions (pd.DataFrame): transactions
+        embeddings (pd.DataFrame): embeddings
+
+    Returns:
+        pd.DataFrame: mean embeddings
+    """
     list_of_articles = list(transactions.article_id.unique())
     mean_embeddings = list(embeddings[embeddings.index.isin(list_of_articles)].mean(axis=0))
     return mean_embeddings
 
 def calculate_customer_embeddings(transactions: pd.DataFrame, embeddings: pd.DataFrame) -> pd.DataFrame:
+    """For each customer calculates mean embeddings.
+
+    Args:
+        transactions (pd.DataFrame): transactions
+        embeddings (pd.DataFrame): embeddings
+
+    Returns:
+        pd.DataFrame: customer_id, embeddings dataframe
+    """
     customer_embeddings = (
         transactions
             .groupby(['customer_id'])
@@ -124,11 +142,29 @@ def calculate_customer_embeddings(transactions: pd.DataFrame, embeddings: pd.Dat
     )
     return customer_embeddings
 
-def _cosine_similarity(A, B):
+def _cosine_similarity(A: np.ndarray, B: np.ndarray) -> float:
+    """Calculates cosine similarity between 2 vectors.
+
+    Args:
+        A (np.ndarray): vector with numerical values
+        B (np.ndarray): vector with numerical values
+
+    Returns:
+        float: cosine similarity. Should be between -1 and 1.
+    """
     return np.dot(A, B)/(np.linalg.norm(A) * np.linalg.norm(B))
 
-def _cosine_embedding_similarity(candidates_df, customers_embeddings, articles_embeddings):
+def _cosine_embedding_similarity(candidates_df: pd.DataFrame, customers_embeddings: pd.DataFrame, articles_embeddings: pd.DataFrame) -> pd.DataFrame:
+    """Calculates cosine similarity for a single candidate item. If not found, returns 0.
 
+    Args:
+        candidates_df (pd.DataFrame): candidates
+        customers_embeddings (pd.DataFrame): customer embeddings
+        articles_embeddings (pd.DataFrame): articles ambeddings
+
+    Returns:
+        float: cosine similarity
+    """
     candidate_item, candidate_user = candidates_df.article_id, candidates_df.customer_id
     try:
         customer_embeddings = np.array(customers_embeddings.loc[candidate_user].embeddings)
@@ -143,6 +179,18 @@ def _cosine_embedding_similarity(candidates_df, customers_embeddings, articles_e
     return _cosine_similarity(customer_embeddings, candidate_embeddings)
 
 def apply_cosine_similarity(candidates_df: pd.DataFrame, customer_embeddings: pd.DataFrame, article_embeddings: pd.DataFrame, col_name: str) -> pd.DataFrame:
+    """Calculates cosine similarity for all candidates, given transaction history and embeddings.
+
+    Args:
+        candidates_df (pd.DataFrame): candidates
+        customer_embeddings (pd.DataFrame): customer embeddings
+        article_embeddings (pd.DataFrame): articles embeddings
+        col_name (str): new column name with cosine similarity
+
+    Returns:
+    TODO: it may require change in the future
+        pd.DataFrame: candidates dataframe with f'{col_name}_cosine_similarity'
+    """
     col_name = f'{col_name}_cosine_similarity'
     candidates_df[col_name] = (
         candidates_df.apply(
