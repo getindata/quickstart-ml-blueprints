@@ -1,4 +1,5 @@
 candidates_feature_engineering:
+  drop_random_strategies: false
   last_n_rows: 5
   jaccard:
     attribute_cols: [product_type_name, product_group_name, graphical_appearance_name, colour_group_name, perceived_colour_value_name, perceived_colour_master_name, index_name, index_group_name, section_name, garment_group_name]

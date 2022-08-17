@@ -22,11 +22,13 @@ def filter_last_n_rows_per_customer(transactions: pd.DataFrame, last_n_rows: int
     return latest_transactions
 
 ## CANDIDATES UNPACKING
-def unpack_candidates(candidates_df: pd.DataFrame) -> pd.DataFrame:
+def unpack_candidates(candidates_df: pd.DataFrame, drop_random_strategies: bool = False) -> pd.DataFrame:
     """Unpacks candidates and assigns strategy_name column with the name of generating candidates.
+    If there are multiple candidates from more than one strategy, then duplicates are removed.
 
     Args:
         candidates_df (pd.DataFrame): candidates with list of articles as columns
+        drop_random_strategies (bool): if true, random strategy will be used as feature; else - strategy_name='multiple_strategies'
 
     Returns:
         pd.DataFrame: long candidates
@@ -46,7 +48,23 @@ def unpack_candidates(candidates_df: pd.DataFrame) -> pd.DataFrame:
         dfs.append(df)
     logger.info(f'Concatenating candidate strategies into one long dataframe')
     long_candidates = pd.concat(dfs, axis=0).reset_index()
-    logger.info(f'Long candidates df shape: {long_candidates.shape} \n columns: {long_candidates.columns}')
+    logger.info(f'Long candidates df shape: {long_candidates.shape}')
+    # removing duplicates (multiple strategies can have the same item)
+    if drop_random_strategies:
+        long_candidates = long_candidates.sample(frac=1).groupby(['customer_id', 'id_article']).head(1).reset_index()
+        logger.info(f'Long candidates after dropping (random) multiple candidates: {long_candidates.shape}')
+        return long_candidates
+    long_candidates['count_strategy_name'] = (
+        long_candidates
+            .groupby(['customer_id', 'article_id'])['strategy_name']
+            .transform('count')
+    )
+    long_candidates['strategy_name'] = np.where(
+        long_candidates['count_strategy_name']>1,
+        'multiple_strategies',
+        long_candidates['strategy_name'])
+    long_candidates = long_candidates.drop(['count_strategy_name'], axis=1).drop_duplicates()
+    logger.info(f'Long candidates after dropping (not random) multiple candidates: {long_candidates.shape}')
     return long_candidates
 
 ## JACCARD SIMILARITY
@@ -247,6 +265,23 @@ def apply_cosine_similarity(candidates_df: pd.DataFrame, customer_embeddings: pd
     )
     return candidates_df
 
-## ASSIGN SIMILARITIES
-def assign_candidates_similarities() -> pd.DataFrame:
-    pass
+## MERGE SIMILARITIES
+def merge_similarity_features(jaccard_candidates: pd.DataFrame, image_cosine_candidates: pd.DataFrame, text_cosine_candidates: pd.DataFrame) -> pd.DataFrame:
+    """Merges multiple candidate dataframes with different similarities.
+
+    Args:
+        jaccard_candidates (pd.DataFrame): candidates dataframe with Jaccard similarity
+        image_cosine_candidates (pd.DataFrame): candidates dataframe with image cosine similarity
+        text_cosine_candidates (pd.DataFrame): candidates dataframe with text cosine similarity
+
+    Returns:
+        pd.DataFrame: candidates dataframe with Jaccard, image & text cosine similarity
+    """
+    logger.info(f'''Merging all features:
+    Jaccard features: {jaccard_candidates.shape}
+    image cosine features: {image_cosine_candidates.shape}
+    text cosine features: {text_cosine_candidates.shape}''')
+    merge_cols = ['customer_id', 'article_id', 'strategy_name']
+    candidates_df = jaccard_candidates.merge(image_cosine_candidates, on=merge_cols).merge(text_cosine_candidates, on=merge_cols)
+    logger.info(f'Merged features shape: {candidates_df.shape}')
+    return candidates_df

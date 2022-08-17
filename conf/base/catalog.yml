@@ -183,3 +183,10 @@ text_cosine_similarity_features:
   layer: model_input
   load_args:
     engine: pyarrow
+
+candidates_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/candidates_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow

@@ -2,9 +2,10 @@ from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import (
-    unpack_candidates,
-    create_set_of_attributes, create_list_of_previously_bought_articles, filter_last_n_rows_per_customer, apply_avg_jaccard_similarity,
-    calculate_customer_embeddings, apply_cosine_similarity
+    unpack_candidates, filter_last_n_rows_per_customer, create_list_of_previously_bought_articles,
+    create_set_of_attributes, apply_avg_jaccard_similarity,
+    calculate_customer_embeddings, apply_cosine_similarity,
+    merge_similarity_features
 )
 
 # nodes for multiple use
@@ -13,6 +14,7 @@ unpack_candidates_node = node(
     name="unpack_candidates_node",
     inputs=[
         "candidates_sample",
+        "params:candidates_feature_engineering.drop_random_strategies",
         ],
         outputs="unpacked_candidates",
 )
@@ -126,4 +128,32 @@ def create_pipeline(**kwargs) -> Pipeline:
         inputs=["candidates_sample", "transactions_sample", "text_embeddings"],
         outputs="text_cosine_similarity_features",
     )
-    return jaccard_similarity_pipeline + text_cosine_similarity_pipeline + image_cosine_similarity_pipeline
+
+    merge_similarity_features_pipeline = pipeline(
+        [
+            node(
+                func=merge_similarity_features,
+                name="merge_similarity_features_node",
+                inputs=[
+                    "jaccard_similarity_features",
+                    "image_cosine_similarity_features",
+                    "text_cosine_similarity_features",
+                    ],
+                outputs="candidates_similarity_features",
+            ),
+        ],
+        namespace="candidates_feature_engineering",
+        inputs=[
+            "jaccard_similarity_features",
+            "image_cosine_similarity_features",
+            "text_cosine_similarity_features",
+            ],
+        outputs="candidates_similarity_features",
+    )
+    
+    return (
+        jaccard_similarity_pipeline + 
+        text_cosine_similarity_pipeline + 
+        image_cosine_similarity_pipeline + 
+        merge_similarity_features_pipeline
+    )
