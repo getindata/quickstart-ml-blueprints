@@ -9,6 +9,7 @@ from gid_ml_framework.pipelines import image_embeddings as ie
 from gid_ml_framework.pipelines import calculate_image_embeddings as cie
 from gid_ml_framework.pipelines import text_embeddings as te
 from gid_ml_framework.pipelines import image_resizer as ir
+from gid_ml_framework.pipelines import santander_preprocessing as sp
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -24,6 +25,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
     calculate_image_embeddings_pipeline = cie.create_pipeline()
     text_embeddings_pipeline = te.create_pipeline()
     image_resizer_pipeline = ir.create_pipeline()
+    santander_preprocessing_pipeline = sp.create_pipeline()
 
     return {
         "__default__": sample_data_pipeline,
@@ -33,4 +35,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "cie": calculate_image_embeddings_pipeline,
         "te": text_embeddings_pipeline,
         "ir": image_resizer_pipeline,
+        "sp": santander_preprocessing_pipeline,
     }

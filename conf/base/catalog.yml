@@ -40,6 +40,8 @@
 # https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
 
 # INPUT DATA
+
+## H&M
 articles:
   type: pandas.CSVDataSet
   filepath: data/01_raw/articles.csv
@@ -61,7 +63,23 @@ transactions:
     dtype:
       article_id: str
 
+## Santander
+santander:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/santander/train_ver2.csv
+  layer: raw
+  load_args:
+    dtype:
+      sexo: str
+      ind_nuevo: str
+      ult_fec_cli_1t: str
+      indext: str
+    chunksize: 1000000
+    low_memory: False
+
 # SAMPLE
+
+## H&M
 customers_sample:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/customers_sample.csv
@@ -88,6 +106,14 @@ articles_sample:
   load_args:
     dtype:
       article_id: str
+
+## Santander
+santander_sample:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_sample.csv
+  layer: intermediate
+  save_args:
+    index: False
   
 # RESIZING IMAGES
 input_images:
