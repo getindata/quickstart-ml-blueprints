@@ -410,7 +410,7 @@ six = ">=1.10"
 
 [[package]]
 name = "coverage"
-version = "6.4.3"
+version = "6.4.4"
 description = "Code coverage measurement for Python"
 category = "dev"
 optional = false
@@ -1478,6 +1478,22 @@ description = "Korean Lunar Calendar"
 category = "main"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "lightgbm"
+version = "3.3.2"
+description = "LightGBM Python Package"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+numpy = "*"
+scikit-learn = "!=0.22.0"
+scipy = "*"
+
+[package.extras]
+dask = ["dask[array] (>=2.0.0)", "dask[dataframe] (>=2.0.0)", "dask[distributed] (>=2.0.0)", "pandas"]
 
 [[package]]
 name = "locket"
@@ -3371,7 +3387,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8.12"
-content-hash = "eb52f79fa1bc70d28717002f7a01e07d1c1b40e7126b8a84ff355ddd0e921d07"
+content-hash = "3572e95bb6932fc85ff6b4dbc2650c002be08fe7f0041d8719df07e8b8af9c6a"
 
 [metadata.files]
 absl-py = []
@@ -3477,6 +3493,7 @@ kedro-telemetry = []
 kedro-viz = []
 kiwisolver = []
 korean-lunar-calendar = []
+lightgbm = []
 locket = []
 mako = []
 markdown = []
