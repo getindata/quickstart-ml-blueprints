@@ -125,6 +125,16 @@ candidates_sample:
   load_args:
     engine: pyarrow
 
+val_transactions:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/val_transactions.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+
 # AUTOMATED FEATURE ENGINEERING
 automated_articles_features:
   type: pandas.ParquetDataSet
