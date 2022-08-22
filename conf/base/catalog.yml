@@ -64,9 +64,22 @@ transactions:
       article_id: str
 
 ## Santander
-santander:
+santander_train:
   type: pandas.CSVDataSet
   filepath: data/01_raw/santander/train_ver2.csv
+  layer: raw
+  load_args:
+    dtype:
+      sexo: str
+      ind_nuevo: str
+      ult_fec_cli_1t: str
+      indext: str
+    chunksize: 1000000
+    low_memory: False
+
+santander_test:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/santander/test_ver2.csv
   layer: raw
   load_args:
     dtype:
@@ -108,12 +121,87 @@ articles_sample:
       article_id: str
 
 ## Santander
-santander_sample:
+santander_preprocessing_train.santander_sample:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/santander/santander_sample.csv
   layer: intermediate
   save_args:
     index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+# FILTERING
+
+## Santander
+santander_preprocessing_train.santander_filtered:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_filtered.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+# CLEANING
+
+## Santander
+santander_preprocessing_train.santander_cleaned:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_cleaned.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+# SPLITTING
+
+## Santander
+santander_preprocessing_train.santander_pre_train:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_pre_train.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+santander_preprocessing_train.santander_pre_val:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_pre_val.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+# IMPUTING
+
+## Santander
+santander_train:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_train.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+santander_val:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_val.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
   
 # RESIZING IMAGES
 input_images:

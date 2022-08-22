@@ -1,6 +1,7 @@
 from typing import Iterator, Union, Tuple
 from datetime import datetime
 import logging
+from xmlrpc.client import Boolean
 
 import pandas as pd
 import numpy as np
@@ -36,9 +37,9 @@ def sample_santander(santander: Iterator[pd.DataFrame],
     """Sample Santader data based on user sample size and cutoff date.
 
     Args:
-        santander: raw data chunks
-        sample_user: fraction of users
-        cutoff_date: filtering date point
+        santander (Iterator[pd.DataFrame]): raw data chunks
+        sample_user (float): fraction of users
+        cutoff_date (Union[str, datetime]): filtering date point
 
     Returns:
         pd.DataFrame: data sample
@@ -51,7 +52,7 @@ def sample_santander(santander: Iterator[pd.DataFrame],
         santander_sample = santander_df
     else:
         unique_ids   = pd.Series(santander_df["ncodpers"].unique())
-        users_limit = int(len(unique_ids)*sample_user)
+        users_limit = int(len(unique_ids)*sample_user_frac)
         unique_ids = unique_ids.sample(n=users_limit)
         santander_sample = (santander_df[santander_df['ncodpers']
                             .isin(unique_ids)])
@@ -63,58 +64,68 @@ def sample_santander(santander: Iterator[pd.DataFrame],
     return santander_sample
 
 
-def filter_santander(df: pd.DataFrame) -> pd.DataFrame:
+def filter_santander(santander_df: Iterator[pd.DataFrame]) -> pd.DataFrame:
     """Filter unused data and columns
 
     Args:
-        df (pd.DataFrame): santander input dataframe
+        santander_df (Iterator[pd.DataFrame]): santander input dataframe
 
     Returns:
         pd.DataFrame: filtered dataframe
     """
+    df = pd.DataFrame()
+    for chunk in santander_df:
+        df = pd.concat([df, chunk], ignore_index=True)
     log.info(f"Santander df shape before filtering: {df.shape}")
-    # Information already present in other columns
-    df.drop(["tipodom","cod_prov"],axis=1,inplace=True)
+    # Information already present in other columns. Name of the province exists
+    # in nomprov.
+    df.drop(["tipodom", "cod_prov"], axis=1,inplace=True)
     log.info(f"Santander df shape after filtering: {df.shape}")
     return df
 
 
-def clean_santander(df: pd.DataFrame) -> pd.DataFrame:
+def clean_santander(santander_df: Iterator[pd.DataFrame]) -> pd.DataFrame:
     """Basic preprocessing steps for input dataframe
 
     Args:
-        df (pd.DataFrame): santander input dataframe
+        santander_df (Iterator[pd.DataFrame]): santander input dataframe
 
     Returns:
         pd.DataFrame: preprocessed dataframe
     """
+    df = pd.DataFrame()
+    for chunk in santander_df:
+        df = pd.concat([df, chunk], ignore_index=True)
     # Bad encoding of spain letter
     df.loc[df['nomprov'] == "CORU\xc3\x91A, A", "nomprov"] = "CORUNA, A"
     return df
 
 
-def split_santander(sample: pd.DataFrame, date_column: str) -> Tuple:
+def split_santander(santander_sample: Iterator[pd.DataFrame]) -> Tuple:
     """Split input dataframe into train and val splits. Validation part
     consists of last month and train part consists of remaining months.
 
     Args:
-        santander (pd.DataFrame): santander input dataframe
+        santander_sample (Iterator[pd.DataFrame]): santander input dataframe
         date_column (str): date column based on which split will be performed
 
     Returns:
         Tuple: val and train dataframes 
     """
-    log.info(f'Dataframe size before splitting: {sample.shape}')
-    last_month = sample[date_column].max()
+    df = pd.DataFrame()
+    for chunk in santander_sample:
+        df = pd.concat([df, chunk], ignore_index=True)
+    log.info(f'Dataframe size before splitting: {df.shape}')
+    last_month = df['fecha_dato'].max()
     log.info(f'Dataframe last month: {last_month}')
-    train_df = sample[sample[date_column] < last_month]
-    val_df = sample[sample[date_column] >= last_month]
+    train_df = df[df['fecha_dato'] < last_month]
+    val_df = df[df['fecha_dato'] >= last_month]
     log.info(f'Training dataframe size: {train_df.shape}, \
              Validation dataframe size: {val_df.shape}')
-    log.info(f'Training dataframe min date: {train_df[date_column].min()}, \
-             max date: {train_df[date_column].max()}')
-    log.info(f'Validation dataframe min date: {val_df[date_column].min()}, \
-             max date: {val_df[date_column].max()}')
+    log.info(f'Training dataframe min date: {train_df["fecha_dato"].min()}, \
+             max date: {train_df["fecha_dato"].max()}')
+    log.info(f'Validation dataframe min date: {val_df["fecha_dato"].min()}, \
+             max date: {val_df["fecha_dato"].max()}')
     return (train_df, val_df)
 
 
@@ -132,15 +143,19 @@ def _median_gross(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def impute_santander(df: pd.DataFrame) -> pd.DataFrame:
+def impute_santander(santander_df: Iterator[pd.DataFrame],
+                     test: Boolean=False) -> pd.DataFrame:
     """Impute missing values in splitted Santander dataframe.
 
     Args:
-        df (pd.DataFrame): train/val santander input dataframe
+        santander_df (Iterator[pd.DataFrame]): train/val santander input data
 
     Returns:
         pd.DataFrame: imputed dataframe
     """
+    df = pd.DataFrame()
+    for chunk in santander_df:
+        df = pd.concat([df, chunk], ignore_index=True)
     log.info(f'Number of columns with missing values before imputing: \
     {df.isnull().any().sum()}')
 
@@ -215,9 +230,11 @@ def impute_santander(df: pd.DataFrame) -> pd.DataFrame:
         df.loc[df[col].isnull(), col] = "UNKNOWN"
     del string_data
     # Convert product features to integer values
-    feature_cols = df.iloc[:1,].filter(regex="ind_+.*ult.*").columns.values
-    for col in feature_cols:
-        df.loc[:, col] = df[col].astype(int)
+    if not test:
+        feature_cols = (df.iloc[:1, ].filter(regex="ind_+.*ult.*")
+                        .columns.values)
+        for col in feature_cols:
+            df.loc[:, col] = df[col].astype(int)
 
     log.info(f'Number of columns with missing values after imputing: \
     {df.isnull().any().sum()}')
@@ -243,18 +260,26 @@ def _status_change(x: pd.Series) -> str:
     return label
 
 
-def target_processing_santander(train_df: pd.DataFrame, val_df: pd.DataFrame) \
-    -> Tuple:
+def target_processing_santander(input_train_df: Iterator[pd.DataFrame],
+                                input_val_df: Iterator[pd.DataFrame]) -> Tuple:
     """Preprocess target columns to focus on products that will be bought
     in the next month
 
     Args:
-        train_df (pd.DataFrame): imputed santander train dataframe
-        val_df (pd.DataFrame): imputed santander validation dataframe
+        input_train_df (Iterator[pd.DataFrame]): imputed santander train
+        dataframe
+        input_val_df (Iterator[pd.DataFrame]): imputed santander validation 
+        dataframe
 
     Returns:
         Tuple: processed train and validation dataframes
     """
+    train_df = pd.DataFrame()
+    for chunk in input_train_df:
+        df = pd.concat([df, chunk], ignore_index=True)
+    val_df = pd.DataFrame()
+    for chunk in input_val_df:
+        df = pd.concat([df, chunk], ignore_index=True)
     train_len = len(train_df)
     df = pd.concat([train_df, val_df])
     feature_cols = df.iloc[:1,].filter(regex="ind_+.*ult.*").columns.values
