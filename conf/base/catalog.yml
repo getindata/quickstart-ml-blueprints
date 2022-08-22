@@ -118,12 +118,24 @@ text_embeddings:
     engine: pyarrow
 
 # CANDIDATE GENERATION
-candidates_sample:
+candidates:
   type: pandas.ParquetDataSet
   filepath: data/03_primary/candidates.pq
   layer: primary
   load_args:
     engine: pyarrow
+
+### RECALL MAXIMIZATION - CANDIDATE GENERATION
+# TRAIN VAL SPLIT
+train_transactions:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/train_transactions.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
 
 val_transactions:
   type: pandas.CSVDataSet
@@ -134,6 +146,13 @@ val_transactions:
   load_args:
     dtype:
       article_id: str
+  
+train_candidates:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/train_candidates.pq
+  layer: primary
+  load_args:
+    engine: pyarrow
 
 # AUTOMATED FEATURE ENGINEERING
 automated_articles_features:
