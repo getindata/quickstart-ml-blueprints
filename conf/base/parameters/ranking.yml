@@ -1,5 +1,24 @@
-# This is a boilerplate parameters config generated for pipeline 'ranking'
-# using Kedro 0.17.7.
-#
-# Documentation for this file format can be found in "Parameters"
-# Link: https://kedro.readthedocs.io/en/0.17.7/04_kedro_project_setup/02_configuration.html#parameters
+ranking:
+  data:
+    fill_na_pattern: ^[Cc][Oo][Uu][Nn][Tt]
+    categorical_cols:
+      strategy_name
+      club_member_status
+      fashion_news_frequency
+      postal_code
+      product_group_name
+      department_name
+    drop_cols:
+      prod_name
+      product_type_name
+      graphical_appearance_name
+      colour_group_name
+      perceived_colour_value_name
+      perceived_colour_master_name
+      index_name
+      index_group_name
+      section_name
+      garment_group_name
+      detail_desc
+  training:
+    models: 0

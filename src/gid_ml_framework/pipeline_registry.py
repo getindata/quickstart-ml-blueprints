@@ -12,6 +12,9 @@ from gid_ml_framework.pipelines import image_resizer as ir
 from gid_ml_framework.pipelines import candidate_generation as cg
 from gid_ml_framework.pipelines import train_val_split as tvs
 from gid_ml_framework.pipelines import candidate_generation_validation as cgv
+from gid_ml_framework.pipelines import manual_feature_engineering as mfe
+from gid_ml_framework.pipelines import automated_feature_engineering as afe
+from gid_ml_framework.pipelines import candidates_feature_engineering as cfe
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -30,6 +33,9 @@ def register_pipelines() -> Dict[str, Pipeline]:
     candidate_generation_pipeline = cg.create_pipeline()
     train_val_split_pipeline = tvs.create_pipeline()
     candidate_generation_validation_pipeline = cgv.create_pipeline()
+    manual_feature_engineering_pipeline = mfe.create_pipeline()
+    automated_feature_engineering_pipeline = afe.create_pipeline()
+    candidates_feature_engineering_pipeline = cfe.create_pipeline()
 
     return {
         "__default__": sample_data_pipeline,
@@ -43,4 +49,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "tvs": train_val_split_pipeline,
         "cgv": candidate_generation_validation_pipeline,
         "candidate_generation": (train_val_split_pipeline + candidate_generation_pipeline + candidate_generation_validation_pipeline)
+        "mfe": manual_feature_engineering_pipeline,
+        "afe": automated_feature_engineering_pipeline,
+        "cfe": candidates_feature_engineering_pipeline,
     }

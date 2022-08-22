@@ -125,7 +125,6 @@ candidates:
   load_args:
     engine: pyarrow
 
-
 ### RECALL MAXIMIZATION - CANDIDATE GENERATION
 # TRAIN VAL SPLIT
 train_transactions:
@@ -155,3 +154,68 @@ train_candidates:
   load_args:
     engine: pyarrow
 
+# AUTOMATED FEATURE ENGINEERING
+automated_articles_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/automated_articles_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+automated_customers_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/automated_customers_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+# MANUAL FEATURE ENGINEERING
+manual_article_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/manual_article_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+manual_customer_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/manual_customer_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+manual_customer_prod_group_features:
+  type: pandas.ParquetDataSet
+  filepath: data/04_feature/manual_customer_prod_group_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+# CANDIDATES FEATURE ENGINEERING
+jaccard_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/jaccard_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow
+
+image_cosine_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/image_cosine_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow
+
+text_cosine_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/text_cosine_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow
+
+candidates_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/candidates_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow
