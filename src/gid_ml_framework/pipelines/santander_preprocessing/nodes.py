@@ -188,14 +188,18 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
     df.loc[:, "ind_actividad_cliente"].median()
     # Imputing missing province name
     df.loc[df['nomprov'].isnull(),"nomprov"] = "UNKNOWN"
+    # Transforming string to NA in income column
+    mask = df['renta'].map(lambda x: isinstance(x, (int, float)))
+    df.loc[:, 'renta'] = df.loc[:, 'renta'].where(mask)
     # Imputing missing gross income values with median of province
     df = df.groupby('nomprov').apply(_median_gross)  
     # If any rows still null (province has all null) replace by overall median
     df.loc[df['renta'].isnull(), "renta"] = df.renta.median
     df = df.sort_values(by="fecha_dato").reset_index(drop=True)
     # Imputing product values with median, because of small number
-    df.loc[df['ind_nomina_ult1'].isnull(), "ind_nomina_ult1"] = 0
-    df.loc[df['ind_nom_pens_ult1'].isnull(), "ind_nom_pens_ult1"] = 0
+    if not test:
+        df.loc[df['ind_nomina_ult1'].isnull(), "ind_nomina_ult1"] = 0
+        df.loc[df['ind_nom_pens_ult1'].isnull(), "ind_nom_pens_ult1"] = 0
     # Imputing string columns with empty characters with median or new category
     df.loc[df['indfall'].isnull(), "indfall"] = "N"
     df.loc[df['tiprel_1mes'].isnull(), "tiprel_1mes"] = "A"

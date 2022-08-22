@@ -64,7 +64,7 @@ transactions:
       article_id: str
 
 ## Santander
-santander_train:
+santander_train_input:
   type: pandas.CSVDataSet
   filepath: data/01_raw/santander/train_ver2.csv
   layer: raw
@@ -77,7 +77,7 @@ santander_train:
     chunksize: 1000000
     low_memory: False
 
-santander_test:
+santander_test_input:
   type: pandas.CSVDataSet
   filepath: data/01_raw/santander/test_ver2.csv
   layer: raw
@@ -123,7 +123,17 @@ articles_sample:
 ## Santander
 santander_preprocessing_train.santander_sample:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/santander/santander_sample.csv
+  filepath: data/02_intermediate/santander/santander_train_sample.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+santander_preprocessing_test.santander_sample:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_test_sample.csv
   layer: intermediate
   save_args:
     index: False
@@ -136,7 +146,7 @@ santander_preprocessing_train.santander_sample:
 ## Santander
 santander_preprocessing_train.santander_filtered:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/santander/santander_filtered.csv
+  filepath: data/02_intermediate/santander/santander_filtered_train.csv
   layer: intermediate
   save_args:
     index: False
@@ -144,12 +154,31 @@ santander_preprocessing_train.santander_filtered:
     chunksize: 1000000
     low_memory: False
 
+santander_preprocessing_test.santander_filtered:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_filtered_test.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
 # CLEANING
 
 ## Santander
 santander_preprocessing_train.santander_cleaned:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/santander/santander_cleaned.csv
+  filepath: data/02_intermediate/santander/santander_cleaned_train.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+santander_preprocessing_test.santander_cleaned:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_cleaned_test.csv
   layer: intermediate
   save_args:
     index: False
@@ -196,6 +225,16 @@ santander_train:
 santander_val:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/santander/santander_val.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+santander_test:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/santander/santander_test.csv
   layer: intermediate
   save_args:
     index: False
