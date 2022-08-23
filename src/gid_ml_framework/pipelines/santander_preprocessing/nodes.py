@@ -145,7 +145,7 @@ def _median_gross(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe with calculated median of gross income
     """
-    median = df['renta'].median(skipna=True)
+    median = df.loc[:, 'renta'].median(skipna=True)
     df.loc[df['renta'].isnull(), 'renta'] = median
     return df
 
@@ -195,12 +195,11 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
     df.loc[df['nomprov'].isnull(),"nomprov"] = "UNKNOWN"
     # Transforming string to NA in income column
     df.loc[:, 'renta'] = pd.to_numeric(df.loc[:, 'renta'],
-                                       downcast="float",
                                        errors='coerce')
     # Imputing missing gross income values with median of province
-    df = df.groupby('nomprov').apply(_median_gross)  
+    df = df.groupby('nomprov').apply(_median_gross) 
     # If any rows still null (province has all null) replace by overall median
-    df.loc[df['renta'].isnull(), "renta"] = df.renta.median
+    df.loc[df['renta'].isnull(), "renta"] = df.renta.median() 
     df = df.sort_values(by="fecha_dato").reset_index(drop=True)
     # Imputing product values with median, because of small number
     if not test:
@@ -245,7 +244,9 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
                         .columns.values)
         for col in feature_cols:
             df.loc[:, col] = df[col].astype(int)
-
+    int_cols = ['ind_nuevo', 'antiguedad', 'indrel', 'ind_actividad_cliente']
+    for col in int_cols:
+            df.loc[:, col] = df[col].astype(int)
     log.info(f'Number of columns with missing values after imputing: \
     {df.isnull().any().sum()}')
     return df
