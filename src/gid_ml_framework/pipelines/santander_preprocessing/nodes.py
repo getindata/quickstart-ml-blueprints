@@ -30,6 +30,21 @@ def _load(self)  -> pd.DataFrame:
 CSVDataSet._load = _load
 
 
+def _concat_chunks(chunks: Iterator[pd.DataFrame]) -> pd.DataFrame:
+    """Auxiliary function for concatenating chunks into dataframe
+
+    Args:
+        chunks (Iterator[pd.DataFrame]): data chunks
+
+    Returns:
+        pd.DataFrame: dataframe
+    """
+    df = pd.DataFrame()
+    for chunk in chunks:
+        df = pd.concat([df, chunk], ignore_index=True)
+    return df
+
+
 def sample_santander(santander: Iterator[pd.DataFrame],
                      sample_user_frac: float=0.1,
                      cutoff_date: Union[str, datetime]='2016-05-28') \
@@ -44,9 +59,7 @@ def sample_santander(santander: Iterator[pd.DataFrame],
     Returns:
         pd.DataFrame: data sample
     """
-    santander_df = pd.DataFrame()
-    for chunk in santander:
-        santander_df = pd.concat([santander_df, chunk], ignore_index=True)
+    santander_df = _concat_chunks(santander)
     log.info(f"Santander df shape before sampling: {santander_df.shape}")
     if np.isclose(sample_user_frac, 1.0):
         santander_sample = santander_df
@@ -73,9 +86,7 @@ def filter_santander(santander_df: Iterator[pd.DataFrame]) -> pd.DataFrame:
     Returns:
         pd.DataFrame: filtered dataframe
     """
-    df = pd.DataFrame()
-    for chunk in santander_df:
-        df = pd.concat([df, chunk], ignore_index=True)
+    df = _concat_chunks(santander_df)
     log.info(f"Santander df shape before filtering: {df.shape}")
     # Information already present in other columns. Name of the province exists
     # in nomprov.
@@ -93,9 +104,7 @@ def clean_santander(santander_df: Iterator[pd.DataFrame]) -> pd.DataFrame:
     Returns:
         pd.DataFrame: preprocessed dataframe
     """
-    df = pd.DataFrame()
-    for chunk in santander_df:
-        df = pd.concat([df, chunk], ignore_index=True)
+    df = _concat_chunks(santander_df)
     # Bad encoding of spain letter
     df.loc[df['nomprov'] == "CORU\xc3\x91A, A", "nomprov"] = "CORUNA, A"
     return df
@@ -112,9 +121,7 @@ def split_santander(santander_sample: Iterator[pd.DataFrame]) -> Tuple:
     Returns:
         Tuple: val and train dataframes 
     """
-    df = pd.DataFrame()
-    for chunk in santander_sample:
-        df = pd.concat([df, chunk], ignore_index=True)
+    df = _concat_chunks(santander_sample)
     log.info(f'Dataframe size before splitting: {df.shape}')
     last_month = df['fecha_dato'].max()
     log.info(f'Dataframe last month: {last_month}')
@@ -153,9 +160,7 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
     Returns:
         pd.DataFrame: imputed dataframe
     """
-    df = pd.DataFrame()
-    for chunk in santander_df:
-        df = pd.concat([df, chunk], ignore_index=True)
+    df = _concat_chunks(santander_df)
     log.info(f'Number of columns with missing values before imputing: \
     {df.isnull().any().sum()}')
 
@@ -278,12 +283,8 @@ def target_processing_santander(input_train_df: Iterator[pd.DataFrame],
     Returns:
         Tuple: processed train and validation dataframes
     """
-    train_df = pd.DataFrame()
-    for chunk in input_train_df:
-        df = pd.concat([df, chunk], ignore_index=True)
-    val_df = pd.DataFrame()
-    for chunk in input_val_df:
-        df = pd.concat([df, chunk], ignore_index=True)
+    train_df = _concat_chunks(input_train_df)
+    val_df = _concat_chunks(input_val_df)
     train_len = len(train_df)
     df = pd.concat([train_df, val_df])
     feature_cols = df.iloc[:1,].filter(regex="ind_+.*ult.*").columns.values
