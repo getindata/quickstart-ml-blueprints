@@ -1,12 +1,12 @@
-# Pipeline santander_preprocessing
+# Pipeline santander_to_act
 
 > *Note:* This is a `README.md` boilerplate generated using `Kedro 0.17.7`.
 
 ## Overview
 
-Santander preprocessing pipeline that includes sampling, basic filtering and
-cleaning, imputing missing data. All of the nodes are dedicated for Santander
-dataset.
+Pipeline for converting preprocessed Santander dataset into abstract standard
+recommendation dataset consisting of 3 parts: Articles, Customers and 
+Transactions (ACT).
 
 ## Pipeline inputs
 
