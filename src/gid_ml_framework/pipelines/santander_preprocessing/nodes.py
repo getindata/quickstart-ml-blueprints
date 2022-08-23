@@ -194,8 +194,9 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
     # Imputing missing province name
     df.loc[df['nomprov'].isnull(),"nomprov"] = "UNKNOWN"
     # Transforming string to NA in income column
-    mask = df['renta'].map(lambda x: isinstance(x, (int, float)))
-    df.loc[:, 'renta'] = df.loc[:, 'renta'].where(mask)
+    df.loc[:, 'renta'] = pd.to_numeric(df.loc[:, 'renta'],
+                                       downcast="float",
+                                       errors='coerce')
     # Imputing missing gross income values with median of province
     df = df.groupby('nomprov').apply(_median_gross)  
     # If any rows still null (province has all null) replace by overall median
