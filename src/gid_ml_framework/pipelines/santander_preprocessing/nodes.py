@@ -71,8 +71,9 @@ def sample_santander(santander: Iterator[pd.DataFrame],
                             .isin(unique_ids)])
     santander_sample.loc[:, 'fecha_dato'] = (pd.to_datetime(santander_sample
                                              .loc[:, 'fecha_dato']))
-    santander_sample = (santander_sample[santander_sample['fecha_dato']
-                        <= cutoff_date])
+    if cutoff_date != '2016-05-28':
+        santander_sample = (santander_sample[santander_sample['fecha_dato']
+                            <= cutoff_date])
     log.info(f"Santander df shape after sampling: {santander_sample.shape}")
     return santander_sample
 
@@ -249,6 +250,8 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
             df.loc[:, col] = df[col].astype(int)
     log.info(f'Number of columns with missing values after imputing: \
     {df.isnull().any().sum()}')
+    log.info(f'Columns with missing values: \
+            {df.columns[df.isnull().any()].tolist()}')
     return df
 
 
