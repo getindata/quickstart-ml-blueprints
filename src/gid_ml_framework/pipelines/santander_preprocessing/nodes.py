@@ -6,43 +6,17 @@ from xmlrpc.client import Boolean
 import pandas as pd
 import numpy as np
 from kedro.extras.datasets.pandas import CSVDataSet
-from kedro.io.core import get_filepath_str
+
+from gid_ml_framework.extras.datasets.chunks_dataset import (
+ _load,
+ _concat_chunks,
+)
 
 
 pd.options.mode.chained_assignment = None
 log = logging.getLogger(__name__)
-
-
-def _load(self)  -> pd.DataFrame:
-    """Modified load function for CSVDataSet since in Kedro version < 0.18
-    there is a bug with loading pandas dataset with chunksize parameter for
-    bigger datasets.
-
-    Returns:
-        pd.DataFrame: loaded data frame
-    """
-    load_path = get_filepath_str(self._get_load_path(), self._protocol)
-
-    return pd.read_csv(load_path, **self._load_args)
-
-
 # Overwriting load method because of chunksize bug
 CSVDataSet._load = _load
-
-
-def _concat_chunks(chunks: Iterator[pd.DataFrame]) -> pd.DataFrame:
-    """Auxiliary function for concatenating chunks into dataframe
-
-    Args:
-        chunks (Iterator[pd.DataFrame]): data chunks
-
-    Returns:
-        pd.DataFrame: dataframe
-    """
-    df = pd.DataFrame()
-    for chunk in chunks:
-        df = pd.concat([df, chunk], ignore_index=True)
-    return df
 
 
 def sample_santander(santander: Iterator[pd.DataFrame],
