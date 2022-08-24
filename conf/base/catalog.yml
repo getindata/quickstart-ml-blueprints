@@ -64,46 +64,52 @@ transactions:
       article_id: str
 
 ## Santander
+_dtypes_train: &dtypes_train
+  ind_ahor_fin_ult1: UInt8
+  ind_aval_fin_ult1: UInt8
+  ind_cco_fin_ult1: UInt8
+  ind_cder_fin_ult1: UInt8
+  ind_cno_fin_ult1: UInt8
+  ind_ctju_fin_ult1: UInt8
+  ind_ctma_fin_ult1: UInt8
+  ind_ctop_fin_ult1: UInt8
+  ind_ctpp_fin_ult1: UInt8
+  ind_deco_fin_ult1: UInt8
+  ind_deme_fin_ult1: UInt8
+  ind_dela_fin_ult1: UInt8
+  ind_ecue_fin_ult1: UInt8
+  ind_fond_fin_ult1: UInt8
+  ind_hip_fin_ult1: UInt8
+  ind_plan_fin_ult1: UInt8
+  ind_pres_fin_ult1: UInt8
+  ind_reca_fin_ult1: UInt8
+  ind_tjcr_fin_ult1: UInt8
+  ind_valo_fin_ult1: UInt8
+  ind_viv_fin_ult1: UInt8
+  ind_nomina_ult1: UInt8
+  ind_nom_pens_ult1: UInt8
+  ind_recibo_ult1: UInt8
+
+_dtypes_shared: &dtypes_shared
+  ncodpers: int32
+  indrel: UInt8
+  ind_actividad_cliente: UInt8
+  renta: float32
+
 santander_train_input:
   type: pandas.CSVDataSet
   filepath: data/01_raw/santander/train_ver2.csv
   layer: raw
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
+      <<: *dtypes_shared
       tipodom: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
       segmento: category
       sexo: category
       ind_nuevo: category
       ult_fec_cli_1t: category
       indext: category
-      ind_ahor_fin_ult1: UInt8
-      ind_aval_fin_ult1: UInt8
-      ind_cco_fin_ult1: UInt8
-      ind_cder_fin_ult1: UInt8
-      ind_cno_fin_ult1: UInt8
-      ind_ctju_fin_ult1: UInt8
-      ind_ctma_fin_ult1: UInt8
-      ind_ctop_fin_ult1: UInt8
-      ind_ctpp_fin_ult1: UInt8
-      ind_deco_fin_ult1: UInt8
-      ind_deme_fin_ult1: UInt8
-      ind_dela_fin_ult1: UInt8
-      ind_ecue_fin_ult1: UInt8
-      ind_fond_fin_ult1: UInt8
-      ind_hip_fin_ult1: UInt8
-      ind_plan_fin_ult1: UInt8
-      ind_pres_fin_ult1: UInt8
-      ind_reca_fin_ult1: UInt8
-      ind_tjcr_fin_ult1: UInt8
-      ind_valo_fin_ult1: UInt8
-      ind_viv_fin_ult1: UInt8
-      ind_nomina_ult1: UInt8
-      ind_nom_pens_ult1: UInt8
-      ind_recibo_ult1: UInt8
+      <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
 
@@ -113,10 +119,13 @@ santander_test_input:
   layer: raw
   load_args:
     dtype:
-      sexo: str
-      ind_nuevo: str
-      ult_fec_cli_1t: str
-      indext: str
+      <<: *dtypes_shared
+      tipodom: UInt8
+      segmento: category
+      sexo: category
+      ind_nuevo: category
+      ult_fec_cli_1t: category
+      indext: category
     chunksize: 1000000
     low_memory: False
 
@@ -159,40 +168,14 @@ santander_preprocessing_train.santander_sample:
     index: False
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
+      <<: *dtypes_shared
       tipodom: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
       segmento: category
       sexo: category
       ind_nuevo: category
       ult_fec_cli_1t: category
       indext: category
-      ind_ahor_fin_ult1: UInt8
-      ind_aval_fin_ult1: UInt8
-      ind_cco_fin_ult1: UInt8
-      ind_cder_fin_ult1: UInt8
-      ind_cno_fin_ult1: UInt8
-      ind_ctju_fin_ult1: UInt8
-      ind_ctma_fin_ult1: UInt8
-      ind_ctop_fin_ult1: UInt8
-      ind_ctpp_fin_ult1: UInt8
-      ind_deco_fin_ult1: UInt8
-      ind_deme_fin_ult1: UInt8
-      ind_dela_fin_ult1: UInt8
-      ind_ecue_fin_ult1: UInt8
-      ind_fond_fin_ult1: UInt8
-      ind_hip_fin_ult1: UInt8
-      ind_plan_fin_ult1: UInt8
-      ind_pres_fin_ult1: UInt8
-      ind_reca_fin_ult1: UInt8
-      ind_tjcr_fin_ult1: UInt8
-      ind_valo_fin_ult1: UInt8
-      ind_viv_fin_ult1: UInt8
-      ind_nomina_ult1: UInt8
-      ind_nom_pens_ult1: UInt8
-      ind_recibo_ult1: UInt8
+      <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
 
@@ -217,39 +200,13 @@ santander_preprocessing_train.santander_filtered:
     index: False
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
+      <<: *dtypes_shared
       segmento: category
       sexo: category
       ind_nuevo: category
       ult_fec_cli_1t: category
       indext: category
-      ind_ahor_fin_ult1: UInt8
-      ind_aval_fin_ult1: UInt8
-      ind_cco_fin_ult1: UInt8
-      ind_cder_fin_ult1: UInt8
-      ind_cno_fin_ult1: UInt8
-      ind_ctju_fin_ult1: UInt8
-      ind_ctma_fin_ult1: UInt8
-      ind_ctop_fin_ult1: UInt8
-      ind_ctpp_fin_ult1: UInt8
-      ind_deco_fin_ult1: UInt8
-      ind_deme_fin_ult1: UInt8
-      ind_dela_fin_ult1: UInt8
-      ind_ecue_fin_ult1: UInt8
-      ind_fond_fin_ult1: UInt8
-      ind_hip_fin_ult1: UInt8
-      ind_plan_fin_ult1: UInt8
-      ind_pres_fin_ult1: UInt8
-      ind_reca_fin_ult1: UInt8
-      ind_tjcr_fin_ult1: UInt8
-      ind_valo_fin_ult1: UInt8
-      ind_viv_fin_ult1: UInt8
-      ind_nomina_ult1: UInt8
-      ind_nom_pens_ult1: UInt8
-      ind_recibo_ult1: UInt8
+      <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
 
@@ -274,39 +231,13 @@ santander_preprocessing_train.santander_cleaned:
     index: False
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
+      <<: *dtypes_shared
       segmento: category
       sexo: category
       ind_nuevo: category
       ult_fec_cli_1t: category
       indext: category
-      ind_ahor_fin_ult1: UInt8
-      ind_aval_fin_ult1: UInt8
-      ind_cco_fin_ult1: UInt8
-      ind_cder_fin_ult1: UInt8
-      ind_cno_fin_ult1: UInt8
-      ind_ctju_fin_ult1: UInt8
-      ind_ctma_fin_ult1: UInt8
-      ind_ctop_fin_ult1: UInt8
-      ind_ctpp_fin_ult1: UInt8
-      ind_deco_fin_ult1: UInt8
-      ind_deme_fin_ult1: UInt8
-      ind_dela_fin_ult1: UInt8
-      ind_ecue_fin_ult1: UInt8
-      ind_fond_fin_ult1: UInt8
-      ind_hip_fin_ult1: UInt8
-      ind_plan_fin_ult1: UInt8
-      ind_pres_fin_ult1: UInt8
-      ind_reca_fin_ult1: UInt8
-      ind_tjcr_fin_ult1: UInt8
-      ind_valo_fin_ult1: UInt8
-      ind_viv_fin_ult1: UInt8
-      ind_nomina_ult1: UInt8
-      ind_nom_pens_ult1: UInt8
-      ind_recibo_ult1: UInt8
+      <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
 
@@ -331,36 +262,10 @@ santander_preprocessing_train.santander_pre_train:
     index: False
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
+      <<: *dtypes_shared
       sexo: str
       indext: str
-      ind_ahor_fin_ult1: UInt8
-      ind_aval_fin_ult1: UInt8
-      ind_cco_fin_ult1: UInt8
-      ind_cder_fin_ult1: UInt8
-      ind_cno_fin_ult1: UInt8
-      ind_ctju_fin_ult1: UInt8
-      ind_ctma_fin_ult1: UInt8
-      ind_ctop_fin_ult1: UInt8
-      ind_ctpp_fin_ult1: UInt8
-      ind_deco_fin_ult1: UInt8
-      ind_deme_fin_ult1: UInt8
-      ind_dela_fin_ult1: UInt8
-      ind_ecue_fin_ult1: UInt8
-      ind_fond_fin_ult1: UInt8
-      ind_hip_fin_ult1: UInt8
-      ind_plan_fin_ult1: UInt8
-      ind_pres_fin_ult1: UInt8
-      ind_reca_fin_ult1: UInt8
-      ind_tjcr_fin_ult1: UInt8
-      ind_valo_fin_ult1: UInt8
-      ind_viv_fin_ult1: UInt8
-      ind_nomina_ult1: UInt8
-      ind_nom_pens_ult1: UInt8
-      ind_recibo_ult1: UInt8
+      <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
 
@@ -372,36 +277,10 @@ santander_preprocessing_train.santander_pre_val:
     index: False
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
+      <<: *dtypes_shared
       sexo: str
       indext: category
-      ind_ahor_fin_ult1: UInt8
-      ind_aval_fin_ult1: UInt8
-      ind_cco_fin_ult1: UInt8
-      ind_cder_fin_ult1: UInt8
-      ind_cno_fin_ult1: UInt8
-      ind_ctju_fin_ult1: UInt8
-      ind_ctma_fin_ult1: UInt8
-      ind_ctop_fin_ult1: UInt8
-      ind_ctpp_fin_ult1: UInt8
-      ind_deco_fin_ult1: UInt8
-      ind_deme_fin_ult1: UInt8
-      ind_dela_fin_ult1: UInt8
-      ind_ecue_fin_ult1: UInt8
-      ind_fond_fin_ult1: UInt8
-      ind_hip_fin_ult1: UInt8
-      ind_plan_fin_ult1: UInt8
-      ind_pres_fin_ult1: UInt8
-      ind_reca_fin_ult1: UInt8
-      ind_tjcr_fin_ult1: UInt8
-      ind_valo_fin_ult1: UInt8
-      ind_viv_fin_ult1: UInt8
-      ind_nomina_ult1: UInt8
-      ind_nom_pens_ult1: UInt8
-      ind_recibo_ult1: UInt8
+      <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
 
@@ -416,36 +295,10 @@ santander_train:
     index: False
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
+      <<: *dtypes_shared
       segmento: category
       ind_nuevo: category
-      ind_ahor_fin_ult1: UInt8
-      ind_aval_fin_ult1: UInt8
-      ind_cco_fin_ult1: UInt8
-      ind_cder_fin_ult1: UInt8
-      ind_cno_fin_ult1: UInt8
-      ind_ctju_fin_ult1: UInt8
-      ind_ctma_fin_ult1: UInt8
-      ind_ctop_fin_ult1: UInt8
-      ind_ctpp_fin_ult1: UInt8
-      ind_deco_fin_ult1: UInt8
-      ind_deme_fin_ult1: UInt8
-      ind_dela_fin_ult1: UInt8
-      ind_ecue_fin_ult1: UInt8
-      ind_fond_fin_ult1: UInt8
-      ind_hip_fin_ult1: UInt8
-      ind_plan_fin_ult1: UInt8
-      ind_pres_fin_ult1: UInt8
-      ind_reca_fin_ult1: UInt8
-      ind_tjcr_fin_ult1: UInt8
-      ind_valo_fin_ult1: UInt8
-      ind_viv_fin_ult1: UInt8
-      ind_nomina_ult1: UInt8
-      ind_nom_pens_ult1: UInt8
-      ind_recibo_ult1: UInt8
+      <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
 
@@ -457,36 +310,10 @@ santander_val:
     index: False
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
+      <<: *dtypes_shared
       segmento: category
       ind_nuevo: category
-      ind_ahor_fin_ult1: UInt8
-      ind_aval_fin_ult1: UInt8
-      ind_cco_fin_ult1: UInt8
-      ind_cder_fin_ult1: UInt8
-      ind_cno_fin_ult1: UInt8
-      ind_ctju_fin_ult1: UInt8
-      ind_ctma_fin_ult1: UInt8
-      ind_ctop_fin_ult1: UInt8
-      ind_ctpp_fin_ult1: UInt8
-      ind_deco_fin_ult1: UInt8
-      ind_deme_fin_ult1: UInt8
-      ind_dela_fin_ult1: UInt8
-      ind_ecue_fin_ult1: UInt8
-      ind_fond_fin_ult1: UInt8
-      ind_hip_fin_ult1: UInt8
-      ind_plan_fin_ult1: UInt8
-      ind_pres_fin_ult1: UInt8
-      ind_reca_fin_ult1: UInt8
-      ind_tjcr_fin_ult1: UInt8
-      ind_valo_fin_ult1: UInt8
-      ind_viv_fin_ult1: UInt8
-      ind_nomina_ult1: UInt8
-      ind_nom_pens_ult1: UInt8
-      ind_recibo_ult1: UInt8
+      <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
 
@@ -498,10 +325,7 @@ santander_test:
     index: False
   load_args:
     dtype:
-      ncodpers: int32
-      indrel: UInt8
-      ind_actividad_cliente: UInt8
-      renta: float32
+      <<: *dtypes_shared
       segmento: category
       ind_nuevo: category
     chunksize: 1000000
@@ -534,3 +358,37 @@ text_embeddings:
   layer: feature
   load_args:
     engine: pyarrow
+
+# ACT
+
+## Santander
+
+santander_to_act_main.santander_articles:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_articles.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+    chunksize: 1000000
+    low_memory: False
+
+santander_to_act_main.santander_customers:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_customers.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      customer_id: int32
+      indrel: UInt8
+      ind_actividad_cliente: UInt8
+      renta: float32
+      segmento: category
+      ind_nuevo: category
+      <<: *dtypes_train
+    chunksize: 1000000
+    low_memory: False
