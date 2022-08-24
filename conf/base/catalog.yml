@@ -65,6 +65,7 @@ transactions:
 
 ## Santander
 _dtypes_train: &dtypes_train
+  renta: float32
   ind_ahor_fin_ult1: UInt8
   ind_aval_fin_ult1: UInt8
   ind_cco_fin_ult1: UInt8
@@ -94,7 +95,6 @@ _dtypes_shared: &dtypes_shared
   ncodpers: int32
   indrel: UInt8
   ind_actividad_cliente: UInt8
-  renta: float32
 
 santander_train_input:
   type: pandas.CSVDataSet
@@ -326,6 +326,7 @@ santander_test:
   load_args:
     dtype:
       <<: *dtypes_shared
+      renta: float32
       segmento: category
       ind_nuevo: category
     chunksize: 1000000
