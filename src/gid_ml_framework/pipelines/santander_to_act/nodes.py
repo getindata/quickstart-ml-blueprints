@@ -19,39 +19,57 @@ CSVDataSet._load = _load
 
 
 def santander_to_articles(santander: Iterator[pd.DataFrame]) \
-    -> Tuple[pd.DataFrame, pd.DataFrame]:
+    -> pd.DataFrame:
     """From Santander train/val dataset extract articles data
 
     Args:
         santander (pd.DataFrame): preprocessed train/val santander dataset
 
     Returns:
-        pd.Series: list of articles ids in Santander dataset
         pd.DataFrame: dataframe with features of each article
     """
+    santander = _concat_chunks(santander)
+    # Regex for Santander products names
     r = re.compile("ind_+.*ult.*")
-    articles = pd.DataFrame({'articles': list(filter(r.match,
-                                                     santander.columns))})
-    # There is no article features in Santander dataset                                               
-    articles_features = pd.DataFrame()
-    return (articles, articles_features)
+    # There is no article features in Santander dataset 
+    articles = pd.DataFrame({'article_id': list(filter(r.match,
+                                                       santander.columns))})
+    log.info(f"Number of unique articles: {articles.shape[0]}")
+    log.info(f'Number of columns with missing values in articles dataset: \
+    {articles.isnull().any().sum()}')                                             
+    return articles
 
 
 
 def santander_to_customers(santander: Iterator[pd.DataFrame],
-                           merge_type: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                           merge_type: str) -> pd.DataFrame:
     """From Santander train/val/test dataset extract customers data
 
     Args:
         santander (pd.DataFrame): preprocessed train/val santander dataset
         merge_type (str): function which will be used to merge customer
-            features from all timestamps into one representation
+            features from all timestamps (months) into one representation
 
     Returns:
-        pd.Series: list of customers ids in Santander dataset
         pd.DataFrame: dataframe with features of each customer
     """
-    
+    santander = _concat_chunks(santander)
+    santander.rename(columns={'ncodpers': 'customer_id'}, inplace=True)
+    if merge_type == 'last':
+        # Customers features from last month
+        last_month = santander.loc[:, 'fecha_dato'].max()
+        customers = santander.loc[santander['fecha_dato'] >= last_month, :]
+        customers.drop(['fecha_dato'], axis=1, inplace=True)
+    else:
+        # If no merge_type specified list of unique customer_id is returned
+        customers = pd.DataFrame({'customer_id': santander['customer_id']
+                                                 .unique()})
+    log.info(f"Number of unique customers: {customers.shape[0]}")
+    log.info(f"Number of customers features: {customers.shape[1]}")
+    log.info(f'Number of columns with missing values in customers dataset: \
+    {customers.isnull().any().sum()}')    
+    return customers
+
 
 def _status_change(x: pd.Series) -> str:
     """Based on difference of the following rows create label which indicates
@@ -64,17 +82,16 @@ def _status_change(x: pd.Series) -> str:
     Returns:
         str: target label - added/dropped/maintained
     """
-    diffs = x.diff().fillna(0)
     # First occurrence is considered as "Maintained"
     label = ["Added" if i == 1 \
          else "Dropped" if i == -1 \
-         else "Maintained" for i in diffs]
+         else "Maintained" for i in x]
     return label
 
 
-def _target_processing_santander(input_train_df: Iterator[pd.DataFrame],
+def _identify_newly_added(input_train_df: Iterator[pd.DataFrame],
                                 input_val_df: Iterator[pd.DataFrame]) -> Tuple:
-    """Preprocess target columns to focus on products that will be bought
+    """Preprocess target columns to identify products that will be bought
     in the next month
 
     Args:
@@ -91,25 +108,14 @@ def _target_processing_santander(input_train_df: Iterator[pd.DataFrame],
     train_len = len(train_df)
     df = pd.concat([train_df, val_df])
     feature_cols = df.iloc[:1,].filter(regex="ind_+.*ult.*").columns.values
-    # Create auxiliary column
-    unique_months = (pd.DataFrame(pd.Series(df.fecha_dato.unique())
-                     .sort_values()).reset_index(drop=True))
-    # Start with month 1, not 0 to match what we already have
-    unique_months["month_id"] = pd.Series(range(1, 1+unique_months.size))
-    unique_months["month_next_id"] = 1 + unique_months["month_id"]
-    unique_months.rename(columns={0:"fecha_dato"}, inplace=True)
-    df = pd.merge(df,unique_months, on="fecha_dato")
+    df = df.sort_values(['ncodpers', 'fecha_dato']).reset_index(drop=True)
     # Apply status change labeling
-    df.loc[:, feature_cols] = (df.loc[:, [i for i in feature_cols]
-                               + ["ncodpers"]].groupby("ncodpers")
-                               .transform(_status_change))
-    # Can be done faster but some tweaks needed 
-    # df = df.sort_values(['ncodpers', 'fecha_dato']).reset_index(drop=True)
-    # s = df.loc[:, [i for i in feature_cols] + ["ncodpers"]]
-    # df.loc[:, feature_cols] = (s.loc[:, [i for i in feature_cols]].diff()
-    #                            .where(s.duplicated(["ncodpers"],
-    #                            keep='first'))
-    #                            ).fillna(0).transform(_status_change2)
+    s = df.loc[:, [i for i in feature_cols] + ["ncodpers"]]
+    # Optimized version without groupby
+    df.loc[:, feature_cols] = (s.loc[:, [i for i in feature_cols]].diff()
+                               .where(s.duplicated(["ncodpers"],
+                               keep='first'))
+                               ).fillna(0).transform(_status_change)
     df = df.sort_values(['fecha_dato']).reset_index(drop=True)
 
     log.info(f'Sum of number of newly added products: \
@@ -120,14 +126,67 @@ def _target_processing_santander(input_train_df: Iterator[pd.DataFrame],
     return (train_df, val_df)
 
 
-def santander_to_transactions(santander: Iterator[pd.DataFrame]) \
-    -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _interaction_to_transaction(newly_added: pd.DataFrame, article_name: str) \
+    -> pd.DataFrame:
+    """Generate transactions records based on customer-article interactions
+    for chosen article
+
+    Args:
+        newly_added (pd.DataFrame): santander dataframe in newly_added format
+        article_name (str): name of chosen article columns
+
+    Returns:
+        pd.DataFrame: transactions for chosen article
+    """
+    article_interactions = newly_added.loc[:, ['ncodpers', 'fecha_dato',
+                                              article_name]]
+    # Filtering only newly added articles
+    article_transactions = article_interactions.loc[article_interactions
+                                                    .loc[:, article_name] ==
+                                                    "Added", :]
+    article_transactions['article_id'] = article_name
+    article_transactions.drop(article_name, axis=1, inplace=True)
+    article_transactions.rename(columns={'fecha_dato': 'date'}, inplace=True)
+    return article_transactions
+
+
+def _newly_added_to_transactions(newly_added: pd.DataFrame) -> pd.DataFrame:
+    """Generate transactions dataframe based on dataframe in newly_added format
+
+    Args:
+        newly_added (pd.DataFrame): santander dataframe in newly_added format
+
+    Returns:
+        pd.DataFrame: transaction dataframe
+    """
+    # Regex for Santander products names
+    r = re.compile("ind_+.*ult.*")
+    articles_cols = list(filter(r.match, newly_added.columns))
+    transactions = pd.DataFrame()
+    # Generating transactions for each article
+    for col in articles_cols:
+        article_i_transactions = _interaction_to_transaction(newly_added, col)
+        transactions = pd.concat(transactions, article_i_transactions,
+                                 ignore_index=True)
+    return transactions
+
+
+def santander_to_transactions(santander_train: Iterator[pd.DataFrame],
+                              santander_val: Iterator[pd.DataFrame]) \
+    -> Tuple(pd.DataFrame, pd.DataFrame):
     """From Santander train/val datasets extract transactions data
 
     Args:
-        santander (pd.DataFrame): preprocessed train/val santander dataset
+        santander_train (pd.DataFrame): preprocessed train santander dataframe
+        santander_val (pd.DataFrame): preprocessed val santander dataframe
 
     Returns:
-        pd.Series: list of transactions ids in Santander dataset
-        pd.DataFrame: dataframe with data about each transaction
+        Tuple(pd.DataFrame, pd.DataFrame): train and val transactions
+            dataframes
     """
+    newly_added_train, newly_added_val = _identify_newly_added(santander_train,
+                                                               santander_val)
+    # Apply for train and val dataframes
+    transactions_train = _newly_added_to_transactions(newly_added_train)
+    transactions_val = _newly_added_to_transactions(newly_added_val)
+    return (transactions_train, transactions_val)

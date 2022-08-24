@@ -38,8 +38,8 @@ def sample_santander(santander: Iterator[pd.DataFrame],
     if np.isclose(sample_user_frac, 1.0):
         santander_sample = santander_df
     else:
-        unique_ids   = pd.Series(santander_df["ncodpers"].unique())
-        users_limit = int(len(unique_ids)*sample_user_frac)
+        unique_ids = pd.Series(santander_df["ncodpers"].unique())
+        users_limit = int(len(unique_ids) * sample_user_frac)
         unique_ids = unique_ids.sample(n=users_limit)
         santander_sample = (santander_df[santander_df['ncodpers']
                             .isin(unique_ids)])
@@ -65,7 +65,7 @@ def filter_santander(santander_df: Iterator[pd.DataFrame]) -> pd.DataFrame:
     log.info(f"Santander df shape before filtering: {df.shape}")
     # Information already present in other columns. Name of the province exists
     # in nomprov.
-    df.drop(["tipodom", "cod_prov"], axis=1,inplace=True)
+    df.drop(["tipodom", "cod_prov"], axis=1, inplace=True)
     log.info(f"Santander df shape after filtering: {df.shape}")
     return df
 
@@ -139,7 +139,6 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
     log.info(f'Number of columns with missing values before imputing: \
     {df.isnull().any().sum()}')
 
-    df.loc[:, 'month'] = pd.DatetimeIndex(df['fecha_dato']).month
     df.loc[:, 'age'] = pd.to_numeric(df['age'], errors='coerce')
     # Age imputing
     df.loc[df['age'] < 18, "age"]  = (df.loc[(df['age'] >= 18)
