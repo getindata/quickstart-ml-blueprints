@@ -1,11 +1,11 @@
 candidate_generation:
   global_articles:
-    n_days: [7, 30, 90, null]
-    top_n: [100, 100, 100, 100]
+    n_days: [7, 30, null]
+    top_n: [100, 50, 25]
   segment_articles:
     no_segments: 5
-    n_days: [7, 30, 90, null]
-    top_n: [100, 100, 100, 100]
+    n_days: [7, 30, null]
+    top_n: [50, 25, 15]
   image_embeddings:
     n_last_bought: 5
     k_closest: 5
