@@ -8,11 +8,10 @@ logger = logging.getLogger(__name__)
 def log_memory_usage(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        start_memory = df.memory_usage().sum()/ 1024**2
-        logger.info(f'Memory usage before applying {f.__name__}: {start_memory:5.2f} MB')
         df = f(*args, **kwargs)
         end_memory = df.memory_usage().sum()/ 1024**2
-        logger.info(f'Memory usage after: {end_memory:5.2f} MB, {100*(start_memory-end_memory)/start_memory}% reduction')
+        logger.info(f'Memory usage after applying {f.__name__}: {end_memory:5.2f} MB')
+        return df
     return wrapper
 
 @log_memory_usage
@@ -42,5 +41,3 @@ def reduce_memory_usage(df: pd.DataFrame) -> pd.DataFrame:
                     df[col] = df[col].astype(np.float64)
         # if col_type == 'object':
     return df
-
-
