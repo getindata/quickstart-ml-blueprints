@@ -1,4 +1,4 @@
-from .nodes import (santander_to_articles, santander_to_customers)
+from .nodes import (santander_to_articles, santander_to_customers, santander_to_transactions)
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
@@ -18,13 +18,19 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="santander_customers",
                 name="santander_to_customers_node",
             ),
-            
+            node(
+                func=santander_to_transactions,
+                inputs=["santander_train", "santander_val"],
+                outputs=["santander_transactions_train",
+                         "santander_transactions_val"],
+                name="santander_to_transactions_node",
+            ),
         ]
     )
 
     main_pipeline = pipeline(
         pipe=main_pipeline_instance,
-        inputs=["santander_train"],
+        inputs=["santander_train", "santander_val"],
         outputs=["santander_articles", "santander_customers"],
         namespace="santander_to_act_main",
         parameters={"params:customers.merge_type":

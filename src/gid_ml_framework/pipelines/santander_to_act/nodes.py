@@ -90,7 +90,8 @@ def _status_change(x: pd.Series) -> str:
 
 
 def _identify_newly_added(input_train_df: Iterator[pd.DataFrame],
-                                input_val_df: Iterator[pd.DataFrame]) -> Tuple:
+                          input_val_df: Iterator[pd.DataFrame]) \
+    -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Preprocess target columns to identify products that will be bought
     in the next month
 
@@ -146,7 +147,9 @@ def _interaction_to_transaction(newly_added: pd.DataFrame, article_name: str) \
                                                     "Added", :]
     article_transactions['article_id'] = article_name
     article_transactions.drop(article_name, axis=1, inplace=True)
-    article_transactions.rename(columns={'fecha_dato': 'date'}, inplace=True)
+    article_transactions.rename(columns={'fecha_dato': 'date',
+                                         'ncodpers': 'customer_id'},
+                                inplace=True)
     return article_transactions
 
 
@@ -166,14 +169,14 @@ def _newly_added_to_transactions(newly_added: pd.DataFrame) -> pd.DataFrame:
     # Generating transactions for each article
     for col in articles_cols:
         article_i_transactions = _interaction_to_transaction(newly_added, col)
-        transactions = pd.concat(transactions, article_i_transactions,
+        transactions = pd.concat([transactions, article_i_transactions],
                                  ignore_index=True)
     return transactions
 
 
 def santander_to_transactions(santander_train: Iterator[pd.DataFrame],
                               santander_val: Iterator[pd.DataFrame]) \
-    -> Tuple(pd.DataFrame, pd.DataFrame):
+    -> Tuple[pd.DataFrame, pd.DataFrame]:
     """From Santander train/val datasets extract transactions data
 
     Args:
@@ -189,4 +192,12 @@ def santander_to_transactions(santander_train: Iterator[pd.DataFrame],
     # Apply for train and val dataframes
     transactions_train = _newly_added_to_transactions(newly_added_train)
     transactions_val = _newly_added_to_transactions(newly_added_val)
+    log.info(f'Number of columns with missing values in transactions_train: \
+    {transactions_train.isnull().any().sum()}')
+    log.info(f'Transactions_train shape: \
+    {transactions_train.shape}')
+    log.info(f'Number of columns with missing values in transactions_val: \
+    {transactions_val.isnull().any().sum()}')
+    log.info(f'Transactions_val shape: \
+    {transactions_val.shape}')
     return (transactions_train, transactions_val)

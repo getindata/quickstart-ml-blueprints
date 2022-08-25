@@ -1,6 +1,6 @@
 santander_preprocessing_train:
   sample:
-    sample_user_frac: 0.001
+    sample_user_frac: 0.1
     cutoff_date: '2016-05-28'
   impute:
     test: False

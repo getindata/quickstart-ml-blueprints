@@ -393,3 +393,29 @@ santander_to_act_main.santander_customers:
       <<: *dtypes_train
     chunksize: 1000000
     low_memory: False
+
+santander_to_act_main.santander_transactions_train:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_transactions_train.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+      client_id: int32
+    chunksize: 1000000
+    low_memory: False
+
+santander_to_act_main.santander_transactions_val:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_transactions_val.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+      client_id: int32
+    chunksize: 1000000
+    low_memory: False
