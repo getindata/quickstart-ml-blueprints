@@ -2,6 +2,7 @@ santander_preprocessing_train:
   sample:
     sample_user_frac: 0.1
     cutoff_date: '2016-05-28'
+    stratify: True
   impute:
     test: False
 
@@ -9,5 +10,6 @@ santander_preprocessing_test:
   sample:
     sample_user_frac: 1
     cutoff_date: '2017-05-28'
+    stratify: False
   impute:
     test: True

@@ -1,10 +1,11 @@
-from typing import Iterator, Union, Tuple
+from typing import Iterator, Union, Tuple, List
 from datetime import datetime
 import logging
 from xmlrpc.client import Boolean
 
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
 from kedro.extras.datasets.pandas import CSVDataSet
 
 from gid_ml_framework.extras.datasets.chunks_dataset import (
@@ -19,15 +20,60 @@ log = logging.getLogger(__name__)
 CSVDataSet._load = _load
 
 
+def _stratify(df: pd.DataFrame, sample_customer_frac: float,
+              cutoff_date: Union[str, datetime]) -> List:
+    """Stratify customers based on age (age bins), 
+    tiprel_1mes (Customer relation type indicating if he is active), renta 
+    (customer income bins) columns values from last month
+
+    Args:
+        df (Iterator[pd.DataFrame]): raw Santader dataframe
+        sample_customer_frac (float): fraction of customers
+        cutoff_date (Union[str, datetime]): filtering date point
+
+    Returns:
+        List: stratified sample of customers
+    """
+    # Stratification based on last month column values
+    df = df.loc[df['fecha_dato'] == cutoff_date, :]
+    strat_cols = ['age', 'tiprel_1mes', 'renta']
+    df = df.loc[:, strat_cols + ['ncodpers']]
+    # Age to bins
+    df["age"].fillna(df["age"].median(), inplace=True)
+    df.loc[:, 'age'] = df.loc[:, "age"].astype(int)
+    df.loc[:, 'age'] = pd.qcut(df['age'], q=3,
+                               labels=['1', '2', '3']).astype("category")
+    # Renta to bins
+    df.loc[:, 'renta'] = pd.to_numeric(df.loc[:, 'renta'],
+                                       errors='coerce')
+    df.loc[df['renta'].isnull(), "renta"] = df.renta.median()
+    df.loc[:, 'renta'] = pd.qcut(df['renta'], q=3,
+                               labels=['1', '2', '3']).astype("category")
+    # Tiprel_1mes imputing
+    df.loc[df['tiprel_1mes'].isnull(), "tiprel_1mes"] = "A"
+    df.loc[df['tiprel_1mes'].isin(['P', 'R']), "tiprel_1mes"] = "I"
+    df.loc[:, 'tiprel_1mes'] = df['tiprel_1mes'].astype("category")
+
+    _, customers_sample = train_test_split(
+        df,
+        test_size=sample_customer_frac, 
+        stratify=df.loc[:, strat_cols]
+    )
+    customers_sample.drop(strat_cols, axis=1, inplace=True)
+    customers_list = np.unique(customers_sample.values.tolist())
+    return customers_list
+
+
 def sample_santander(santander: Iterator[pd.DataFrame],
-                     sample_user_frac: float=0.1,
-                     cutoff_date: Union[str, datetime]='2016-05-28') \
+                     sample_customer_frac: float=0.1,
+                     cutoff_date: Union[str, datetime]='2016-05-28',
+                     stratify: Boolean=False) \
                      -> pd.DataFrame:
-    """Sample Santader data based on user sample size and cutoff date.
+    """Sample Santader data based on customer sample size and cutoff date.
 
     Args:
         santander (Iterator[pd.DataFrame]): raw data chunks
-        sample_user (float): fraction of users
+        sample_customer_frac (float): fraction of customers
         cutoff_date (Union[str, datetime]): filtering date point
 
     Returns:
@@ -35,19 +81,23 @@ def sample_santander(santander: Iterator[pd.DataFrame],
     """
     santander_df = _concat_chunks(santander)
     log.info(f"Santander df shape before sampling: {santander_df.shape}")
-    if np.isclose(sample_user_frac, 1.0):
-        santander_sample = santander_df
-    else:
-        unique_ids = pd.Series(santander_df["ncodpers"].unique())
-        users_limit = int(len(unique_ids) * sample_user_frac)
-        unique_ids = unique_ids.sample(n=users_limit)
-        santander_sample = (santander_df[santander_df['ncodpers']
-                            .isin(unique_ids)])
-    santander_sample.loc[:, 'fecha_dato'] = (pd.to_datetime(santander_sample
+    santander_df.loc[:, 'fecha_dato'] = (pd.to_datetime(santander_df
                                              .loc[:, 'fecha_dato']))
     if cutoff_date != '2016-05-28':
-        santander_sample = (santander_sample[santander_sample['fecha_dato']
+        santander_df = (santander_df[santander_df['fecha_dato']
                             <= cutoff_date])
+    if np.isclose(sample_customer_frac, 1.0):
+        santander_sample = santander_df
+    else:
+        if stratify:
+            unique_ids = _stratify(santander_df, sample_customer_frac,
+                                   cutoff_date)
+        else:
+            unique_ids = pd.Series(santander_df["ncodpers"].unique())
+            customers_limit = int(len(unique_ids) * sample_customer_frac)
+            unique_ids = unique_ids.sample(n=customers_limit)
+        santander_sample = (santander_df[santander_df['ncodpers']
+                            .isin(unique_ids)])
     log.info(f"Santander df shape after sampling: {santander_sample.shape}")
     return santander_sample
 
@@ -100,8 +150,8 @@ def split_santander(santander_sample: Iterator[pd.DataFrame]) -> Tuple:
     log.info(f'Dataframe size before splitting: {df.shape}')
     last_month = df['fecha_dato'].max()
     log.info(f'Dataframe last month: {last_month}')
-    train_df = df[df['fecha_dato'] < last_month]
-    val_df = df[df['fecha_dato'] >= last_month]
+    train_df = df.loc[df['fecha_dato'] < last_month, :]
+    val_df = df.loc[df['fecha_dato'] >= last_month, :]
     log.info(f'Training dataframe size: {train_df.shape}, \
              Validation dataframe size: {val_df.shape}')
     log.info(f'Training dataframe min date: {train_df["fecha_dato"].min()}, \
@@ -148,7 +198,7 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
                                       & (df['age'] <= 100), "age"]
                                       .mean(skipna=True))
     df["age"].fillna(df["age"].mean(), inplace=True)
-    df.loc[:, 'age'] = df["age"].astype(int)
+    df.loc[:, 'age'] = df.loc[:, "age"].astype(int)
     # Imputing new customer flag, as missing values are present for new customers
     df.loc[df["ind_nuevo"].isnull(),"ind_nuevo"] = 1
     # Imputing seniority level for these new customers
@@ -166,7 +216,7 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
     df.loc[df['ind_actividad_cliente'].isnull(),"ind_actividad_cliente"] = \
     df.loc[:, "ind_actividad_cliente"].median()
     # Imputing missing province name
-    df.loc[df['nomprov'].isnull(),"nomprov"] = "UNKNOWN"
+    df.loc[df['nomprov'].isnull(), "nomprov"] = "UNKNOWN"
     # Transforming string to NA in income column
     df.loc[:, 'renta'] = pd.to_numeric(df.loc[:, 'renta'],
                                        errors='coerce')
