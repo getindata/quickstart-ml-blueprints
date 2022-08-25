@@ -1,58 +1,39 @@
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from .nodes import add_article_features, add_customer_features, add_dict_features
+from .nodes import train_val_split, train_model
 
 
 def create_pipeline(**kwargs) -> Pipeline:
-    prepare_dataset_pipeline = pipeline(
+    train_ranking_model_pipeline = pipeline(
         [
             node(
-                func=add_article_features,
-                name="add_article_features_node",
+                func=train_val_split,
+                name="train_val_split_node",
                 inputs=[
-                    "candidates",
-                    "automated_articles_features",
-                    "manual_article_features",
-                    "params:ranking.data.fill_na_pattern",
+                    "final_candidates",
+                    "params:ranking.val_size",
                     ],
-                outputs="candidates_step_1",
+                outputs=["train_candidates", "val_candidates"],
             ),
             node(
-                func=add_customer_features,
-                name="add_customer_features_node",
+                func=train_model,
+                name="train_model_node",
                 inputs=[
-                    "candidates_step_1",
-                    "automated_customers_features",
-                    "manual_customer_features",
-                    "params:ranking.data.fill_na_pattern",
+                    "train_candidates",
+                    "val_candidates",
+                    "params:ranking.training.params",
+                    "val_transactions",
                     ],
-                outputs="candidates_step_2",
-            ),
-            node(
-                func=add_dict_features,
-                name="add_dict_features_node",
-                inputs=[
-                    "candidates_step_2",
-                    "articles",
-                    "customers",
-                    "params:ranking.data.categorical_cols",
-                    "params:ranking.data.drop_cols",
-                    ],
-                outputs="training_data",
+                outputs=None,
             ),
         ],
-        namespace="ranking",
-        inputs=["candidates",
-                "automated_articles_features",
-                "manual_article_features",
-                "automated_customers_features",
-                "manual_customer_features",
-                "articles",
-                "customers",
-                ],
-        outputs="training_data",
+        namespace="train_ranking",
+        inputs=[
+            "final_candidates",
+            "val_transactions",
+        ],
+        outputs=None,
     )
-
     
-    return prepare_dataset_pipeline
+    return train_ranking_model_pipeline

@@ -219,3 +219,11 @@ candidates_similarity_features:
   layer: model_input
   load_args:
     engine: pyarrow
+
+# recommendations
+recommendations:
+  type: pandas.ParquetDataSet
+  filepath: data/07_model_output/recommendations.pq
+  layer: model_output
+  load_args:
+    engine: pyarrow

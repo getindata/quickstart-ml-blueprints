@@ -1,0 +1,5 @@
+recommendation_generation:
+  models:
+    - c11ae039573d48279f55bcb94947c488
+    - ae3804291c3a49e9beac37b9086b9048
+  k: 12
