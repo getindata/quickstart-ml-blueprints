@@ -4,13 +4,14 @@ import logging
 
 log = logging.getLogger(__name__)
 
-def train_val_split(df: pd.DataFrame, date_column: str, no_week: int = 1) -> pd.DataFrame:
+def train_val_split(df: pd.DataFrame, date_column: str, no_val_week: int = 1, no_train_week: int = 6) -> pd.DataFrame:
     """_summary_
 
     Args:
         df (pd.DataFrame): _description_
         date_column (str): _description_
-        no_week (int, optional): _description_. Defaults to 1.
+        no_val_week (int, optional): _description_. Defaults to 1.
+        no_train_week (int, optional): _description_. Defaults to 6.
 
     Returns:
         pd.DataFrame: _description_
@@ -19,9 +20,12 @@ def train_val_split(df: pd.DataFrame, date_column: str, no_week: int = 1) -> pd.
     log.info(f'Dataframe size before splitting: {df.shape}')
     max_date = df[date_column].max()
     log.info(f'Dataframe min date: {df[date_column].min()}, max date: {max_date}')
-    end_train_date = max_date - pd.Timedelta(weeks=no_week)
+    end_train_date = max_date - pd.Timedelta(weeks=no_val_week)
+    start_train_date = end_train_date - pd.Timedelta(weeks=no_train_week)
     end_val_date = end_train_date + pd.Timedelta(weeks=1)
-    train_df = df[df[date_column]<=end_train_date]
+    train_df = df[
+        (df[date_column]>start_train_date) &
+        (df[date_column]<=end_train_date)]
     val_df = df[
         (df[date_column]>end_train_date) &
         (df[date_column]<=end_val_date)]

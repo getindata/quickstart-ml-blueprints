@@ -13,7 +13,7 @@ unpack_candidates_node = node(
     func=unpack_candidates,
     name="unpack_candidates_node",
     inputs=[
-        "candidates_sample",
+        "train_candidates",
         "params:candidates_feature_engineering.drop_random_strategies",
         ],
         outputs="unpacked_candidates",
@@ -22,7 +22,7 @@ filter_last_n_rows_per_customer_node = node(
     func=filter_last_n_rows_per_customer,
     name="filter_last_n_rows_per_customer_node",
     inputs=[
-        "transactions_sample",
+        "train_transactions",
         "params:candidates_feature_engineering.last_n_rows",
         ],
         outputs="latest_transactions",
@@ -63,7 +63,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="candidates_feature_engineering",
-        inputs=["candidates_sample", "articles", "transactions_sample"],
+        inputs=["train_candidates", "articles", "train_transactions"],
         outputs="jaccard_similarity_features",
     )
 
@@ -94,7 +94,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="candidates_feature_engineering",
-        inputs=["candidates_sample", "transactions_sample", "image_embeddings"],
+        inputs=["train_candidates", "train_transactions", "image_embeddings"],
         outputs="image_cosine_similarity_features",
     )
 
@@ -125,7 +125,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="candidates_feature_engineering",
-        inputs=["candidates_sample", "transactions_sample", "text_embeddings"],
+        inputs=["train_candidates", "train_transactions", "text_embeddings"],
         outputs="text_cosine_similarity_features",
     )
 

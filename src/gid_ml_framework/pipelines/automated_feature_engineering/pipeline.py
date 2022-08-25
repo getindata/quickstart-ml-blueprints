@@ -11,9 +11,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=create_static_features,
                 name="create_static_features_node",
                 inputs=[
-                    "transactions_sample",
-                    "customers_sample",
-                    "articles_sample",
+                    "train_transactions",
+                    "customers",
+                    "articles",
                     "params:automated_feature_engineering.n_days",
                     ],
                 outputs=["automated_articles_features_temp", "automated_customers_features_temp"],
@@ -40,6 +40,6 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="automated_feature_engineering",
-        inputs=["transactions_sample", "customers_sample", "articles_sample"],
+        inputs=["train_transactions", "customers", "articles"],
         outputs=["automated_articles_features", "automated_customers_features"],
     )

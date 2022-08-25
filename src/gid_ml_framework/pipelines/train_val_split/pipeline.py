@@ -9,7 +9,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=train_val_split,
                 inputs=[
-                    "transactions_sample",
+                    "transactions",
                     "params:train_val_split.candidate_selection.date_column",
                     "params:train_val_split.candidate_selection.no_week",
                     ],
@@ -18,6 +18,6 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="train_val_split",
-        inputs=["transactions_sample"],
+        inputs=["transactions"],
         outputs=["train_transactions", "val_transactions"],
     )
