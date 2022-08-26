@@ -101,7 +101,7 @@ def _create_entity_set(transactions: pd.DataFrame, customers: pd.DataFrame, arti
     logger.info(f'Initialized EntitySet: {es} \n\n for {n_days=}')
     return es
 
-def _static_articles_features(es: ft.EntitySet) -> pd.DataFrame:
+def _create_static_articles_features(es: ft.EntitySet) -> pd.DataFrame:
     """Creates static article features not including the base features from articles.
 
     Args:
@@ -122,7 +122,7 @@ def _static_articles_features(es: ft.EntitySet) -> pd.DataFrame:
     logger.info(f'Number of articles features after dropping non-transformations: {len(articles_feats)}')
     return articles_feature_matrix
 
-def _static_customer_features(es: ft.EntitySet) -> pd.DataFrame:
+def _create_static_customer_features(es: ft.EntitySet) -> pd.DataFrame:
     """Creates static customers features not including the base features from customers.
 
     Args:
@@ -163,15 +163,16 @@ def create_static_features(
     """
     articles_dataframes_list, customers_dataframes_list = list(), list()
     for n_days in n_days_list:
-        suffix_str = '_all' if n_days is None else f'_{n_days}'
+        suffix_str_article = '_all_articles' if n_days is None else f'_{n_days}_articles'
+        suffix_str_customer = '_all_customers' if n_days is None else f'_{n_days}_customers'
         es = _create_entity_set(transactions, customers, articles, n_days)
         # articles
-        articles_feature_matrix = _static_articles_features(es)
-        articles_feature_matrix = articles_feature_matrix.add_suffix(suffix_str)
+        articles_feature_matrix = _create_static_articles_features(es)
+        articles_feature_matrix = articles_feature_matrix.add_suffix(suffix_str_article)
         articles_dataframes_list.append(articles_feature_matrix)
         # customers
-        customers_feature_matrix = _static_customer_features(es)
-        customers_feature_matrix = customers_feature_matrix.add_suffix(suffix_str)
+        customers_feature_matrix = _create_static_customer_features(es)
+        customers_feature_matrix = customers_feature_matrix.add_suffix(suffix_str_customer)
         customers_dataframes_list.append(customers_feature_matrix)
     static_articles = pd.concat(articles_dataframes_list, axis=1)
     static_customers = pd.concat(customers_dataframes_list, axis=1)
