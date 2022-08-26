@@ -35,7 +35,7 @@ def add_label(candidates: pd.DataFrame, val_transactions: Union[pd.DataFrame, No
         candidates
             .sample(frac=1, random_state=888)
             .groupby(['customer_id'])
-            .head(20)
+            .head(15)
             .reset_index(drop=True)
     )
     candidates = (
@@ -55,7 +55,7 @@ def add_article_features(
     regex_pattern: str
     ) -> pd.DataFrame:
     # # just for now
-    return candidates
+    # return candidates
 
     # reduce memory
     candidates = reduce_memory_usage(candidates)
@@ -78,7 +78,7 @@ def add_customer_features(
     manual_customer_features: pd.DataFrame,
     regex_pattern: str) -> pd.DataFrame:
     # # just for now
-    return candidates
+    # return candidates
 
     # reduce memory
     candidates = reduce_memory_usage(candidates)

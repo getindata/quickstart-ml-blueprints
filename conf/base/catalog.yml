@@ -220,10 +220,39 @@ candidates_similarity_features:
   load_args:
     engine: pyarrow
 
-# recommendations
-recommendations:
+# intermediate feature engineering - memory optimization
+candidates_step_0:
   type: pandas.ParquetDataSet
-  filepath: data/07_model_output/recommendations.pq
-  layer: model_output
+  filepath: data/02_intermediate/candidates_step_0.pq
+  layer: intermediate
   load_args:
     engine: pyarrow
+
+candidates_step_1:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/candidates_step_1.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+candidates_step_2:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/candidates_step_2.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+final_candidates:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/candidates_step_2.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+# recommendations
+recommendations:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/recommendations.csv
+  layer: model_output
+  save_args:
+    index: False

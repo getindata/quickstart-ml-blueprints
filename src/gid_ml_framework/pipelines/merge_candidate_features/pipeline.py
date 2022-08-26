@@ -48,7 +48,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:merge_candidate_features.data.categorical_cols",
                     "params:merge_candidate_features.data.drop_cols",
                     ],
-                outputs="final_candidates",
+                outputs="final_candidates"
             ),
         ],
         namespace="merge_candidate_features",
@@ -61,7 +61,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 "articles",
                 "customers",
                 ],
-        outputs="final_candidates",
+        outputs=[
+            "final_candidates",
+            "candidates_step_0",
+            "candidates_step_1",
+            "candidates_step_2",
+            ]
     )
     
     return prepare_dataset_pipeline
