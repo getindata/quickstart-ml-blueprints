@@ -4,7 +4,7 @@ import logging
 from sklearn.neighbors import KDTree
 
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 ArticlesSet = Set
 Bin = str
 ArticlesBin = Dict[Bin, ArticlesSet]
@@ -22,15 +22,22 @@ def _filter_dataframe_by_last_n_days(df: pd.DataFrame, n_days: int, date_column:
         pd.DataFrame: filtered dataframe
     """
     if not n_days:
-        log.info(f'n_days is equal to None, skipping the filtering by date step.')
+        logger.info(f'n_days is equal to None, skipping the filtering by date step.')
         return df
-    df.loc[:, date_column] = pd.to_datetime(df.loc[:, date_column])
+    try:
+        df.loc[:, date_column] = pd.to_datetime(df.loc[:, date_column])
+    except KeyError:
+        logger.error('Given date_column does not exist in df')
+        raise
+    except ValueError:
+        logger.error('Given date_column is not convertible to datetime')
+        raise
     max_date = df.loc[:, date_column].max()
     filter_date = max_date - pd.Timedelta(days=n_days)
-    log.info(f'Maximum date is: {max_date}, date for filtering is: {filter_date}, {n_days=}')
-    log.info(f'Shape before filtering: {df.shape}')
+    logger.info(f'Maximum date is: {max_date}, date for filtering is: {filter_date}, {n_days=}')
+    logger.info(f'Shape before filtering: {df.shape}')
     df = df[df.loc[:, date_column]>=filter_date]
-    log.info(f'Shape after filtering: {df.shape}')
+    logger.info(f'Shape after filtering: {df.shape}')
     return df
 
 def _most_sold_articles(transactions: pd.DataFrame, top_k: int) -> ArticlesSet:
@@ -68,9 +75,9 @@ def collect_global_articles(transactions: pd.DataFrame, n_days_list: List[Union[
     for n_days, top_k in zip(n_days_list, top_k_list):
         latest_transactions = _filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
         articles_set = _most_sold_articles(latest_transactions, top_k)
-        log.info(f'All articles size: {len(all_global_articles)} before adding articles from {n_days=}, {top_k=}')
+        logger.info(f'All articles size: {len(all_global_articles)} before adding articles from {n_days=}, {top_k=}')
         all_global_articles.update(articles_set)
-        log.info(f'All articles size after: {len(all_global_articles)}')
+        logger.info(f'All articles size after: {len(all_global_articles)}')
     return all_global_articles
 
 def global_articles(customers: pd.DataFrame, articles: ArticlesSet) -> pd.DataFrame:
@@ -84,9 +91,9 @@ def global_articles(customers: pd.DataFrame, articles: ArticlesSet) -> pd.DataFr
         pd.DataFrame: dataframe with: customer_id and global_articles (list of `article_id`)
     """
     all_customers = customers[['customer_id']].copy()
-    log.info(f'Number of all customers: {len(all_customers)}')
+    logger.info(f'Number of all customers: {len(all_customers)}')
     all_customers.loc[:, 'global_articles'] = [list(articles) for i in all_customers.index]
-    log.info(f'{all_customers.shape=}')
+    logger.info(f'{all_customers.shape=}')
     return all_customers
 
 # SEGMENT ARTICLES
@@ -149,7 +156,7 @@ def _update_dict_of_sets(cumulative_dict: Dict, new_dict: Dict) -> Dict:
     """
     for k, v in new_dict.items():
         cumulative_dict[k] = cumulative_dict.get(k, set()) | v
-        log.info(f'Bin: {k=}, size of set: {len(v)=}, size of acc. set: {len(cumulative_dict[k])=}')
+        logger.info(f'Bin: {k=}, size of set: {len(v)=}, size of acc. set: {len(cumulative_dict[k])=}')
     return cumulative_dict
 
 def collect_segment_articles(transactions: pd.DataFrame, customers_bins: pd.DataFrame, n_days_list: List[Union[int, None]], top_k_list: List[int]) -> ArticlesBin:
@@ -239,7 +246,7 @@ def _build_tree(embeddings: pd.DataFrame) -> KDTree:
     Returns:
         KDTree: k-dimensional tree
     """
-    log.info('Building KDTree')
+    logger.info('Building KDTree')
     tree = KDTree(embeddings.values, leaf_size=5)
     return tree
 
@@ -275,11 +282,11 @@ def _create_embedding_dictionary(items: Iterable[str], embeddings: pd.DataFrame,
     """
     tree = _build_tree(embeddings)
     closest_dict = dict()
-    log.info('Started querying similar vectors')
+    logger.info('Started querying similar vectors')
     for item in items:
         if (similar_vectors := _find_similar_vectors(item, embeddings, tree, k_closest)):
             closest_dict[item] = similar_vectors
-    log.info('Finished querying similar vectors')
+    logger.info('Finished querying similar vectors')
     return closest_dict
 
 def _cleanup_closest_embeddings(embeddings: pd.DataFrame, name: str) -> pd.DataFrame:
@@ -292,7 +299,7 @@ def _cleanup_closest_embeddings(embeddings: pd.DataFrame, name: str) -> pd.DataF
     Returns:
         pd.DataFrame: dataframe with: customer_id and name (list of distinct `article_id`)
     """
-    log.info(f'Closest embeddings df shape before cleanup: {embeddings.shape}')
+    logger.info(f'Closest embeddings df shape before cleanup: {embeddings.shape}')
     embeddings.dropna(axis=0, how='any', inplace=True)
     embeddings = embeddings.explode(column=name)
     embeddings.drop_duplicates(inplace=True)
@@ -300,7 +307,7 @@ def _cleanup_closest_embeddings(embeddings: pd.DataFrame, name: str) -> pd.DataF
     embeddings = embeddings[embeddings[name]!=embeddings['article_id']]
     embeddings.drop(['article_id'], axis=1, inplace=True)
     embeddings = embeddings.groupby(['customer_id'])[name].apply(list).reset_index(name=name)
-    log.info(f'Closest embeddings df shape after cleanup: {embeddings.shape}')
+    logger.info(f'Closest embeddings df shape after cleanup: {embeddings.shape}')
     return embeddings
 
 def similar_embeddings(transactions: pd.DataFrame, embeddings: pd.DataFrame, n_last_bought: int = 5, k_closest: int = 5, name: str = 'closest_emb') -> pd.DataFrame:
@@ -318,9 +325,9 @@ def similar_embeddings(transactions: pd.DataFrame, embeddings: pd.DataFrame, n_l
     """
     transactions.sort_values(by='t_dat', ascending=False, inplace=True)
     transactions = transactions.groupby(['customer_id']).head(n_last_bought)
-    log.info(f'Selecting latest {n_last_bought} articles for each customer')
+    logger.info(f'Selecting latest {n_last_bought} articles for each customer')
     all_items = list(transactions['article_id'].unique())
-    log.info(f'Number of unique articles left: {len(all_items)}')
+    logger.info(f'Number of unique articles left: {len(all_items)}')
     closest_dict = _create_embedding_dictionary(all_items, embeddings, k_closest)
     closest_embeddings = transactions[['customer_id', 'article_id']].copy()
     closest_embeddings[name] = closest_embeddings['article_id'].map(closest_dict)
