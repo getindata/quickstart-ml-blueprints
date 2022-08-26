@@ -4,31 +4,30 @@ import logging
 
 log = logging.getLogger(__name__)
 
-def train_val_split(df: pd.DataFrame, date_column: str, no_val_week: int = 1, no_train_week: int = 6) -> pd.DataFrame:
-    """_summary_
+def train_val_split(df: pd.DataFrame, date_column: str, no_train_weeks: int = 6, no_val_weeks: int = 1) -> pd.DataFrame:
+    """Splits dataframe into training and validation datasets.
+    Validation dates are between: max(date_column) and max(date_column)-no_val_weeks
+    Training dates are between: max(date_column)-no_val_weeks and max(date_column)-(no_val_weeks+no_train_weeks)
 
     Args:
-        df (pd.DataFrame): _description_
-        date_column (str): _description_
-        no_val_week (int, optional): _description_. Defaults to 1.
-        no_train_week (int, optional): _description_. Defaults to 6.
+        df (pd.DataFrame): dataframe
+        date_column (str): column name with date
+        no_train_week (int, optional): number of weeks for training dataset. Defaults to 6.
+        no_val_week (int, optional): number of weeks for validation dataset. Defaults to 1.
 
     Returns:
-        pd.DataFrame: _description_
+        pd.DataFrame: tuple of training and validation dataframes respectively
     """
     df[date_column] = pd.to_datetime(df[date_column])
     log.info(f'Dataframe size before splitting: {df.shape}')
     max_date = df[date_column].max()
     log.info(f'Dataframe min date: {df[date_column].min()}, max date: {max_date}')
-    end_train_date = max_date - pd.Timedelta(weeks=no_val_week)
-    start_train_date = end_train_date - pd.Timedelta(weeks=no_train_week)
-    end_val_date = end_train_date + pd.Timedelta(weeks=1)
+    end_train_date = max_date - pd.Timedelta(weeks=no_val_weeks)
+    start_train_date = end_train_date - pd.Timedelta(weeks=no_train_weeks)
     train_df = df[
         (df[date_column]>start_train_date) &
         (df[date_column]<=end_train_date)]
-    val_df = df[
-        (df[date_column]>end_train_date) &
-        (df[date_column]<=end_val_date)]
+    val_df = df[(df[date_column]>end_train_date)]
     log.info(f'Training dataframe size: {train_df.shape}, Validation dataframe size: {val_df.shape}')
     log.info(f'Training dataframe min date: {train_df[date_column].min()}, max date: {train_df[date_column].max()}')
     log.info(f'Validation dataframe min date: {val_df[date_column].min()}, max date: {val_df[date_column].max()}')
