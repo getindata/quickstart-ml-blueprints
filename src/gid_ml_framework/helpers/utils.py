@@ -6,6 +6,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 def log_memory_usage(f):
+    """Decorator function for logging memory usage of pd.DataFrame after executing function `f`"""
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         df = f(*args, **kwargs)
@@ -16,6 +17,14 @@ def log_memory_usage(f):
 
 @log_memory_usage
 def reduce_memory_usage(df: pd.DataFrame) -> pd.DataFrame:
+    """Reduces memory usage for pd.DataFrame by changing to optimal numerical subtypes.
+
+    Args:
+        df (pd.DataFrame): dataframe
+
+    Returns:
+        pd.DataFrame: dataframe with optimized numerical column types
+    """
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64',
                # pandas types
                 'Int16', 'Int32', 'Int64', 'Float16', 'Float32', 'Float64'

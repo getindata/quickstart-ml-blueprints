@@ -24,6 +24,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "val_candidates",
                     "params:ranking.training.params",
                     "val_transactions",
+                    "params:ranking.training.k"
                     ],
                 outputs=None,
             ),
