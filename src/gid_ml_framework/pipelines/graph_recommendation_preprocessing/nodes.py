@@ -26,7 +26,7 @@ def concat_train_val(train_df: pd.DataFrame, val_df: pd.DataFrame, date_column: 
 
     Args:
         train_df (pd.DataFrame): transactions train dataframe
-        val_df (pd.DataFrame): transaction val datafraame
+        val_df (pd.DataFrame): transaction val dataframe
 
     Returns:
         pd.DataFrame: concatenated transactions dataframe
@@ -56,4 +56,3 @@ def map_users_and_items(transactions_df: pd.DataFrame, customers_df: pd.DataFram
     log.info(f"Transactions dataframe shape: {transactions_df.shape}")
     # Users mapping
     customers_df = customers_df.loc[:, 'customer_id'].sort_values('customer_id').reset_index(drop=True)
-    
