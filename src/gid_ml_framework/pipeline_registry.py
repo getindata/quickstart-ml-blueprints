@@ -3,7 +3,7 @@ from typing import Dict
 
 from kedro.pipeline import Pipeline
 
-from gid_ml_framework.pipelines import sample_data as sd, text_embeddings
+from gid_ml_framework.pipelines import sample_data as sd
 from gid_ml_framework.pipelines import exploratory_data_analysis as eda
 from gid_ml_framework.pipelines import image_embeddings as ie
 from gid_ml_framework.pipelines import calculate_image_embeddings as cie
@@ -11,6 +11,12 @@ from gid_ml_framework.pipelines import text_embeddings as te
 from gid_ml_framework.pipelines import image_resizer as ir
 from gid_ml_framework.pipelines import santander_preprocessing as sp
 from gid_ml_framework.pipelines import santander_to_act as sta
+from gid_ml_framework.pipelines import manual_feature_engineering as mfe
+from gid_ml_framework.pipelines import automated_feature_engineering as afe
+from gid_ml_framework.pipelines import candidates_feature_engineering as cfe
+from gid_ml_framework.pipelines import candidate_generation as cg
+from gid_ml_framework.pipelines import train_val_split as tvs
+from gid_ml_framework.pipelines import candidate_generation_validation as cgv
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -28,6 +34,12 @@ def register_pipelines() -> Dict[str, Pipeline]:
     image_resizer_pipeline = ir.create_pipeline()
     santander_preprocessing_pipeline = sp.create_pipeline()
     santander_to_act_piepline = sta.create_pipeline()
+    manual_feature_engineering_pipeline = mfe.create_pipeline()
+    automated_feature_engineering_pipeline = afe.create_pipeline()
+    candidates_feature_engineering_pipeline = cfe.create_pipeline()
+    candidate_generation_pipeline = cg.create_pipeline()
+    train_val_split_pipeline = tvs.create_pipeline()
+    candidate_generation_validation_pipeline = cgv.create_pipeline()
 
     return {
         "__default__": sample_data_pipeline,
@@ -39,4 +51,11 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "ir": image_resizer_pipeline,
         "sp": santander_preprocessing_pipeline,
         "sta": santander_to_act_piepline,
+        "mfe": manual_feature_engineering_pipeline,
+        "afe": automated_feature_engineering_pipeline,
+        "cfe": candidates_feature_engineering_pipeline,
+        "cg": candidate_generation_pipeline,
+        "tvs": train_val_split_pipeline,
+        "cgv": candidate_generation_validation_pipeline,
+        "candidate_generation": (train_val_split_pipeline + candidate_generation_pipeline + candidate_generation_validation_pipeline)
     }

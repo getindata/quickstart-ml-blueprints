@@ -1,0 +1,5 @@
+manual_feature_engineering:
+  articles:
+  customers:
+    n_days: [7, 30, 90, null]
+  customers_prod_group:

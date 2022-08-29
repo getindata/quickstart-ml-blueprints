@@ -1,0 +1,13 @@
+automated_feature_engineering:
+  articles:
+    feature_selection: true
+    feature_selection_params:
+      pct_null_threshold: 0.95
+      corr_threshold: 0.99
+  customers:
+    feature_selection: true
+    feature_selection_params:
+      pct_null_threshold: 0.95
+      corr_threshold: 0.99
+  n_days: [7, 30, 90, null]
+  
