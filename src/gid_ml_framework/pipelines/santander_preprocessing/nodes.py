@@ -75,6 +75,8 @@ def sample_santander(santander: Iterator[pd.DataFrame],
         santander (Iterator[pd.DataFrame]): raw data chunks
         sample_customer_frac (float): fraction of customers
         cutoff_date (Union[str, datetime]): filtering date point
+        stratify (Boolean): should sample be stratified based on age, income
+            and customer relation type
 
     Returns:
         pd.DataFrame: data sample
@@ -83,6 +85,7 @@ def sample_santander(santander: Iterator[pd.DataFrame],
     log.info(f"Santander df shape before sampling: {santander_df.shape}")
     santander_df.loc[:, 'fecha_dato'] = (pd.to_datetime(santander_df
                                              .loc[:, 'fecha_dato']))
+    # Cut off data based on given date
     if cutoff_date != '2016-05-28':
         santander_df = (santander_df[santander_df['fecha_dato']
                             <= cutoff_date])
@@ -130,7 +133,7 @@ def clean_santander(santander_df: Iterator[pd.DataFrame]) -> pd.DataFrame:
         pd.DataFrame: preprocessed dataframe
     """
     df = _concat_chunks(santander_df)
-    # Bad encoding of spain letter
+    # Bad encoding of spain letters
     df.loc[df['nomprov'] == "CORU\xc3\x91A, A", "nomprov"] = "CORUNA, A"
     return df
 
@@ -162,7 +165,8 @@ def split_santander(santander_sample: Iterator[pd.DataFrame]) -> Tuple:
 
 
 def _median_gross(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculates median gross income for each province for imputing data
+    """ Auxiliary function which calculates median gross income for data 
+    imputing
 
     Args:
         df (pd.DataFrame): dataframe with 'renta' columns
@@ -177,7 +181,8 @@ def _median_gross(df: pd.DataFrame) -> pd.DataFrame:
 
 def impute_santander(santander_df: Iterator[pd.DataFrame],
                      test: Boolean=False) -> pd.DataFrame:
-    """Impute missing values in splitted Santander dataframe.
+    """Impute missing values in splitted Santander dataframe based on
+    information from tested Kaggle submissions.
 
     Args:
         santander_df (Iterator[pd.DataFrame]): train/val santander input data
@@ -190,13 +195,14 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
     {df.isnull().any().sum()}')
 
     df.loc[:, 'age'] = pd.to_numeric(df['age'], errors='coerce')
-    # Age imputing
+    # Age imputing for outliers which are probably errors
     df.loc[df['age'] < 18, "age"]  = (df.loc[(df['age'] >= 18)
                                       & (df['age'] <= 30), "age"]
                                       .mean(skipna=True))
     df.loc[df['age'] > 100, "age"] = (df.loc[(df['age'] >= 30) 
                                       & (df['age'] <= 100), "age"]
                                       .mean(skipna=True))
+    # Age mean imputing for the rest
     df["age"].fillna(df["age"].mean(), inplace=True)
     df.loc[:, 'age'] = df.loc[:, "age"].astype(int)
     # Imputing new customer flag, as missing values are present for new customers
@@ -225,12 +231,14 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
     # If any rows still null (province has all null) replace by overall median
     df.loc[df['renta'].isnull(), "renta"] = df.renta.median() 
     df = df.sort_values(by="fecha_dato").reset_index(drop=True)
-    # Imputing product values with median, because of small number
+    # Imputing product feature values with median, because of small number
+    # of missing values in total
     if not test:
         df.loc[df['ind_nomina_ult1'].isnull(), "ind_nomina_ult1"] = 0
         df.loc[df['ind_nom_pens_ult1'].isnull(), "ind_nom_pens_ult1"] = 0
-    # Imputing string columns with empty characters with median or new category
+    # Missing values for dead customers imputed as negative (mode)
     df.loc[df['indfall'].isnull(), "indfall"] = "N"
+    # Imputing customer relation with overall mode - active client
     df.loc[df['tiprel_1mes'].isnull(), "tiprel_1mes"] = "A"
     df.loc[:, 'tiprel_1mes'] = df['tiprel_1mes'].astype("category")
 
@@ -247,11 +255,12 @@ def impute_santander(santander_df: Iterator[pd.DataFrame],
             "4"   : "4",
             "2"   : "2"}
 
+    # Imputing with dataset mode and applying custom mapping
     df['indrel_1mes'].fillna("P", inplace=True)
     df.loc[:, 'indrel_1mes'] = df['indrel_1mes'].apply(lambda x:
                                                        map_dict.get(x, x))
     df.loc[:, 'indrel_1mes'] = df['indrel_1mes'].astype("category")
-
+    # Creating new category for missing categorical data
     string_data = df.select_dtypes(include=["object"])
     missing_columns = ([col for col in string_data if string_data[col]
                         .isnull().any()])
