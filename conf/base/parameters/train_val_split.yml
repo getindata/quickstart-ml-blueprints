@@ -1,0 +1,4 @@
+train_val_split:
+  candidate_selection:
+    date_column: t_dat
+    no_week: 1

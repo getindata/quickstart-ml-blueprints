@@ -1,5 +1,16 @@
-# This is a boilerplate parameters config generated for pipeline 'candidate_generation'
-# using Kedro 0.17.7.
-#
-# Documentation for this file format can be found in "Parameters"
-# Link: https://kedro.readthedocs.io/en/0.17.7/04_kedro_project_setup/02_configuration.html#parameters
+candidate_generation:
+  global_articles:
+    n_days: [7, 30, 90, null]
+    top_n: [100, 100, 100, 100]
+  segment_articles:
+    no_segments: 5
+    n_days: [7, 30, 90, null]
+    top_n: [100, 100, 100, 100]
+  image_embeddings:
+    n_last_bought: 5
+    k_closest: 5
+    name: closest_image_embeddings
+  text_embeddings:
+    n_last_bought: 5
+    k_closest: 5
+    name: closest_text_embeddings
