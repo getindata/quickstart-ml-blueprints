@@ -80,7 +80,7 @@ def collect_global_articles(transactions: pd.DataFrame, n_days_list: List[Union[
         logger.info(f'All articles size after: {len(all_global_articles)}')
     return all_global_articles
 
-def global_articles(customers: pd.DataFrame, articles: ArticlesSet) -> pd.DataFrame:
+def assign_global_articles(customers: pd.DataFrame, articles: ArticlesSet) -> pd.DataFrame:
     """Creates a dataframe with global articles (most sold items) for each customer.
 
     Args:
@@ -178,7 +178,7 @@ def collect_segment_articles(transactions: pd.DataFrame, customers_bins: pd.Data
         segment_articles = _update_dict_of_sets(segment_articles, articles_per_bin_dict)
     return segment_articles
 
-def segment_articles(articles_dict: ArticlesBin, customers_segment: pd.DataFrame) -> pd.DataFrame:
+def assign_segment_articles(articles_dict: ArticlesBin, customers_segment: pd.DataFrame) -> pd.DataFrame:
     """Creates a dataframe with segment articles (most sold items by age segment) for each customer.
 
     Args:
@@ -198,7 +198,7 @@ def segment_articles(articles_dict: ArticlesBin, customers_segment: pd.DataFrame
     return segment_articles
 
 # PREVIOUSLY BOUGHT ARTICLES
-def previously_bought_articles(transactions: pd.DataFrame) -> pd.DataFrame:
+def collect_previously_bought_articles(transactions: pd.DataFrame) -> pd.DataFrame:
     """Returns a dataframe with list of previously bought `article_id` for each customer.
 
     Args:
@@ -211,7 +211,7 @@ def previously_bought_articles(transactions: pd.DataFrame) -> pd.DataFrame:
     prev_bought = prev_bought.groupby(['customer_id'])['article_id'].apply(list).reset_index(name='previously_bought')
     return prev_bought
 
-def previously_bought_prod_name_articles(transactions: pd.DataFrame, articles: pd.DataFrame) -> pd.DataFrame:
+def collect_previously_bought_prod_name_articles(transactions: pd.DataFrame, articles: pd.DataFrame) -> pd.DataFrame:
     """Returns a dataframe with list of `article_id` from the same `prod_name` for which customer previously bought article from.
     For example: if customer A bought `prod_name='Socks'` then, the resulting dataframe will contain all items from `prod_name='Socks'`.
 
@@ -310,7 +310,7 @@ def _cleanup_closest_embeddings(embeddings: pd.DataFrame, name: str) -> pd.DataF
     logger.info(f'Closest embeddings df shape after cleanup: {embeddings.shape}')
     return embeddings
 
-def similar_embeddings(transactions: pd.DataFrame, embeddings: pd.DataFrame, n_last_bought: int = 5, k_closest: int = 5, name: str = 'closest_emb') -> pd.DataFrame:
+def collect_similar_embeddings(transactions: pd.DataFrame, embeddings: pd.DataFrame, n_last_bought: int = 5, k_closest: int = 5, name: str = 'closest_emb') -> pd.DataFrame:
     """Returns a dataframe with `k_closest` embeddings indices for each of `n_last_bought` items for each customer. Transactions are sorted by date descendingly.
 
     Args:
