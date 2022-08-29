@@ -25,11 +25,7 @@ def concat_train_val(
 
     Args:
         train_df (pd.DataFrame): transactions train dataframe
-<<<<<<< HEAD
         val_df (pd.DataFrame): transaction val dataframe
-=======
-        val_df (pd.DataFrame): transaction val datafraame
->>>>>>> wip
 
     Returns:
         pd.DataFrame: concatenated transactions dataframe
