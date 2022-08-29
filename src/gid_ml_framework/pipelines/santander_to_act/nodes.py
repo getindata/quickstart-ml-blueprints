@@ -32,11 +32,11 @@ def santander_to_articles(santander: Iterator[pd.DataFrame]) \
     # Regex for Santander products names
     r = re.compile("ind_+.*ult.*")
     # There is no article features in Santander dataset 
-    articles = pd.DataFrame({'article_id': list(filter(r.match,
+    articles = pd.DataFrame({"article_id": list(filter(r.match,
                                                        santander.columns))})
     log.info(f"Number of unique articles: {articles.shape[0]}")
-    log.info(f'Number of columns with missing values in articles dataset: \
-    {articles.isnull().any().sum()}')                                             
+    log.info(f"Number of columns with missing values in articles dataset: \
+    {articles.isnull().any().sum()}")                                             
     return articles
 
 
@@ -54,20 +54,20 @@ def santander_to_customers(santander: Iterator[pd.DataFrame],
         pd.DataFrame: dataframe with features of each customer
     """
     santander = _concat_chunks(santander)
-    santander.rename(columns={'ncodpers': 'customer_id'}, inplace=True)
-    if merge_type == 'last':
+    santander.rename(columns={"ncodpers": "customer_id"}, inplace=True)
+    if merge_type == "last":
         # Customers features from last month
-        last_month = santander.loc[:, 'fecha_dato'].max()
-        customers = santander.loc[santander['fecha_dato'] >= last_month, :]
-        customers.drop(['fecha_dato'], axis=1, inplace=True)
+        last_month = santander.loc[:, "fecha_dato"].max()
+        customers = santander.loc[santander["fecha_dato"] >= last_month, :]
+        customers.drop(["fecha_dato"], axis=1, inplace=True)
     else:
         # If no merge_type specified list of unique customer_id is returned
-        customers = pd.DataFrame({'customer_id': santander['customer_id']
+        customers = pd.DataFrame({"customer_id": santander["customer_id"]
                                                  .unique()})
     log.info(f"Number of unique customers: {customers.shape[0]}")
     log.info(f"Number of customers features: {customers.shape[1]}")
-    log.info(f'Number of columns with missing values in customers dataset: \
-    {customers.isnull().any().sum()}')    
+    log.info(f"Number of columns with missing values in customers dataset: \
+    {customers.isnull().any().sum()}")    
     return customers
 
 
@@ -83,9 +83,8 @@ def _status_change(x: pd.Series) -> str:
         str: target label - added/dropped/maintained
     """
     # First occurrence is considered as "Maintained"
-    label = ["Added" if i == 1 \
-         else "Dropped" if i == -1 \
-         else "Maintained" for i in x]
+    label_map = {1: "Added", -1: "Dropped"}
+    label = [label_map.get(i, "Maintained") for i in x]
     return label
 
 
@@ -108,19 +107,21 @@ def _identify_newly_added(input_train_df: Iterator[pd.DataFrame],
     val_df = _concat_chunks(input_val_df)
     train_len = len(train_df)
     df = pd.concat([train_df, val_df])
-    feature_cols = df.iloc[:1,].filter(regex="ind_+.*ult.*").columns.values
-    df = df.sort_values(['ncodpers', 'fecha_dato']).reset_index(drop=True)
+    r = re.compile("ind_+.*ult.*")
+    feature_cols = list(filter(r.match, df.columns))
+    df = df.sort_values(["ncodpers", "fecha_dato"]).reset_index(drop=True)
     # Apply status change labeling
-    s = df.loc[:, [i for i in feature_cols] + ["ncodpers"]]
-    # Optimized version without groupby
-    df.loc[:, feature_cols] = (s.loc[:, [i for i in feature_cols]].diff()
-                               .where(s.duplicated(["ncodpers"],
-                               keep='first'))
+    diff_cols = df.loc[:, [i for i in feature_cols] + ["ncodpers"]]
+    # Optimized version of diff for each user without groupby
+    df.loc[:, feature_cols] = (diff_cols.loc[:, [i for i in feature_cols]]
+                               .diff()
+                               .where(diff_cols.duplicated(["ncodpers"],
+                               keep="first"))
                                ).fillna(0).transform(_status_change)
-    df = df.sort_values(['fecha_dato']).reset_index(drop=True)
+    df = df.sort_values(["fecha_dato"]).reset_index(drop=True)
 
-    log.info(f'Sum of number of newly added products: \
-             {df.eq("Added").sum().sum()}')
+    log.info(f"Sum of number of newly added products: \
+             {df.eq('Added').sum().sum()}")
 
     train_df = df.iloc[:train_len, :]
     val_df = df.iloc[train_len:, :]
@@ -139,16 +140,16 @@ def _interaction_to_transaction(newly_added: pd.DataFrame, article_name: str) \
     Returns:
         pd.DataFrame: transactions for chosen article
     """
-    article_interactions = newly_added.loc[:, ['ncodpers', 'fecha_dato',
+    article_interactions = newly_added.loc[:, ["ncodpers", "fecha_dato",
                                               article_name]]
     # Filtering only newly added articles
     article_transactions = article_interactions.loc[article_interactions
                                                     .loc[:, article_name] ==
                                                     "Added", :]
-    article_transactions['article_id'] = article_name
+    article_transactions["article_id"] = article_name
     article_transactions.drop(article_name, axis=1, inplace=True)
-    article_transactions.rename(columns={'fecha_dato': 'date',
-                                         'ncodpers': 'customer_id'},
+    article_transactions.rename(columns={"fecha_dato": "date",
+                                         "ncodpers": "customer_id"},
                                 inplace=True)
     return article_transactions
 
@@ -192,12 +193,12 @@ def santander_to_transactions(santander_train: Iterator[pd.DataFrame],
     # Apply for train and val dataframes
     transactions_train = _newly_added_to_transactions(newly_added_train)
     transactions_val = _newly_added_to_transactions(newly_added_val)
-    log.info(f'Number of columns with missing values in transactions_train: \
-    {transactions_train.isnull().any().sum()}')
-    log.info(f'Transactions_train shape: \
-    {transactions_train.shape}')
-    log.info(f'Number of columns with missing values in transactions_val: \
-    {transactions_val.isnull().any().sum()}')
-    log.info(f'Transactions_val shape: \
-    {transactions_val.shape}')
+    log.info(f"Number of columns with missing values in transactions_train: \
+    {transactions_train.isnull().any().sum()}")
+    log.info(f"Transactions_train shape: \
+    {transactions_train.shape}")
+    log.info(f"Number of columns with missing values in transactions_val: \
+    {transactions_val.isnull().any().sum()}")
+    log.info(f"Transactions_val shape: \
+    {transactions_val.shape}")
     return (transactions_train, transactions_val)
