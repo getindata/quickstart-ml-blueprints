@@ -28,7 +28,7 @@ def _stratify(df: pd.DataFrame, sample_customer_frac: float,
     (customer income bins) columns values from last month
 
     Args:
-        df (Iterator[pd.DataFrame]): raw Santader dataframe
+        df (pd.DataFrame): raw Santader dataframe
         sample_customer_frac (float): fraction of customers
         cutoff_date (Union[str, datetime]): filtering date point
 
