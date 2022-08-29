@@ -2,10 +2,10 @@ from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import (
-    collect_global_articles, global_articles,
-    segment_by_customer_age, collect_segment_articles, segment_articles,
-    previously_bought_articles, previously_bought_prod_name_articles,
-    similar_embeddings,
+    collect_global_articles, assign_global_articles,
+    segment_by_customer_age, collect_segment_articles, assign_segment_articles,
+    collect_previously_bought_articles, collect_previously_bought_prod_name_articles,
+    collect_similar_embeddings,
     collect_all_candidates
 )
 
@@ -25,13 +25,13 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="collect_global_articles_node",
             ),
             node(
-                func=global_articles,
+                func=assign_global_articles,
                 inputs=[
                     "customers",
                     "global_articles_set",
                     ],
                 outputs="global_articles_df",
-                name="global_articles_node",
+                name="assign_global_articles_node",
             ),
         ],
         namespace="global_candidate_generation",
@@ -64,13 +64,13 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="collect_segment_articles_node",
             ),
             node(
-                func=segment_articles,
+                func=assign_segment_articles,
                 inputs=[
                     "segment_articles_dict",
                     "customers_bins",
                     ],
                 outputs="segment_articles_df",
-                name="segment_articles_node",
+                name="assign_segment_articles_node",
             ),
         ],
         namespace="segment_candidate_generation",
@@ -82,23 +82,23 @@ def create_pipeline(**kwargs) -> Pipeline:
     previously_bought_pipeline = pipeline(
         [    
             node(
-                func=previously_bought_articles,
+                func=collect_previously_bought_articles,
                 inputs=[
                     # transactions
                     "train_transactions",
                     ],
                 outputs="prev_bought_df",
-                name="prev_bought_node",
+                name="collect_prev_bought_node",
             ),
             node(
-                func=previously_bought_prod_name_articles,
+                func=collect_previously_bought_prod_name_articles,
                 inputs=[
                     # transactions
                     "train_transactions",
                     "articles",
                     ],
                 outputs="prev_bought_prod_name_df",
-                name="prev_bought_prod_name_node",
+                name="collect_prev_bought_prod_name_node",
             ),
         ],
         namespace="prev_bought_candidate_generation",
@@ -110,7 +110,7 @@ def create_pipeline(**kwargs) -> Pipeline:
     closest_image_embeddings_pipeline = pipeline(
         [    
             node(
-                func=similar_embeddings,
+                func=collect_similar_embeddings,
                 inputs=[
                     # transactions
                     "train_transactions",
@@ -132,7 +132,7 @@ def create_pipeline(**kwargs) -> Pipeline:
     closest_text_embeddings_pipeline = pipeline(
         [    
             node(
-                func=similar_embeddings,
+                func=collect_similar_embeddings,
                 inputs=[
                     # transactions
                     "train_transactions",
