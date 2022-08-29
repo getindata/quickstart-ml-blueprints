@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 CSVDataSet._load = _load
 
 
+
 def concat_train_val(
     train_df: Iterator[pd.DataFrame], val_df: Iterator[pd.DataFrame], date_column: str
 ) -> pd.DataFrame:
