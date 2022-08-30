@@ -62,8 +62,7 @@ def santander_to_customers(santander: Iterator[pd.DataFrame],
         customers.drop(["fecha_dato"], axis=1, inplace=True)
     else:
         # If no merge_type specified list of unique customer_id is returned
-        customers = pd.DataFrame({"customer_id": santander["customer_id"]
-                                                 .unique()})
+        customers = pd.DataFrame({"customer_id": santander["customer_id"].unique()})
     log.info(f"Number of unique customers: {customers.shape[0]}")
     log.info(f"Number of customers features: {customers.shape[1]}")
     log.info(f"Number of columns with missing values in customers dataset: \
