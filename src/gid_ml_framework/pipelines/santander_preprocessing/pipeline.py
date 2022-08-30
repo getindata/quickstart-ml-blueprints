@@ -5,14 +5,16 @@ from kedro.pipeline.modular_pipeline import pipeline
 
 
 def create_pipeline(**kwargs) -> Pipeline:
+    train_namespace_params = "params:santander_preprocessing_train"
+    test_namespace_params = "params:santander_preprocessing_test"
     pipeline_instance_train = pipeline(
         [
             node(
                 func=sample_santander,
                 inputs=["santander_train_input",
-                        "params:santander_preprocessing_train.sample.sample_user_frac",
-                        "params:santander_preprocessing_train.sample.cutoff_date",
-                        "params:santander_preprocessing_train.sample.stratify"],
+                        f"{train_namespace_params}.sample.sample_user_frac",
+                        f"{train_namespace_params}.sample.cutoff_date",
+                        f"{train_namespace_params}.sample.stratify"],
                 outputs="santander_sample",
                 name="sample_santander_node",
             ),
@@ -37,14 +39,14 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=impute_santander,
                 inputs=["santander_pre_train",
-                        "params:santander_preprocessing_train.impute.test"],
+                        f"{train_namespace_params}.impute.test"],
                 outputs="santander_train",
                 name="impute_train_santander_node",
             ),
             node(
                 func=impute_santander,
                 inputs=["santander_pre_val",
-                        "params:santander_preprocessing_train.impute.test"],
+                        f"{train_namespace_params}.impute.test"],
                 outputs="santander_val",
                 name="impute_val_santander_node",
             ),
@@ -56,9 +58,9 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=sample_santander,
                 inputs=["santander_test_input",
-                        "params:santander_preprocessing_test.sample.sample_user_frac",
-                        "params:santander_preprocessing_test.sample.cutoff_date",
-                        "params:santander_preprocessing_test.sample.stratify"],
+                        f"{test_namespace_params}.sample.sample_user_frac",
+                        f"{test_namespace_params}.sample.cutoff_date",
+                        f"{test_namespace_params}.sample.stratify"],
                 outputs="santander_sample",
                 name="sample_santander_node",
             ),
@@ -77,7 +79,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=impute_santander,
                 inputs=["santander_cleaned",
-                        "params:santander_preprocessing_test.impute.test"],
+                        f"{test_namespace_params}.impute.test"],
                 outputs="santander_test",
                 name="impute_test_santander_node",
             ),
