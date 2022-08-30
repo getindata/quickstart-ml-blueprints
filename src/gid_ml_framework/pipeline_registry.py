@@ -9,6 +9,8 @@ from gid_ml_framework.pipelines import image_embeddings as ie
 from gid_ml_framework.pipelines import calculate_image_embeddings as cie
 from gid_ml_framework.pipelines import text_embeddings as te
 from gid_ml_framework.pipelines import image_resizer as ir
+from gid_ml_framework.pipelines import santander_preprocessing as sp
+from gid_ml_framework.pipelines import santander_to_act as sta
 from gid_ml_framework.pipelines import manual_feature_engineering as mfe
 from gid_ml_framework.pipelines import automated_feature_engineering as afe
 from gid_ml_framework.pipelines import candidates_feature_engineering as cfe
@@ -30,6 +32,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
     calculate_image_embeddings_pipeline = cie.create_pipeline()
     text_embeddings_pipeline = te.create_pipeline()
     image_resizer_pipeline = ir.create_pipeline()
+    santander_preprocessing_pipeline = sp.create_pipeline()
+    santander_to_act_piepline = sta.create_pipeline()
     manual_feature_engineering_pipeline = mfe.create_pipeline()
     automated_feature_engineering_pipeline = afe.create_pipeline()
     candidates_feature_engineering_pipeline = cfe.create_pipeline()
@@ -45,6 +49,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "cie": calculate_image_embeddings_pipeline,
         "te": text_embeddings_pipeline,
         "ir": image_resizer_pipeline,
+        "sp": santander_preprocessing_pipeline,
+        "sta": santander_to_act_piepline,
         "mfe": manual_feature_engineering_pipeline,
         "afe": automated_feature_engineering_pipeline,
         "cfe": candidates_feature_engineering_pipeline,
