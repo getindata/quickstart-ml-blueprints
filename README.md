@@ -74,6 +74,13 @@ poetry shell
 exit
 ```
 
+## How to setup pre-commit
+
+To setup pre-commit hooks: 
+```
+pre-commit install
+```
+
 ## How to run Kedro
 
 You can run your Kedro project with:
