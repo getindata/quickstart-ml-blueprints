@@ -1,14 +1,36 @@
-# SAMPLE
-customers_sample:
+# INPUT DATA
+hm_articles_input:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/customers_sample.csv
+  filepath: data/01_raw/hm/articles.csv
+  layer: raw
+  load_args:
+    dtype:
+      article_id: str
+
+hm_customers_input:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/hm/customers.csv
+  layer: raw
+
+hm_transactions_input:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/hm/transactions_train.csv
+  layer: raw
+  load_args:
+    dtype:
+      article_id: str
+
+# SAMPLE
+hm_customers:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/hm/hm_customers.csv
   layer: intermediate
   save_args:
     index: False
 
-transactions_sample:
+hm_transactions:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/transactions_sample.csv
+  filepath: data/02_intermediate/hm/hm_transactions.csv
   layer: intermediate
   save_args:
     index: False
@@ -16,9 +38,9 @@ transactions_sample:
     dtype:
       article_id: str
 
-articles_sample:
+hm_articles:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/articles_sample.csv
+  filepath: data/02_intermediate/hm/hm_articles.csv
   layer: intermediate
   save_args:
     index: False
@@ -27,9 +49,9 @@ articles_sample:
       article_id: str
 
 # TRAIN VAL SPLIT
-train_transactions:
+hm_transactions_train:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/train_transactions.csv
+  filepath: data/03_primary/hm/hm_transactions_train.csv
   layer: primary
   save_args:
     index: False
@@ -37,19 +59,49 @@ train_transactions:
     dtype:
       article_id: str
 
-val_transactions:
+hm_transactions_val:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/val_transactions.csv
+  filepath: data/03_primary/hm/hm_transactions_val.csv
   layer: primary
   save_args:
     index: False
   load_args:
     dtype:
       article_id: str
-  
-train_candidates:
-  type: pandas.ParquetDataSet
-  filepath: data/03_primary/train_candidates.pq
+
+# GRAPH RECOMMENDATION
+hm.transactions_graph:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/hm/hm_transactions_graph.csv
   layer: primary
+  save_args:
+    index: False
   load_args:
-    engine: pyarrow
+    dtype:
+      item_id: str
+    chunksize: 1000000
+    low_memory: False
+
+hm_transactions_mapped:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/hm/hm_transactions_mapped.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      item_id: str
+    chunksize: 1000000
+    low_memory: False
+
+hm_users_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/hm/hm_users_mapping.csv
+  layer: primary
+  backend: pickle
+
+hm_items_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/hm/hm_items_mapping.csv
+  layer: primary
+  backend: pickle

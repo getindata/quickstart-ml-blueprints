@@ -3,6 +3,7 @@ from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import train_val_split
 
+
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         [
