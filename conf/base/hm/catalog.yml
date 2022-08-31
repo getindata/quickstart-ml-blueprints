@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # INPUT DATA
 hm_articles_input:
   type: pandas.CSVDataSet
@@ -25,25 +24,13 @@ hm_transactions_input:
 hm_customers:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/hm/hm_customers.csv
-=======
-# SAMPLE
-customers_sample:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/customers_sample.csv
->>>>>>> added dataset parametrized graph preprocessing
   layer: intermediate
   save_args:
     index: False
 
-<<<<<<< HEAD
 hm_transactions:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/hm/hm_transactions.csv
-=======
-transactions_sample:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/transactions_sample.csv
->>>>>>> added dataset parametrized graph preprocessing
   layer: intermediate
   save_args:
     index: False
@@ -51,15 +38,9 @@ transactions_sample:
     dtype:
       article_id: str
 
-<<<<<<< HEAD
 hm_articles:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/hm/hm_articles.csv
-=======
-articles_sample:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/articles_sample.csv
->>>>>>> added dataset parametrized graph preprocessing
   layer: intermediate
   save_args:
     index: False
@@ -68,15 +49,9 @@ articles_sample:
       article_id: str
 
 # TRAIN VAL SPLIT
-<<<<<<< HEAD
 hm_transactions_train:
   type: pandas.CSVDataSet
   filepath: data/03_primary/hm/hm_transactions_train.csv
-=======
-train_transactions:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/train_transactions.csv
->>>>>>> added dataset parametrized graph preprocessing
   layer: primary
   save_args:
     index: False
@@ -84,22 +59,15 @@ train_transactions:
     dtype:
       article_id: str
 
-<<<<<<< HEAD
 hm_transactions_val:
   type: pandas.CSVDataSet
   filepath: data/03_primary/hm/hm_transactions_val.csv
-=======
-val_transactions:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/val_transactions.csv
->>>>>>> added dataset parametrized graph preprocessing
   layer: primary
   save_args:
     index: False
   load_args:
     dtype:
       article_id: str
-<<<<<<< HEAD
 
 # GRAPH RECOMMENDATION
 hm.transactions_graph:
@@ -121,28 +89,17 @@ hm_transactions_mapped:
   save_args:
     index: False
   load_args:
-    dtype:
-      item_id: str
     chunksize: 1000000
     low_memory: False
 
 hm_users_mapping:
   type: pickle.PickleDataSet
-  filepath: data/03_primary/hm/hm_users_mapping.csv
+  filepath: data/03_primary/hm/hm_users_mapping.pickle
   layer: primary
   backend: pickle
 
 hm_items_mapping:
   type: pickle.PickleDataSet
-  filepath: data/03_primary/hm/hm_items_mapping.csv
+  filepath: data/03_primary/hm/hm_items_mapping.pickle
   layer: primary
   backend: pickle
-=======
-  
-train_candidates:
-  type: pandas.ParquetDataSet
-  filepath: data/03_primary/train_candidates.pq
-  layer: primary
-  load_args:
-    engine: pyarrow
->>>>>>> added dataset parametrized graph preprocessing
