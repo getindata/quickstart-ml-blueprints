@@ -59,7 +59,9 @@ def santander_to_customers(
     if merge_type == "last":
         # Customers features from last months of available data
         customers = (
-            df.sort_values(["customer_id", "fecha_dato"]).groupby("customer_id").last()
+            df.sort_values(["customer_id", "fecha_dato"])
+            .groupby("customer_id", as_index=False)
+            .last()
         )
         customers.drop(["fecha_dato"], axis=1, inplace=True)
     else:

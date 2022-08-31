@@ -32,13 +32,15 @@ def concat_train_val(
     train_df = _concat_chunks(train_df)
     val_df = _concat_chunks(val_df)
     concat_df = pd.concat([train_df, val_df]).reset_index(drop=True)
+    concat_df.loc[:, date_column] = pd.to_datetime(concat_df.loc[:, date_column])
     concat_df.loc[:, "time"] = (
         concat_df.loc[:, date_column].values.astype(np.int64) // 10**9
     )
     concat_df.drop(date_column, axis=1, inplace=True)
     concat_df.rename(
-        columns={"articles_id": "item_id", "customer_id": "user_id"}, inplace=True
+        columns={"article_id": "item_id", "customer_id": "user_id"}, inplace=True
     )
+    logger.info(f"Concatenated transactions dataframe shape: {concat_df.shape}")
     return concat_df
 
 
@@ -63,12 +65,18 @@ def map_users_and_items(
         Tuple: tuple of dataframes including original dataframe with mapping applied and mappings for users and items
     """
     transactions_df = _concat_chunks(transactions_df)
-    customers_df = _concat_chunks(customers_df)
-    articles_df = _concat_chunks(articles_df)
     logger.info(f"Transactions dataframe shape: {transactions_df.shape}")
     users_mapping = _create_mapping(customers_df, map_column="customer_id")
     items_mapping = _create_mapping(articles_df, map_column="article_id")
+    user_column = "user_id"
+    item_column = "item_id"
     transactions_df.replace(
-        {"user_id": users_mapping, "item_id": items_mapping}, inplace=True
+        {user_column: users_mapping, item_column: items_mapping}, inplace=True
+    )
+    logger.info(
+        f"Max and min user_ids: {max(transactions_df.loc[:, user_column])}, {min(transactions_df.loc[:, user_column])}"
+    )
+    logger.info(
+        f"Max and min item_ids: {max(transactions_df.loc[:, item_column])}, {min(transactions_df.loc[:, item_column])}"
     )
     return (transactions_df, users_mapping, items_mapping)

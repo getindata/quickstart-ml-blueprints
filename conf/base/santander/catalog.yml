@@ -284,3 +284,42 @@ santander_transactions_val:
       customer_id: int32
     chunksize: 1000000
     low_memory: False
+
+# GRAPH RECOMMENDATION
+santander.transactions_graph:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_transactions_graph.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      item_id: str
+      user_id: int32
+    chunksize: 1000000
+    low_memory: False
+
+santander_transactions_mapped:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_transactions_mapped.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      item_id: str
+      user_id: int32
+    chunksize: 1000000
+    low_memory: False
+
+santander_users_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/santander/santander_users_mapping.csv
+  layer: primary
+  backend: pickle
+
+santander_items_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/santander/santander_items_mapping.csv
+  layer: primary
+  backend: pickle
