@@ -231,7 +231,7 @@ santander_test:
     low_memory: False
 
 # ACT
-santander_to_act_main.santander_articles:
+santander_articles:
   type: pandas.CSVDataSet
   filepath: data/03_primary/santander/santander_articles.csv
   layer: primary
@@ -240,10 +240,9 @@ santander_to_act_main.santander_articles:
   load_args:
     dtype:
       article_id: str
-    chunksize: 1000000
     low_memory: False
 
-santander_to_act_main.santander_customers:
+santander_customers:
   type: pandas.CSVDataSet
   filepath: data/03_primary/santander/santander_customers.csv
   layer: primary
@@ -258,10 +257,9 @@ santander_to_act_main.santander_customers:
       segmento: category
       ind_nuevo: category
       <<: *dtypes_train
-    chunksize: 1000000
     low_memory: False
 
-santander_to_act_main.santander_transactions_train:
+santander_transactions_train:
   type: pandas.CSVDataSet
   filepath: data/03_primary/santander/santander_transactions_train.csv
   layer: primary
@@ -270,11 +268,11 @@ santander_to_act_main.santander_transactions_train:
   load_args:
     dtype:
       article_id: str
-      client_id: int32
+      customer_id: int32
     chunksize: 1000000
     low_memory: False
 
-santander_to_act_main.santander_transactions_val:
+santander_transactions_val:
   type: pandas.CSVDataSet
   filepath: data/03_primary/santander/santander_transactions_val.csv
   layer: primary
@@ -283,6 +281,6 @@ santander_to_act_main.santander_transactions_val:
   load_args:
     dtype:
       article_id: str
-      client_id: int32
+      customer_id: int32
     chunksize: 1000000
     low_memory: False

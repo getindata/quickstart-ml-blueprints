@@ -20,7 +20,11 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=santander_to_customers,
-                inputs=["santander_train", "params:customers.merge_type"],
+                inputs=[
+                    "santander_train",
+                    "santander_val",
+                    "params:customers.merge_type",
+                ],
                 outputs="santander_customers",
                 name="santander_to_customers_node",
             ),
@@ -36,7 +40,12 @@ def create_pipeline(**kwargs) -> Pipeline:
     main_pipeline = pipeline(
         pipe=main_pipeline_instance,
         inputs=["santander_train", "santander_val"],
-        outputs=["santander_articles", "santander_customers"],
+        outputs=[
+            "santander_articles",
+            "santander_customers",
+            "santander_transactions_train",
+            "santander_transactions_val",
+        ],
         namespace="santander_to_act_main",
         parameters={
             "params:customers.merge_type": "params:santander_to_act_main.customers.merge_type"

@@ -20,44 +20,47 @@ logger = logging.getLogger(__name__)
 CSVDataSet._load = _load
 
 
-def _stratify(
-    df: pd.DataFrame, sample_customer_frac: float, cutoff_date: Union[str, datetime]
-) -> List:
+def _stratify(df: pd.DataFrame, customers_limit: float) -> List:
     """Stratify customers based on age (age bins),
     tiprel_1mes (Customer relation type indicating if he is active), renta
-    (customer income bins) columns values from last month
+    (customer income bins) columns values for customers from last month as
+    they are also present in test subset
 
     Args:
         df (pd.DataFrame): raw Santader dataframe
-        sample_customer_frac (float): fraction of customers
-        cutoff_date (Union[str, datetime]): filtering date point
+        sample_customer_frac (float): number of customers to sample
 
     Returns:
         List: stratified sample of customers
     """
     # Stratification based on last month column values
-    df = df.loc[df["fecha_dato"] == cutoff_date, :]
-    strat_cols = ["age", "tiprel_1mes", "renta"]
+    last_month = df.loc[:, "fecha_dato"].max()
+    df = df.loc[df["fecha_dato"] == last_month, :]
+    age_col = "age"
+    relation_col = "tiprel_1mes"
+    income_col = "renta"
+    strat_cols = [age_col, relation_col, income_col]
     df = df.loc[:, strat_cols + ["ncodpers"]]
     # Age to bins
-    df["age"].fillna(df["age"].median(), inplace=True)
-    df.loc[:, "age"] = df.loc[:, "age"].astype(int)
-    df.loc[:, "age"] = pd.qcut(df["age"], q=3, labels=["1", "2", "3"]).astype(
+    df[age_col].fillna(df[age_col].median(), inplace=True)
+    df.loc[:, age_col] = df.loc[:, age_col].astype(int)
+    df.loc[:, age_col] = pd.qcut(df[age_col], q=3, labels=["1", "2", "3"]).astype(
         "category"
     )
     # Renta to bins
-    df.loc[:, "renta"] = pd.to_numeric(df.loc[:, "renta"], errors="coerce")
-    df.loc[df["renta"].isnull(), "renta"] = df.renta.median()
-    df.loc[:, "renta"] = pd.qcut(df["renta"], q=3, labels=["1", "2", "3"]).astype(
+    df.loc[:, income_col] = pd.to_numeric(df.loc[:, income_col], errors="coerce")
+    df.loc[df[income_col].isnull(), income_col] = df.renta.median()
+    df.loc[:, income_col] = pd.qcut(df[income_col], q=3, labels=["1", "2", "3"]).astype(
         "category"
     )
     # Tiprel_1mes imputing
-    df.loc[df["tiprel_1mes"].isnull(), "tiprel_1mes"] = "A"
-    df.loc[df["tiprel_1mes"].isin(["P", "R"]), "tiprel_1mes"] = "I"
-    df.loc[:, "tiprel_1mes"] = df["tiprel_1mes"].astype("category")
+    df.loc[df[relation_col].isnull(), relation_col] = "A"
+    df.loc[df[relation_col].isin(["P", "R"]), relation_col] = "I"
+    df.loc[:, relation_col] = df[relation_col].astype("category")
 
+    sample_frac = float(customers_limit) / float(df.shape[0])
     _, customers_sample = train_test_split(
-        df, test_size=sample_customer_frac, stratify=df.loc[:, strat_cols]
+        df, test_size=sample_frac, stratify=df.loc[:, strat_cols]
     )
     customers_sample.drop(strat_cols, axis=1, inplace=True)
     customers_list = np.unique(customers_sample.values.tolist())
@@ -94,8 +97,10 @@ def sample_santander(
     if np.isclose(sample_customer_frac, 1.0):
         santander_sample = santander_df
     else:
+        unique_ids = pd.Series(santander_df["ncodpers"].unique())
+        customers_limit = int(len(unique_ids) * sample_customer_frac)
         if stratify:
-            unique_ids = _stratify(santander_df, sample_customer_frac, cutoff_date)
+            unique_ids = _stratify(santander_df, customers_limit)
         else:
             unique_ids = pd.Series(santander_df["ncodpers"].unique())
             customers_limit = int(len(unique_ids) * sample_customer_frac)
