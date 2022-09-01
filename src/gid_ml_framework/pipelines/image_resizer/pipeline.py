@@ -12,8 +12,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="process_images",
                 inputs=[
                     "input_images",
-                    "params:image_resizer.output_size",
-                    "params:image_resizer.method",
+                    "params:output_size",
+                    "params:method",
                     ],
                 outputs="resized_images",
             ),

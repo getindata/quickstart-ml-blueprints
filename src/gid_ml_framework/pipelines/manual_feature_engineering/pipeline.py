@@ -21,7 +21,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     "transactions_sample",
                     "articles_sample",
-                    "params:manual_feature_engineering.customers.n_days",
+                    "params:customers.n_days",
                     ],
                 outputs="manual_customer_features",
             ),

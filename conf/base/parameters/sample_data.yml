@@ -1,4 +1,4 @@
-sampling:
+data_sampling:
   cutoff_date: '2020-04-01'
   customers_sample_size: 0.1
   articles_sample_size: 0.2
