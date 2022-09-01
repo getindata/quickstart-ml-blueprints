@@ -24,7 +24,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     "article_descriptions",
                     "article_labels",
-                    "params:text_embeddings.transformer_model",
+                    "params:transformer_model",
                     ],
                 outputs="text_embeddings",
             ),

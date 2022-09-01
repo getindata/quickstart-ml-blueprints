@@ -14,7 +14,7 @@ unpack_candidates_node = node(
     name="unpack_candidates_node",
     inputs=[
         "candidates_sample",
-        "params:candidates_feature_engineering.drop_random_strategies",
+        "params:drop_random_strategies",
         ],
         outputs="unpacked_candidates",
 )
@@ -23,7 +23,7 @@ filter_last_n_rows_per_customer_node = node(
     name="filter_last_n_rows_per_customer_node",
     inputs=[
         "transactions_sample",
-        "params:candidates_feature_engineering.last_n_rows",
+        "params:last_n_rows",
         ],
         outputs="latest_transactions",
 )
@@ -47,7 +47,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="create_set_of_attributes_node",
                 inputs=[
                     "articles",
-                    "params:candidates_feature_engineering.jaccard.attribute_cols",
+                    "params:jaccard.attribute_cols",
                     ],
                 outputs="article_attributes",
             ),
@@ -88,7 +88,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "unpacked_candidates",
                     "image_customer_embeddings",
                     "image_embeddings",
-                    "params:candidates_feature_engineering.cosine.image.col_name",
+                    "params:cosine.image.col_name",
                     ],
                 outputs="image_cosine_similarity_features",
             ),
@@ -119,7 +119,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "unpacked_candidates",
                     "text_customer_embeddings",
                     "text_embeddings",
-                    "params:candidates_feature_engineering.cosine.text.col_name",
+                    "params:cosine.text.col_name",
                     ],
                 outputs="text_cosine_similarity_features",
             ),
