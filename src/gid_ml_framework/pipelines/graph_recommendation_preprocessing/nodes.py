@@ -3,17 +3,11 @@ from typing import Dict, Iterator, Tuple
 
 import numpy as np
 import pandas as pd
-from kedro.extras.datasets.pandas import CSVDataSet
 
-from gid_ml_framework.extras.datasets.chunks_dataset import (
-    _concat_chunks,
-    _load,
-)
+from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
 
 pd.options.mode.chained_assignment = None
 logger = logging.getLogger(__name__)
-# Overwriting load method because of chunksize bug in Kedro < 0.18
-CSVDataSet._load = _load
 
 
 

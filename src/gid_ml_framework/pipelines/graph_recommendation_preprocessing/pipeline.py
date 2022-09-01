@@ -48,9 +48,6 @@ def create_pipeline(dataset_namespace: str, **kwargs) -> Pipeline:
             "items_mapping": f"{dataset_namespace}_items_mapping",
         },
         namespace=dataset_namespace,
-        parameters={
-            "params:concat.date_column": f"params:{dataset_namespace}.concat.date_column"
-        },
     )
 
     return main_pipeline
