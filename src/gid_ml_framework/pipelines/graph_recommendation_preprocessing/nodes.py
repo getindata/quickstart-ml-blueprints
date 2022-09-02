@@ -42,15 +42,13 @@ def concat_train_val(
 
 def _create_mapping(df: pd.DataFrame, map_column: str) -> Dict:
     """Creates mapping into consecutive integers for given column."""
-    ids = df.loc[:, map_column].sort_values().reset_index(drop=True)
+    ids = np.sort(df.loc[:, map_column].unique())
     mapping = {v: k for k, v in enumerate(ids)}
     return mapping
 
 
 def map_users_and_items(
     transactions_df: Iterator[pd.DataFrame],
-    customers_df: pd.DataFrame,
-    articles_df: pd.DataFrame,
 ) -> Tuple[pd.DataFrame, Dict, Dict]:
     """Map users and items ids to consecutive integers.
 
@@ -63,11 +61,11 @@ def map_users_and_items(
     if not isinstance(transactions_df, pd.DataFrame):
         transactions_df = _concat_chunks(transactions_df)
     logger.info(f"Transactions dataframe shape: {transactions_df.shape}")
-    users_mapping = _create_mapping(customers_df, map_column="customer_id")
-    items_mapping = _create_mapping(articles_df, map_column="article_id")
     user_column = "user_id"
     item_column = "item_id"
     time_column = "time"
+    users_mapping = _create_mapping(transactions_df, map_column=user_column)
+    items_mapping = _create_mapping(transactions_df, map_column=item_column)
     transactions_df.loc[:, user_column] = transactions_df.loc[:, user_column].map(
         users_mapping.get
     )

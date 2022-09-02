@@ -307,7 +307,7 @@ santander_transactions_mapped:
     index: False
   load_args:
     dtype:
-      item_id: str
+      item_id: int32
       user_id: int32
     chunksize: 1000000
     low_memory: False

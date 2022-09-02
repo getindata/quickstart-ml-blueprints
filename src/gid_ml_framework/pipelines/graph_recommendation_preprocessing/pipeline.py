@@ -21,8 +21,6 @@ def create_pipeline(dataset_namespace: str, **kwargs) -> Pipeline:
                 func=map_users_and_items,
                 inputs=[
                     "transactions_graph",
-                    "customers",
-                    "articles",
                 ],
                 outputs=[
                     "transactions_mapped",
@@ -39,8 +37,6 @@ def create_pipeline(dataset_namespace: str, **kwargs) -> Pipeline:
         inputs={
             "transactions_train": f"{dataset_namespace}_transactions_train",
             "transactions_val": f"{dataset_namespace}_transactions_val",
-            "customers": f"{dataset_namespace}_customers",
-            "articles": f"{dataset_namespace}_articles",
         },
         outputs={
             "transactions_mapped": f"{dataset_namespace}_transactions_mapped",
