@@ -1,7 +1,7 @@
 [tool.kedro]
 package_name = "gid_ml_framework"
 project_name = "GetInData ML Framework"
-project_version = "0.17.7"
+project_version = "0.18.2"
 
 [tool.isort]
 multi_line_output = 3
@@ -29,9 +29,9 @@ authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
 python = "3.8.12"
-kedro = {version = "0.17.7", extras = ["pandas.ExcelDataSet", "pandas.ParquetDataSet", "pandas.CSVDataSet"]}
-kedro-mlflow = "0.8.1"
-kedro-telemetry = "~=0.1.0"
+kedro = {version = "0.18.2", extras = ["pandas.ExcelDataSet", "pandas.ParquetDataSet", "pandas.CSVDataSet"]}
+kedro-mlflow = "0.11.2"
+kedro-telemetry = "0.2.1"
 matplotlib = "3.5.2"
 openpyxl = "^3.0.6"
 scikit-learn = "~=1.0"
@@ -45,6 +45,9 @@ pip = "^22.1.2"
 sentence-transformers = "^2.2.2"
 featuretools = "^1.12.1"
 lightgbm = "^3.3.2"
+kedro-vertexai = "0.6.0"
+kedro-docker = "0.3.0"
+google-cloud-aiplatform = "1.15.0"
 
 [tool.poetry.dev-dependencies]
 black = "21.5b1"
@@ -54,7 +57,7 @@ isort = "~=5.0"
 jupyter = "~=1.0"
 jupyter-client = ">=5.1,<7.0"
 jupyterlab = "~=3.0"
-kedro-viz = "~=4.0"
+kedro-viz = "5.0.1"
 nbstripout = "~=0.4"
 pandas-profiling = "^3.2.0"
 pytest = "~=6.2"
@@ -62,6 +65,7 @@ pytest-cov = "~=3.0"
 pytest-mock = "^1.7.1"
 scikit-learn = "~=1.0"
 wheel = ">=0.35,<0.37"
+pre-commit = "^2.20.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

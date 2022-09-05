@@ -3,11 +3,11 @@ import pytorch_lightning as pl
 import mlflow
 import matplotlib.pyplot as plt
 import numpy as np
-from kedro_mlflow.config import kedro_mlflow_config
+# from kedro_mlflow.config import kedro_mlflow_config
 import random
 
 # it's needed, so matplotlib artifacts are saved together with the mlflow run
-mlflow.set_experiment(experiment_name=kedro_mlflow_config.get_mlflow_config().tracking.experiment.name)
+# mlflow.set_experiment(experiment_name=kedro_mlflow_config.get_mlflow_config().tracking.experiment.name)
 
 
 class LitAutoEncoder(pl.LightningModule):

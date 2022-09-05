@@ -1,4 +1,4 @@
-image_embeddings_inference:
+calculate_image_embeddings:
   run_id: bcaab28da441450a86c8ea6276169c23
   image_path: data/01_raw/images_128_128
   batch_size: 64

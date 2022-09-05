@@ -9,6 +9,8 @@ from gid_ml_framework.pipelines import image_embeddings as ie
 from gid_ml_framework.pipelines import calculate_image_embeddings as cie
 from gid_ml_framework.pipelines import text_embeddings as te
 from gid_ml_framework.pipelines import image_resizer as ir
+from gid_ml_framework.pipelines import santander_preprocessing as sp
+from gid_ml_framework.pipelines import santander_to_act as sta
 from gid_ml_framework.pipelines import candidate_generation as cg
 from gid_ml_framework.pipelines import train_val_split as tvs
 from gid_ml_framework.pipelines import candidate_generation_validation as cgv
@@ -33,6 +35,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
     calculate_image_embeddings_pipeline = cie.create_pipeline()
     text_embeddings_pipeline = te.create_pipeline()
     image_resizer_pipeline = ir.create_pipeline()
+    santander_preprocessing_pipeline = sp.create_pipeline()
+    santander_to_act_piepline = sta.create_pipeline()
     candidate_generation_pipeline = cg.create_pipeline()
     train_val_split_pipeline = tvs.create_pipeline()
     candidate_generation_validation_pipeline = cgv.create_pipeline()
@@ -51,6 +55,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "cie": calculate_image_embeddings_pipeline,
         "te": text_embeddings_pipeline,
         "ir": image_resizer_pipeline,
+        "sp": santander_preprocessing_pipeline,
+        "sta": santander_to_act_piepline,
         "cg": candidate_generation_pipeline,
         "tvs": train_val_split_pipeline,
         "cgv": candidate_generation_validation_pipeline,

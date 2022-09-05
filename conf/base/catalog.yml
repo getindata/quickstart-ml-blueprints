@@ -256,3 +256,4 @@ recommendations:
   layer: model_output
   save_args:
     index: False
+    engine: pyarrow

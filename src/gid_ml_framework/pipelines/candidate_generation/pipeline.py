@@ -18,8 +18,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     # transactions
                     "train_transactions",
-                    "params:candidate_generation.global_articles.n_days",
-                    "params:candidate_generation.global_articles.top_n",
+                    "params:global_articles.n_days",
+                    "params:global_articles.top_n",
                     ],
                 outputs="global_articles_set",
                 name="collect_global_articles_node",
@@ -46,7 +46,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=segment_by_customer_age,
                 inputs=[
                     "customers",
-                    "params:candidate_generation.segment_articles.no_segments",
+                    "params:segment_articles.no_segments",
                     ],
                 outputs="customers_bins",
                 name="segment_by_customer_age_node",
@@ -57,8 +57,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                     # transactions
                     "train_transactions",
                     "customers_bins",
-                    "params:candidate_generation.segment_articles.n_days",
-                    "params:candidate_generation.segment_articles.top_n",
+                    "params:segment_articles.n_days",
+                    "params:segment_articles.top_n",
                     ],
                 outputs="segment_articles_dict",
                 name="collect_segment_articles_node",
@@ -115,9 +115,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                     # transactions
                     "train_transactions",
                     "image_embeddings",
-                    "params:candidate_generation.image_embeddings.n_last_bought",
-                    "params:candidate_generation.image_embeddings.k_closest",
-                    "params:candidate_generation.image_embeddings.name",
+                    "params:image_embeddings.n_last_bought",
+                    "params:image_embeddings.k_closest",
+                    "params:image_embeddings.name",
                     ],
                 outputs="closest_image_embeddings_df",
                 name="closest_image_embeddings_node",
@@ -137,9 +137,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                     # transactions
                     "train_transactions",
                     "text_embeddings",
-                    "params:candidate_generation.text_embeddings.n_last_bought",
-                    "params:candidate_generation.text_embeddings.k_closest",
-                    "params:candidate_generation.text_embeddings.name",
+                    "params:text_embeddings.n_last_bought",
+                    "params:text_embeddings.k_closest",
+                    "params:text_embeddings.name",
                     ],
                 outputs="closest_text_embeddings_df",
                 name="closest_text_embeddings_node",
