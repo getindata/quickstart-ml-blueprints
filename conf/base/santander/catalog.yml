@@ -314,12 +314,47 @@ santander_transactions_mapped:
 
 santander_users_mapping:
   type: pickle.PickleDataSet
-  filepath: data/03_primary/santander/santander_users_mapping.csv
+  filepath: data/03_primary/santander/santander_users_mapping.pickle
   layer: primary
   backend: pickle
 
 santander_items_mapping:
   type: pickle.PickleDataSet
-  filepath: data/03_primary/santander/santander_items_mapping.csv
+  filepath: data/03_primary/santander/santander_items_mapping.pickle
   layer: primary
   backend: pickle
+
+#DGSR
+santander_dgsr_transactions_graph:
+  type: pickle.PickleDataSet
+  filepath: data/04_feature/santander/santander_dgsr_transactions_graph.pickle
+  layer: feature
+  backend: pickle
+
+santander_dgsr_negative_transactions_samples:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_dgsr_negative_transactions_samples.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+santander_dgsr_train_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_train_graphs
+  load_args:
+    file_extension: bin
+
+santander_dgsr_val_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_val_graphs
+  load_args:
+    file_extension: bin
+
+santander_dgsr_test_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_test_graphs
+  load_args:
+    file_extension: bin
