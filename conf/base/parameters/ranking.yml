@@ -1,4 +1,4 @@
-ranking:
+train_ranking:
   val_size: 0.15
   training:
     k: 12

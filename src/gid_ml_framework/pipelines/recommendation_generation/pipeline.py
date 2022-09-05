@@ -12,8 +12,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="generate_predictions_node",
                 inputs=[
                     "final_candidates",
-                    "params:recommendation_generation.models",
-                    "params:recommendation_generation.k",
+                    "params:models",
+                    "params:k",
                     ],
                 outputs="recommendations",
             ),

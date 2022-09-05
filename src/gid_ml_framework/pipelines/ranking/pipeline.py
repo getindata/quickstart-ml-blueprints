@@ -12,7 +12,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="train_val_split_node",
                 inputs=[
                     "final_candidates",
-                    "params:ranking.val_size",
+                    "params:val_size",
                     ],
                 outputs=["train_candidates", "val_candidates"],
             ),
@@ -22,9 +22,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     "train_candidates",
                     "val_candidates",
-                    "params:ranking.training.params",
+                    "params:training.params",
                     "val_transactions",
-                    "params:ranking.training.k"
+                    "params:training.k"
                     ],
                 outputs=None,
             ),
