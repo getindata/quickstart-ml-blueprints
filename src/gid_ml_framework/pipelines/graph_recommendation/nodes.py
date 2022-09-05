@@ -1,14 +1,14 @@
 import logging
-import os
+from typing import List
 
 import dgl
 import numpy as np
 import pandas as pd
 import torch
-from dgl import save_graphs
 from dgl.sampling import select_topk
 from joblib import Parallel, delayed
 
+from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
 from gid_ml_framework.extras.graph_processing.dgsr import user_neg
 
 pd.options.mode.chained_assignment = None
@@ -39,7 +39,15 @@ def _refine_time(data):
     return data
 
 
-def generate_graph(data):
+def _simple_preprocess(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.groupby("user_id").apply(_refine_time).reset_index(drop=True)
+    df["time"] = df["time"].astype("int64")
+    return df
+
+
+def generate_graph_dgsr(df: pd.DataFrame) -> dgl.DGLGraph:
+    df = _concat_chunks(df)
+    data = _simple_preprocess(df)
     data = data.groupby("user_id").apply(_refine_time).reset_index(drop=True)
     data = data.groupby("user_id").apply(_cal_order).reset_index(drop=True)
     data = data.groupby("item_id").apply(_cal_u_order).reset_index(drop=True)
@@ -58,25 +66,23 @@ def generate_graph(data):
     return graph
 
 
-def generate_user(
+def _generate_user(
     user,
     data,
     graph,
     item_max_length,
     user_max_length,
-    train_path,
-    test_path,
     k_hop=3,
-    val_path=None,
 ):
     data_user = data[data["user_id"] == user].sort_values("time")
     u_time = data_user["time"].values
     u_seq = data_user["item_id"].values
     split_point = len(u_seq) - 1
-    train_num = 0
-    test_num = 0
+    train_list = []
+    val_list = []
+    test_list = []
     if len(u_seq) < 3:
-        return 0, 0
+        return train_list, val_list, test_list
     else:
         for j, t in enumerate(u_time[0:-1]):
             if j == 0:
@@ -131,63 +137,19 @@ def generate_user(
             last_alis = torch.where(
                 fin_graph.nodes["item"].data["item_id"] == last_item
             )[0]
+            graph_dict = {
+                "user": torch.tensor([user]),
+                "target": torch.tensor([target]),
+                "u_alis": u_alis,
+                "last_alis": last_alis,
+            }
             if j < split_point - 1:
-                save_graphs(
-                    train_path
-                    + "/"
-                    + str(user)
-                    + "/"
-                    + str(user)
-                    + "_"
-                    + str(j)
-                    + ".bin",
-                    fin_graph,
-                    {
-                        "user": torch.tensor([user]),
-                        "target": torch.tensor([target]),
-                        "u_alis": u_alis,
-                        "last_alis": last_alis,
-                    },
-                )
-                train_num += 1
+                train_list.append([user, j, fin_graph, graph_dict])
             if j == split_point - 1 - 1:
-                save_graphs(
-                    val_path
-                    + "/"
-                    + str(user)
-                    + "/"
-                    + str(user)
-                    + "_"
-                    + str(j)
-                    + ".bin",
-                    fin_graph,
-                    {
-                        "user": torch.tensor([user]),
-                        "target": torch.tensor([target]),
-                        "u_alis": u_alis,
-                        "last_alis": last_alis,
-                    },
-                )
+                val_list.append([user, j, fin_graph, graph_dict])
             if j == split_point - 1:
-                save_graphs(
-                    test_path
-                    + "/"
-                    + str(user)
-                    + "/"
-                    + str(user)
-                    + "_"
-                    + str(j)
-                    + ".bin",
-                    fin_graph,
-                    {
-                        "user": torch.tensor([user]),
-                        "target": torch.tensor([target]),
-                        "u_alis": u_alis,
-                        "last_alis": last_alis,
-                    },
-                )
-                test_num += 1
-        return train_num, test_num
+                test_list.append([user, j, fin_graph, graph_dict])
+    return train_list, val_list, test_list
 
 
 def _generate_data(
@@ -195,56 +157,29 @@ def _generate_data(
     graph,
     item_max_length,
     user_max_length,
-    train_path,
-    test_path,
-    val_path,
     job=10,
     k_hop=3,
 ):
     user = data["user_id"].unique()
-    a = Parallel(n_jobs=job)(
+    sample_lists = Parallel(n_jobs=job)(
         delayed(
-            lambda u: generate_user(
+            lambda u: _generate_user(
                 u,
                 data,
                 graph,
                 item_max_length,
                 user_max_length,
-                train_path,
-                test_path,
                 k_hop,
-                val_path,
             )
         )(u)
         for u in user
     )
-    return a
+    return sample_lists
 
 
-def _simple_preprocess(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.groupby("user_id").apply(_refine_time).reset_index(drop=True)
-    df["time"] = df["time"].astype("int64")
-    return df
-
-
-def generate_graph_dgsr(df: pd.DataFrame) -> dgl.DGLGraph:
-    data = _simple_preprocess(df)
-    data = data.groupby("user_id").apply(_refine_time).reset_index(drop=True)
-    data = data.groupby("user_id").apply(_cal_order).reset_index(drop=True)
-    data = data.groupby("item_id").apply(_cal_u_order).reset_index(drop=True)
-    user = data["user_id"].values
-    item = data["item_id"].values
-    time = data["time"].values
-    graph_data = {
-        ("item", "by", "user"): (torch.tensor(item), torch.tensor(user)),
-        ("user", "pby", "item"): (torch.tensor(user), torch.tensor(item)),
-    }
-    graph = dgl.heterograph(graph_data)
-    graph.edges["by"].data["time"] = torch.LongTensor(time)
-    graph.edges["pby"].data["time"] = torch.LongTensor(time)
-    graph.nodes["user"].data["user_id"] = torch.LongTensor(np.unique(user))
-    graph.nodes["item"].data["item_id"] = torch.LongTensor(np.unique(item))
-    return graph
+def _correct_shape(sample_lists: List) -> List:
+    sample_list = [item for sample_list in sample_lists for item in sample_list]
+    return sample_list
 
 
 def preprocess_dgsr(
@@ -255,32 +190,35 @@ def preprocess_dgsr(
     job: int = 10,
     k_hop: int = 2,
 ):
+    df = _concat_chunks(df)
     df = _simple_preprocess(df)
-    path = "data/04_feature/santander/"
-    train_path = os.path.join(path, "/train/")
-    val_path = os.path.join(path, "/val/")
-    test_path = os.path.join(path, "/test/")
-    all_num = _generate_data(
+    sample_lists = _generate_data(
         df,
         graph,
         item_max_length,
         user_max_length,
-        train_path,
-        test_path,
-        val_path,
         job=job,
         k_hop=k_hop,
     )
-    train_num = 0
-    test_num = 0
-    for num_ in all_num:
-        train_num += num_[0]
-        test_num += num_[1]
-    logger.info(f"The number of samples in train set: {train_num}")
-    logger.info(f"The number of samples in test set: {test_num}")
+    train_list = []
+    val_list = []
+    test_list = []
+    for train, val, test in sample_lists:
+        train_list.append(train)
+        val_list.append(val)
+        test_list.append(test)
+    train_list = _correct_shape(train_list)
+    val_list = _correct_shape(val_list)
+    test_list = _correct_shape(test_list)
+    logger.info(f"The number of samples in train set: {len(train_list)}")
+    logger.info(f"The number of samples in val set: {len(val_list)}")
+    logger.info(f"The number of samples in test set: {len(test_list)}")
+
+    return train_list, val_list, test_list
 
 
 def negative_sample_dgsr(df: pd.DataFrame) -> pd.DataFrame:
+    df = _concat_chunks(df)
     item = df.loc[:, "item_id"]
     item_num = len(item)
     data_neg = user_neg(df, item_num)

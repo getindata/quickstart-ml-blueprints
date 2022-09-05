@@ -29,7 +29,7 @@ def neg_generate(user, data_neg, neg_num=100):
     return neg
 
 
-class myFloder(Dataset):
+class SubGraphsDataset(Dataset):
     def __init__(self, root_dir, loader):
         self.root = root_dir
         self.loader = loader
@@ -112,7 +112,6 @@ def eval_metric(all_top, all_label, all_length, random_rank=True):
             prediction = (-all_top[index]).argsort(1).argsort(1)
             predictions = prediction[:, 0]
             for i, rank in enumerate(predictions):
-                # data_l[per_length[i], 6] += 1
                 if rank < 20:
                     ndgg20.append(1 / np.log2(rank + 2))
                     recall20.append(1)
@@ -149,7 +148,6 @@ def eval_metric(all_top, all_label, all_length, random_rank=True):
                     ndgg5.append(0)
                 else:
                     ndgg5.append(1 / np.log2(np.where(top_ == target)[0][0] + 2))
-    # pd.DataFrame(data_l, columns=['r5','r10','r20','n5','n10','n10','number']).to_csv(name+'.csv')
     return (
         np.mean(recall5),
         np.mean(recall10),
