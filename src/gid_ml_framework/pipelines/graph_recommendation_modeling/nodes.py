@@ -9,13 +9,13 @@ from dgl.sampling import select_topk
 from joblib import Parallel, delayed
 
 from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
-from gid_ml_framework.extras.graph_processing.dgsr import user_neg
+from gid_ml_framework.extras.graph_utils.dgsr_utils import user_neg
 
 pd.options.mode.chained_assignment = None
 logger = logging.getLogger(__name__)
 
 
-def _transactions_order(data: pd.DataFrame, colname: str) -> pd.DataFrame:
+def _sort_transactions(data: pd.DataFrame, colname: str) -> pd.DataFrame:
     data = data.sort_values(["time"], kind="mergesort")
     data[colname] = range(len(data))
     return data
@@ -34,7 +34,7 @@ def _refine_time(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def _simple_preprocess(df: pd.DataFrame) -> pd.DataFrame:
+def _preprocess_transactions(df: pd.DataFrame) -> pd.DataFrame:
     df = df.groupby("user_id").apply(_refine_time).reset_index(drop=True)
     df.loc[:, "time"] = df.loc[:, "time"].astype("int64")
     return df
@@ -50,16 +50,16 @@ def generate_graph_dgsr(df: pd.DataFrame) -> dgl.DGLGraph:
         dgl.DGLGraph: graph object created from transaction in input dataframe
     """
     df = _concat_chunks(df)
-    data = _simple_preprocess(df)
+    data = _preprocess_transactions(df)
     data = data.groupby("user_id").apply(_refine_time).reset_index(drop=True)
     data = (
         data.groupby("user_id")
-        .apply(lambda x: _transactions_order(x, "order"))
+        .apply(lambda x: _sort_transactions(x, "order"))
         .reset_index(drop=True)
     )
     data = (
         data.groupby("item_id")
-        .apply(lambda x: _transactions_order(x, "u_order"))
+        .apply(lambda x: _sort_transactions(x, "u_order"))
         .reset_index(drop=True)
     )
     user = data.loc[:, "user_id"].values
@@ -274,7 +274,7 @@ def preprocess_dgsr(
         Tuple: (train_list, val_list, test_list) - each one contains subgraphs for train/val/test subsets
     """
     df = _concat_chunks(df)
-    df = _simple_preprocess(df)
+    df = _preprocess_transactions(df)
     sample_lists = _generate_model_input(
         df,
         graph,
@@ -297,7 +297,7 @@ def preprocess_dgsr(
     return train_list, val_list, test_list
 
 
-def negative_sample_dgsr(df: pd.DataFrame) -> pd.DataFrame:
+def sample_negatives_dgsr(df: pd.DataFrame) -> pd.DataFrame:
     """Sample negative items for each user based on transactions dataframe
 
     Args:

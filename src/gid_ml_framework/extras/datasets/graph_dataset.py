@@ -7,7 +7,7 @@ from dgl import load_graphs, save_graphs
 from kedro.io import AbstractDataSet
 from kedro.io.core import get_protocol_and_path
 
-from gid_ml_framework.extras.graph_processing.dgsr import SubGraphsDataset
+from gid_ml_framework.extras.graph_utils.dgsr_utils import SubGraphsDataset
 
 logger = logging.getLogger(__name__)
 

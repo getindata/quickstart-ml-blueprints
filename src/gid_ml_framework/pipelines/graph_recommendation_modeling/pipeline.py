@@ -1,7 +1,7 @@
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from .nodes import generate_graph_dgsr, negative_sample_dgsr, preprocess_dgsr
+from .nodes import generate_graph_dgsr, preprocess_dgsr, sample_negatives_dgsr
 
 
 def create_pipeline(dataset: str, model: str, **kwargs) -> Pipeline:
@@ -40,10 +40,10 @@ def create_pipeline(dataset: str, model: str, **kwargs) -> Pipeline:
                 tags=["preprocess", "all"],
             ),
             node(
-                func=negative_sample_dgsr,
+                func=sample_negatives_dgsr,
                 inputs="transactions_mapped",
                 outputs="negative_transactions_samples",
-                name="negative_sample_dgsr_node",
+                name="sample_negatives_dgsr_node",
                 tags=["preprocess", "all"],
             ),
         ]
