@@ -57,7 +57,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
             logger.warning("Directory already exists, it may be not empty!")
         else:
             logger.info(f"Creating new directory: {save_path}")
-            save_path.mkdir(parents=False, exist_ok=False)
+            save_path.mkdir(parents=True, exist_ok=False)
 
         for row in data:
             if row:

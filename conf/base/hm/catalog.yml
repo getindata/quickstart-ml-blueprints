@@ -104,3 +104,36 @@ hm_items_mapping:
   filepath: data/03_primary/hm/hm_items_mapping.pickle
   layer: primary
   backend: pickle
+
+#DGSR
+hm_dgsr_transactions_graph:
+  type: pickle.PickleDataSet
+  filepath: data/04_feature/hm/hm_dgsr_transactions_graph.pickle
+  layer: feature
+  backend: pickle
+
+hm_dgsr_negative_transactions_samples:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/hm/hm_dgsr_negative_transactions_samples.csv
+  layer: primary
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+hm_dgsr_train_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/hm/hm_dgsr_train_graphs
+  load_args:
+    file_extension: bin
+
+hm_dgsr_val_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/hm/hm_dgsr_val_graphs
+  load_args:
+    file_extension: bin
+
+hm_dgsr_test_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/hm/hm_dgsr_test_graphs
+  load_args:
+    file_extension: bin

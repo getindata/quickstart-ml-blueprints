@@ -66,6 +66,10 @@ def register_pipelines() -> Dict[str, Pipeline]:
         dataset="santander",
         model="dgsr",
     )
+    graph_recommendation_hm_dgsr_pipeline = gr.create_pipeline(
+        dataset="hm",
+        model="dgsr",
+    )
 
     return {
         "__default__": sample_data_pipeline,
@@ -95,4 +99,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "santander_grp": graph_recommendation_preprocessing_santander_pipeline,
         "hm_grp": graph_recommendation_preprocessing_hm_pipeline,
         "santander_dgsr_gr": graph_recommendation_santander_dgsr_pipeline,
+        "hm_dgsr_gr": graph_recommendation_hm_dgsr_pipeline,
     }

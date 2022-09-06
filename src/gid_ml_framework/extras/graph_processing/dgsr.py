@@ -1,4 +1,9 @@
+"""
+Auxiliary functions for DGSR graph model
+"""
 import os
+from typing import Any, List, Tuple
+from xmlrpc.client import Boolean
 
 import _pickle as cPickle
 import dgl
@@ -8,28 +13,9 @@ import torch
 from torch.utils.data import Dataset
 
 
-def pickle_loader(path):
-    a = cPickle.load(open(path, "rb"))
-    return a
-
-
-def user_neg(data, item_num):
-    item = range(item_num)
-
-    def select(data_u, item):
-        return np.setdiff1d(item, data_u)
-
-    return data.groupby("user_id")["item_id"].apply(lambda x: select(x, item))
-
-
-def neg_generate(user, data_neg, neg_num=100):
-    neg = np.zeros((len(user), neg_num), np.int32)
-    for i, u in enumerate(user):
-        neg[i] = np.random.choice(data_neg[u], neg_num, replace=False)
-    return neg
-
-
 class SubGraphsDataset(Dataset):
+    """Torch dataset for subgraphs objects"""
+
     def __init__(self, root_dir, loader):
         self.root = root_dir
         self.loader = loader
@@ -45,16 +31,40 @@ class SubGraphsDataset(Dataset):
         return self.size
 
 
-def collate(data):
-    user = []
-    graph = []
-    last_item = []
-    label = []
-    for da in data:
-        user.append(da[0])
-        graph.append(da[1])
-        last_item.append(da[2])
-        label.append(da[3])
+def pickle_loader(path: str) -> Any:
+    pickle_object = cPickle.load(open(path, "rb"))
+    return pickle_object
+
+
+def select(all_items: List, user_items: List) -> np.array:
+    set_diff = np.setdiff1d(all_items, user_items, assume_unique=True)
+    return set_diff
+
+
+def user_neg(data: pd.DataFrame, item_num: int) -> pd.DataFrame:
+    """ "Generate negative items sample for all users"""
+    all_items = range(item_num)
+    data = data.groupby("user_id", observed=True)["item_id"].unique()
+    data = data.apply(lambda x: select(all_items, x))
+    return data
+
+
+def neg_generate(user: int, data_neg: pd.DataFrame, neg_num: int = 100) -> np.array:
+    """Sample items from all negative samples"""
+    neg = np.zeros((len(user), neg_num), np.int32)
+    for i, u in enumerate(user):
+        neg[i] = np.random.choice(data_neg[u], neg_num, replace=False)
+    return neg
+
+
+def collate(data: pd.DataFrame) -> Tuple:
+    """Collate function for torch subgraphs dataset"""
+    user, graph, last_item, label = ([], [], [], [])
+    for row in data:
+        user.append(row[0])
+        graph.append(row[1])
+        last_item.append(row[2])
+        label.append(row[3])
     return (
         torch.Tensor(user).long(),
         dgl.batch_hetero(graph),
@@ -63,7 +73,8 @@ def collate(data):
     )
 
 
-def load_data(data_path):
+def load_data(data_path: str) -> List:
+    """Generate list of all files in a dir"""
     data_dir = []
     dir_list = os.listdir(data_path)
     dir_list.sort()
@@ -73,20 +84,16 @@ def load_data(data_path):
     return data_dir
 
 
-def collate_test(data, user_neg):
-    user_alis = []
-    graph = []
-    last_item = []
-    label = []
-    user = []
-    length = []
-    for da in data:
-        user_alis.append(da[0])
-        graph.append(da[1])
-        last_item.append(da[2])
-        label.append(da[3])
-        user.append(da[4])
-        length.append(da[5])
+def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame):
+    """Collate function for torch test subgraphs dataset. Includes negative samples."""
+    user_alis, graph, last_item, label, user, length = ([], [], [], [], [], [])
+    for row in data:
+        user_alis.append(row[0])
+        graph.append(row[1])
+        last_item.append(row[2])
+        label.append(row[3])
+        user.append(row[4])
+        length.append(row[5])
     return (
         torch.Tensor(user_alis).long(),
         dgl.batch_hetero(graph),
@@ -97,21 +104,22 @@ def collate_test(data, user_neg):
     )
 
 
-def trans_to_cuda(variable):
+def trans_to_cuda(variable: Any) -> Any:
     if torch.cuda.is_available():
         return variable.cuda()
     else:
         return variable
 
 
-def eval_metric(all_top, all_label, all_length, random_rank=True):
+def eval_metric(all_top: List, all_label: List, random_rank: Boolean = True) -> Tuple:
+    """Calculates evaluation metrics based on scores"""
     recall5, recall10, recall20, ndgg5, ndgg10, ndgg20 = [], [], [], [], [], []
     data_l = np.zeros((100, 7))
     for index in range(len(all_top)):
         if random_rank:
             prediction = (-all_top[index]).argsort(1).argsort(1)
             predictions = prediction[:, 0]
-            for i, rank in enumerate(predictions):
+            for rank in predictions:
                 if rank < 20:
                     ndgg20.append(1 / np.log2(rank + 2))
                     recall20.append(1)
@@ -130,7 +138,6 @@ def eval_metric(all_top, all_label, all_length, random_rank=True):
                 else:
                     ndgg5.append(0)
                     recall5.append(0)
-
         else:
             for top_, target in zip(all_top[index], all_label[index]):
                 recall20.append(np.isin(target, top_))
@@ -159,46 +166,3 @@ def eval_metric(all_top, all_label, all_length, random_rank=True):
             data_l, columns=["r5", "r10", "r20", "n5", "n10", "n20", "number"]
         ),
     )
-
-
-def format_arg_str(args, exclude_lst, max_len=20):
-    linesep = os.linesep
-    arg_dict = vars(args)
-    keys = [k for k in arg_dict.keys() if k not in exclude_lst]
-    values = [arg_dict[k] for k in keys]
-    key_title, value_title = "Arguments", "Values"
-    key_max_len = max(map(lambda x: len(str(x)), keys))
-    value_max_len = min(max(map(lambda x: len(str(x)), values)), max_len)
-    key_max_len, value_max_len = max([len(key_title), key_max_len]), max(
-        [len(value_title), value_max_len]
-    )
-    horizon_len = key_max_len + value_max_len + 5
-    res_str = linesep + "=" * horizon_len + linesep
-    res_str += (
-        " "
-        + key_title
-        + " " * (key_max_len - len(key_title))
-        + " | "
-        + value_title
-        + " " * (value_max_len - len(value_title))
-        + " "
-        + linesep
-        + "=" * horizon_len
-        + linesep
-    )
-    for key in sorted(keys):
-        value = arg_dict[key]
-        if value is not None:
-            key, value = str(key), str(value).replace("\t", "\\t")
-            value = value[: max_len - 3] + "..." if len(value) > max_len else value
-            res_str += (
-                " "
-                + key
-                + " " * (key_max_len - len(key))
-                + " | "
-                + value
-                + " " * (value_max_len - len(value))
-                + linesep
-            )
-    res_str += "=" * horizon_len
-    return res_str
