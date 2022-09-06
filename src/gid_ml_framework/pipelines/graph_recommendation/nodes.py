@@ -1,5 +1,5 @@
 import logging
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import dgl
 import numpy as np
@@ -132,7 +132,6 @@ def _iterate_subgraphs(
         his_item = torch.unique(torch.cat([torch.tensor(i_temp), his_item]))
         edge_i.append(graph_i.edges["by"].data[dgl.NID])
         edge_u.append(graph_u.edges["pby"].data[dgl.NID])
-
     all_edge_u = torch.unique(torch.cat(edge_u))
     all_edge_i = torch.unique(torch.cat(edge_i))
     # Creating final graph
@@ -140,6 +139,34 @@ def _iterate_subgraphs(
         sub_graph, edges={"by": all_edge_i, "pby": all_edge_u}
     )
     return fin_graph
+
+
+def _prepare_graph_dict(
+    fin_graph: dgl.DGLGraph,
+    user: int,
+    u_seq: List,
+    j: int,
+) -> Dict:
+    target = u_seq[j + 1]
+    last_item = u_seq[j]
+    u_alis = torch.where(fin_graph.nodes["user"].data["user_id"] == user)[0]
+    last_alis = torch.where(fin_graph.nodes["item"].data["item_id"] == last_item)[0]
+    graph_dict = {
+        "user": torch.tensor([user]),
+        "target": torch.tensor([target]),
+        "u_alis": u_alis,
+        "last_alis": last_alis,
+    }
+    return graph_dict
+
+
+def _prepare_user_data(data: pd.DataFrame, user: int) -> Tuple:
+    data_user = data[data["user_id"] == user].sort_values("time")
+    data_user["time"] = data_user["time"].astype("int32")
+    u_time = data_user["time"].values
+    u_seq = data_user["item_id"].values
+    split_point = len(u_seq) - 1
+    return u_seq, u_time, split_point
 
 
 def _generate_user_subgraphs(
@@ -163,11 +190,7 @@ def _generate_user_subgraphs(
     Returns:
         Tuple: (train_list, val_list, test_list) - each one contains subgraphs for train/val/test subsets
     """
-    data_user = data[data["user_id"] == user].sort_values("time")
-    data_user["time"] = data_user["time"].astype("int32")
-    u_time = data_user["time"].values
-    u_seq = data_user["item_id"].values
-    split_point = len(u_seq) - 1
+    u_seq, u_time, split_point = _prepare_user_data(data, user)
     train_list, val_list, test_list = ([], [], [])
     # Considering only users with at least 3 transactions
     if len(u_seq) < 3:
@@ -186,18 +209,7 @@ def _generate_user_subgraphs(
             fin_graph = _iterate_subgraphs(
                 sub_graph, graph_i, k_hop, user_max_length, item_max_length, his_user
             )
-            target = u_seq[j + 1]
-            last_item = u_seq[j]
-            u_alis = torch.where(fin_graph.nodes["user"].data["user_id"] == user)[0]
-            last_alis = torch.where(
-                fin_graph.nodes["item"].data["item_id"] == last_item
-            )[0]
-            graph_dict = {
-                "user": torch.tensor([user]),
-                "target": torch.tensor([target]),
-                "u_alis": u_alis,
-                "last_alis": last_alis,
-            }
+            graph_dict = _prepare_graph_dict(fin_graph, user, u_seq, j)
             # Train/val/test split based on order in sequence
             if j < split_point - 1:
                 train_list.append([user, j, fin_graph, graph_dict])
@@ -271,9 +283,7 @@ def preprocess_dgsr(
         job=job,
         k_hop=k_hop,
     )
-    train_list = []
-    val_list = []
-    test_list = []
+    train_list, val_list, test_list = ([], [], [])
     for train, val, test in sample_lists:
         train_list.append(train)
         val_list.append(val)
