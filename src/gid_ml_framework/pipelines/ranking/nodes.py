@@ -7,6 +7,8 @@ import mlflow.lightgbm
 from sklearn.model_selection import train_test_split
 from typing import List, Tuple, Dict
 from ...helpers.metrics import map_at_k
+import optuna
+from optuna.integration.mlflow import MLflowCallback
 
 
 logger = logging.getLogger(__name__)
@@ -49,14 +51,16 @@ def _prepare_lgb_dataset(
             label=candidates[label],
             group=group,
             feature_name=features,
-            categorical_feature=cat_features
+            categorical_feature=cat_features,
+            free_raw_data=False
         )
     else:
         lgb_dataset = lgb.Dataset(
             data=candidates[features],
             label=candidates[label],
             feature_name=features,
-            categorical_feature=cat_features
+            categorical_feature=cat_features,
+            free_raw_data=False
         )
     return lgb_dataset
 
@@ -115,32 +119,27 @@ def _calculate_map(predictions: pd.DataFrame, val_transactions: pd.DataFrame, k:
     df_map.columns = ['customer_id', 'y_true', 'y_pred']
     return map_at_k(df_map['y_true'], df_map['y_pred'], k=k)
 
-def train_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFrame, model_params: Dict, val_transactions: pd.DataFrame, k: int = 12) -> None:
-    """Trains a LightGBM model, logs the model and metrics to MLflow.
+def train_single_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFrame, val_transactions: pd.DataFrame, model_params: Dict, k: int = 12) -> None:
+    """Trains a LightGBM model, (optionally) logs the model and metrics to MLflow.
 
     Args:
         train_candidates (pd.DataFrame): training candidates
         val_candidates (pd.DataFrame): validation candidates
-        model_params (Dict): parameters for LightGBM model
         val_transactions (pd.DataFrame): validation transactions
+        model_params (Dict): parameters for LightGBM model
         k (int, optional): top k recommended items. Defaults to 12.
     """
     logger.info(f'Train positive rate: {train_candidates.label.mean()}')
     features = [col for col in train_candidates.columns if col not in ['label', 'customer_id', 'article_id']]
     cat_features = train_candidates.select_dtypes(include='category').columns.to_list()
     logger.info(f'Categorical features: {cat_features}')
-    if model_params['objective']=='lambdarank':
-        # train dataset
-        train_group = _prepare_groups_for_ranking(train_candidates)
-        train_dataset = _prepare_lgb_dataset(train_candidates, 'label', features, cat_features, train_group)
-        # val dataset
-        val_group = _prepare_groups_for_ranking(val_candidates)
-        val_dataset = _prepare_lgb_dataset(val_candidates, 'label', features, cat_features, val_group)
-    elif model_params['objective']=='binary':
-        # train dataset
-        train_dataset = _prepare_lgb_dataset(train_candidates, 'label', features, cat_features)
-        # val dataset
-        val_dataset = _prepare_lgb_dataset(val_candidates, 'label', features, cat_features)
+    # train dataset (if ranking then groups)
+    train_group = _prepare_groups_for_ranking(train_candidates) if model_params['objective']=='lambdarank' else None
+    train_dataset = _prepare_lgb_dataset(train_candidates, 'label', features, cat_features, train_group)
+    # val dataset (if ranking then groups)
+    val_group = _prepare_groups_for_ranking(val_candidates) if model_params['objective']=='lambdarank' else None
+    val_dataset = _prepare_lgb_dataset(val_candidates, 'label', features, cat_features, val_group)
+
     mlflow.lightgbm.autolog(silent=True)
     logger.info(f'Starting training model for objective: {model_params["objective"]}')
     model = lgb.train(
@@ -161,3 +160,67 @@ def train_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFrame, mo
     val_predictions = _predict(model, val_candidates, k)
     val_map = _calculate_map(val_predictions, val_transactions, k)
     mlflow.log_metric('val_map_at_12', val_map)
+
+def train_optuna_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFrame, val_transactions: pd.DataFrame, model_params: Dict, optuna_params: Dict, k: int = 12) -> None:
+    """Trains a LightGBM model in order to find the best hyperparameters, (optionally) logs the model and metrics to MLflow.
+
+    Args:
+        train_candidates (pd.DataFrame): training candidates
+        val_candidates (pd.DataFrame): validation candidates
+        val_transactions (pd.DataFrame): validation transactions
+        model_params (Dict): base parameters for LightGBM model
+        optuna_params (Dict): parameters for Optuna study search
+        k (int, optional): top k recommended items. Defaults to 12.
+    """
+    logger.info(f'Train positive rate: {train_candidates.label.mean()}')
+    features = [col for col in train_candidates.columns if col not in ['label', 'customer_id', 'article_id']]
+    cat_features = train_candidates.select_dtypes(include='category').columns.to_list()
+    logger.info(f'Categorical features: {cat_features}')
+
+    # train dataset (if ranking then groups)
+    train_group = _prepare_groups_for_ranking(train_candidates) if model_params['objective']=='lambdarank' else None
+    train_dataset = _prepare_lgb_dataset(train_candidates, 'label', features, cat_features, train_group)
+    # val dataset (if ranking then groups)
+    val_group = _prepare_groups_for_ranking(val_candidates) if model_params['objective']=='lambdarank' else None
+    val_dataset = _prepare_lgb_dataset(val_candidates, 'label', features, cat_features, val_group)
+    
+    mlflc = MLflowCallback(
+        tracking_uri='mlruns',
+        metric_name='val_map_at_12',
+        create_experiment=True,
+    )
+    
+    # optuna objective
+    @mlflc.track_in_mlflow()
+    def objective(trial):
+        model_params['n_estimators'] = trial.suggest_int('n_estimators', 2, 50)
+        model_params['max_depth'] = trial.suggest_int('max_depth', 1, 20)
+        model_params['num_leaves'] = trial.suggest_int('num_leaves', 2, 256)
+        model_params['learning_rate'] = trial.suggest_float("learning_rate", 0.01, 0.3)
+
+        mlflow.lightgbm.autolog(silent=True, log_models=optuna_params['log_models'])
+        logger.info(f'Starting training model for objective: {model_params["objective"]}')
+        model = lgb.train(
+            model_params,
+            train_dataset,
+            valid_sets=[train_dataset, val_dataset],
+            valid_names=['train', 'valid'],
+            num_boost_round=500,
+            callbacks=[lgb.early_stopping(stopping_rounds=10)]
+        )
+        # train loss
+        logger.info('Recommending for training candidates')
+        train_predictions = _predict(model, train_candidates, k)
+        train_map = _calculate_map(train_predictions, val_transactions, k)
+        mlflow.log_metric('train_map_at_12', train_map)
+        # val loss
+        logger.info('Recommending for validation candidates')
+        val_predictions = _predict(model, val_candidates, k)
+        val_map = _calculate_map(val_predictions, val_transactions, k)
+        mlflow.log_metric('val_map_at_12', val_map)
+        return val_map
+
+    mlflow.end_run()
+    study = optuna.create_study(study_name=optuna_params['study_name'], direction=optuna_params['direction'])
+    study.optimize(objective, n_trials=optuna_params['n_trials'], callbacks=[mlflc])
+    logger.info(f"Best parameters from Optuna's study: {study.best_params}")
