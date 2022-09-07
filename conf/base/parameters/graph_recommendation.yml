@@ -21,3 +21,27 @@ santander_dgsr:
       item_max_length: 50
       user_max_length: 50
       k_hop: 2
+
+hm_dgsr:
+  training:
+    train_params:
+      k: 20
+      batch_size: 50
+      epochs: 10
+      lr: 0.001
+      l2: 0.0001
+      validate: False
+    model_params:
+      hidden_size: 50
+      user_update: rnn
+      item_update: rnn
+      user_long: orgat
+      item_long: orgat
+      user_short: att
+      item_short: att
+      feat_drop_out: 0.3
+      attn_drop_out: 0.3
+      layer_num: 3
+      item_max_length: 50
+      user_max_length: 50
+      k_hop: 2

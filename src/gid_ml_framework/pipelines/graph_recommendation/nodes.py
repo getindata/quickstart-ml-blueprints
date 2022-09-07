@@ -2,7 +2,6 @@ import datetime
 import logging
 from operator import itemgetter
 from typing import Dict, Tuple
-from xmlrpc.client import Boolean
 
 import numpy as np
 import pandas as pd
@@ -11,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
+from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
 from gid_ml_framework.extras.graph_utils.dgsr_utils import (
     SubGraphsDataset,
     collate,
@@ -34,10 +34,10 @@ def _get_data_stats(
     user_num = len(user)
     item_num = len(item)
 
-    logger.info("Train set size:", train_set.size)
-    logger.info("Test set size:", test_set.size)
-    logger.info("Number of all unique users:", user_num)
-    logger.info("Number of all unique items:", item_num)
+    logger.info(f"Train set size: {train_set.size}")
+    logger.info(f"Test set size: {test_set.size}")
+    logger.info(f"Number of all unique users: {user_num}")
+    logger.info(f"Number of all unique items: {item_num}")
     return user_num, item_num
 
 
@@ -47,10 +47,11 @@ def _get_loaders(
     test_set: SubGraphsDataset,
     negative_samples: pd.DataFrame,
     train_params: Dict,
-    validate: Boolean,
+    data_stats: Tuple[int],
 ) -> Tuple[DataLoader]:
     """Creates torch DataLoader from given datasets. Collates negative samples with test and val sets."""
-    batch_size, validate = itemgetter("batch_size", validate)(train_params)
+    batch_size, validate = itemgetter("batch_size", "validate")(train_params)
+    _, item_num = data_stats
     train_loader = DataLoader(
         dataset=train_set,
         batch_size=batch_size,
@@ -62,7 +63,7 @@ def _get_loaders(
     test_loader = DataLoader(
         dataset=test_set,
         batch_size=batch_size,
-        collate_fn=lambda x: collate_test(x, negative_samples),
+        collate_fn=lambda x: collate_test(x, negative_samples, item_num),
         pin_memory=True,
         num_workers=0,
     )
@@ -70,7 +71,7 @@ def _get_loaders(
         val_loader = DataLoader(
             dataset=val_set,
             batch_size=batch_size,
-            collate_fn=lambda x: collate_test(x, negative_samples),
+            collate_fn=lambda x: collate_test(x, negative_samples, item_num),
             pin_memory=True,
             num_workers=0,
         )
@@ -102,8 +103,8 @@ def _get_model(device: str, model_params: Dict, data_stats: Tuple[int]) -> nn.Mo
 
 
 def _unpack_train_params(train_params) -> Tuple:
-    params_names = ["lr", "l2", "epoch", "validate"]
-    params = itemgetter(params_names)(train_params)
+    params_names = ["lr", "l2", "epochs", "validate"]
+    params = itemgetter(*params_names)(train_params)
     return params
 
 
@@ -115,7 +116,6 @@ def train_model(
     negative_samples: pd.DataFrame,
     model_params: Dict,
     train_params: Dict,
-    k: int = 20,
 ) -> None:
     """Trains a GNN recommendation model, logs the model and metrics to MLflow.
 
@@ -124,27 +124,27 @@ def train_model(
         val_set (SubGraphsDataset): validation subset of data
         test_set (SubGraphsDataset): test subset of data
         model_params (Dict): parameters for chosen GNN model
-        validate (Boolean): flag indicating if model should be scored on validation dataset
-        k (int, optional): top k recommended items. Defaults to 20.
+        train_params (Dict): parameters for training process
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train_loader, val_loader, test_loader = _get_loaders(
-        train_set, val_set, test_set, negative_samples, train_params
-    )
+    transactions = _concat_chunks(transactions)
     data_stats = _get_data_stats(transactions, train_set, test_set)
+    train_loader, val_loader, test_loader = _get_loaders(
+        train_set, val_set, test_set, negative_samples, train_params, data_stats
+    )
     model = _get_model(device, model_params, data_stats)
-    lr, l2, epoch, validate = _unpack_train_params(train_params)
+    lr, l2, epochs, validate = _unpack_train_params(train_params)
 
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=l2)
     loss_func = nn.CrossEntropyLoss()
     best_result = [0, 0, 0, 0, 0, 0]  # hit5,hit10,hit20,mrr5,mrr10,mrr20
     best_epoch = [0, 0, 0, 0, 0, 0]
     stop_num = 0
-    for epoch in range(epoch):
+    for epoch in range(epochs):
         stop = True
         epoch_loss = 0
         iter = 0
-        logger.info("start training: ", datetime.datetime.now())
+        logger.info(f"start training: {datetime.datetime.now()}")
         model.train()
         for user, batch_graph, label, last_item in train_loader:
             iter += 1
@@ -160,20 +160,14 @@ def train_model(
             optimizer.step()
             epoch_loss += loss.item()
             if iter % 400 == 0:
-                logger.info(
-                    "Iter {}, loss {:.4f}".format(iter, epoch_loss / iter),
-                    datetime.datetime.now(),
-                )
+                logger.info("Iter {}, loss {:.4f}".format(iter, epoch_loss / iter))
         epoch_loss /= iter
         model.eval()
-        logger.info(
-            "Epoch {}, loss {:.4f}".format(epoch, epoch_loss),
-            "=============================================",
-        )
+        logger.info("Epoch {}, loss {:.4f}".format(epoch, epoch_loss))
 
         # val
         if validate:
-            logger.info("start validation: ", datetime.datetime.now())
+            logger.info(f"start validation: {datetime.datetime.now()}")
             val_loss_all, top_val = [], []
             with torch.no_grad:
                 for user, batch_graph, label, last_item, neg_tar in val_loader:
@@ -206,7 +200,7 @@ def train_model(
                 )
 
         # test
-        logger.info("start predicting: ", datetime.datetime.now())
+        logger.info(f"start predicting: {datetime.datetime.now()}")
         all_top, all_label = [], []
         iter = 0
         all_loss = []
@@ -226,8 +220,7 @@ def train_model(
                 all_label.append(label.numpy())
                 if iter % 200 == 0:
                     logger.info(
-                        "Iter {}, test_loss {:.4f}".format(iter, np.mean(all_loss)),
-                        datetime.datetime.now(),
+                        "Iter {}, test_loss {:.4f}".format(iter, np.mean(all_loss))
                     )
             recall5, recall10, recall20, ndgg5, ndgg10, ndgg20 = eval_metric(all_top)
             if recall5 > best_result[0]:

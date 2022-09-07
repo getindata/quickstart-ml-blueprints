@@ -9,8 +9,11 @@ from gid_ml_framework.pipelines import candidate_generation as cg
 from gid_ml_framework.pipelines import candidate_generation_validation as cgv
 from gid_ml_framework.pipelines import candidates_feature_engineering as cfe
 from gid_ml_framework.pipelines import exploratory_data_analysis as eda
+from gid_ml_framework.pipelines import graph_recommendation as gr
 from gid_ml_framework.pipelines import graph_recommendation_modeling as grm
-from gid_ml_framework.pipelines import graph_recommendation_preprocessing as grp
+from gid_ml_framework.pipelines import (
+    graph_recommendation_preprocessing as grp,
+)
 from gid_ml_framework.pipelines import image_embeddings as ie
 from gid_ml_framework.pipelines import image_resizer as ir
 from gid_ml_framework.pipelines import manual_feature_engineering as mfe
@@ -68,6 +71,14 @@ def register_pipelines() -> Dict[str, Pipeline]:
         dataset="hm",
         model="dgsr",
     )
+    graph_recommendation_santander_dgsr_pipeline = gr.create_pipeline(
+        dataset="santander",
+        model="dgsr",
+    )
+    graph_recommendation_hm_dgsr_pipeline = gr.create_pipeline(
+        dataset="hm",
+        model="dgsr",
+    )
 
     return {
         "__default__": sample_data_pipeline,
@@ -96,6 +107,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "generate_recommendations": (merge_candidate_features_pipeline + recommendation_generation_pipeline),
         "santander_grp": graph_recommendation_preprocessing_santander_pipeline,
         "hm_grp": graph_recommendation_preprocessing_hm_pipeline,
-        "santander_dgsr_gr": graph_recommendation_modeling_santander_dgsr_pipeline,
-        "hm_dgsr_gr": graph_recommendation_modeling_hm_dgsr_pipeline,
+        "santander_dgsr_grm": graph_recommendation_modeling_santander_dgsr_pipeline,
+        "hm_dgsr_grm": graph_recommendation_modeling_hm_dgsr_pipeline,
+        "santander_dgsr_gr": graph_recommendation_santander_dgsr_pipeline,
+        "hm_dgsr_gr": graph_recommendation_hm_dgsr_pipeline,
     }

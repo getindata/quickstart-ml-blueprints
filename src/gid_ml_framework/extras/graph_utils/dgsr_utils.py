@@ -44,16 +44,21 @@ def select(all_items: List, user_items: List) -> np.array:
 def user_neg(data: pd.DataFrame, item_num: int) -> pd.DataFrame:
     """ "Generate negative items sample for all users"""
     all_items = range(item_num)
-    data = data.groupby("user_id", observed=True)["item_id"].unique()
-    data = data.apply(lambda x: select(all_items, x))
+    data = data.groupby("user_id")["item_id"].apply(lambda x: select(all_items, x))
     return data
 
 
-def neg_generate(user: int, data_neg: pd.DataFrame, neg_num: int = 100) -> np.array:
+def neg_generate(user: List, data_neg: pd.DataFrame, item_num: int) -> np.array:
     """Sample items from all negative samples"""
+    neg_num = 100
+    max_users = 50
+    if item_num > neg_num + max_users:
+        replace = False
+    else:
+        replace = True
     neg = np.zeros((len(user), neg_num), np.int32)
     for i, u in enumerate(user):
-        neg[i] = np.random.choice(data_neg[u], neg_num, replace=False)
+        neg[i] = np.random.choice(data_neg[u.item()], neg_num, replace=replace)
     return neg
 
 
@@ -74,7 +79,7 @@ def collate(data: pd.DataFrame) -> Tuple:
     )
 
 
-def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame):
+def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame, item_num: int):
     """Collate function for torch test subgraphs dataset. Includes negative samples."""
     user, graph, label, last_item = ([], [], [], [])
     for row in data:
@@ -87,7 +92,7 @@ def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame):
         dgl.batch(graph),
         torch.tensor(label).long(),
         torch.tensor(last_item).long(),
-        torch.Tensor(neg_generate(user, user_neg)).long(),
+        torch.Tensor(neg_generate(user, user_neg, item_num)).long(),
     )
 
 

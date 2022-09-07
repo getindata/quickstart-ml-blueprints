@@ -113,8 +113,8 @@ hm_dgsr_transactions_graph:
   backend: pickle
 
 hm_dgsr_negative_transactions_samples:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/hm/hm_dgsr_negative_transactions_samples.csv
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/hm/hm_dgsr_negative_transactions_samples.pickle
   layer: primary
   load_args:
     chunksize: 1000000

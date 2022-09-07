@@ -5,14 +5,11 @@ from .nodes import generate_graph_dgsr, preprocess_dgsr, sample_negatives_dgsr
 
 
 def create_pipeline(dataset: str, model: str, **kwargs) -> Pipeline:
-    """Creates pipeline for graph
+    """Creates pipeline for graph data modeling for given GNN model
 
     Args:
         dataset (str): dataset name
         model (str): name of gnn model to use
-
-    Returns:
-        Tuple: tuple of dataframes including original dataframe with mapping applied and mappings for users and items
     """
     namespace = "_".join([dataset, model])
 
@@ -22,8 +19,8 @@ def create_pipeline(dataset: str, model: str, **kwargs) -> Pipeline:
                 func=generate_graph_dgsr,
                 inputs="transactions_mapped",
                 outputs="transactions_graph",
-                name="generate_graph_dgsr_node",
-                tags=["preprocess", "all"],
+                name="generate_graph_node",
+                tags=["preprocess"],
             ),
             node(
                 func=preprocess_dgsr,
@@ -36,15 +33,15 @@ def create_pipeline(dataset: str, model: str, **kwargs) -> Pipeline:
                     "val_graphs",
                     "test_graphs",
                 ],
-                name="preprocess_dgsr_node",
-                tags=["preprocess", "all"],
+                name="preprocess_node",
+                tags=["preprocess"],
             ),
             node(
                 func=sample_negatives_dgsr,
                 inputs="transactions_mapped",
                 outputs="negative_transactions_samples",
-                name="sample_negatives_dgsr_node",
-                tags=["preprocess", "all"],
+                name="sample_negatives_node",
+                tags=["preprocess"],
             ),
         ]
     )
