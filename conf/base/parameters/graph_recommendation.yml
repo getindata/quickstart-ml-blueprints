@@ -1,13 +1,14 @@
 santander_dgsr:
-  validate: False
   training:
-    k: 20
-    model_params:
+    train_params:
+      k: 20
       batch_size: 50
-      hidden_size: 50
       epochs: 10
       lr: 0.001
       l2: 0.0001
+      validate: False
+    model_params:
+      hidden_size: 50
       user_update: rnn
       item_update: rnn
       user_long: orgat
