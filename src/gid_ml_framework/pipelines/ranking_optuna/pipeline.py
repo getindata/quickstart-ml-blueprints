@@ -1,0 +1,41 @@
+from kedro.pipeline import Pipeline, node
+from kedro.pipeline.modular_pipeline import pipeline
+
+from ..ranking.nodes import train_val_split, train_optuna_model
+
+
+def create_pipeline(**kwargs) -> Pipeline:
+    train_optuna_ranking_model_pipeline = pipeline(
+        [
+            node(
+                func=train_val_split,
+                name="train_val_split_node",
+                inputs=[
+                    "final_candidates",
+                    "params:val_size",
+                    ],
+                outputs=["train_candidates", "val_candidates"],
+            ),
+            node(
+                func=train_optuna_model,
+                name="train_optuna_model_node",
+                inputs=[
+                    "train_candidates",
+                    "val_candidates",
+                    "val_transactions",
+                    "params:training.params",
+                    "params:training.optuna_params",
+                    "params:training.k",
+                    ],
+                outputs=None,
+            ),
+        ],
+        namespace="train_optuna_ranking",
+        inputs=[
+            "final_candidates",
+            "val_transactions",
+        ],
+        outputs=None,
+    )
+    
+    return train_optuna_ranking_model_pipeline

@@ -1,0 +1,15 @@
+train_optuna_ranking:
+  val_size: 0.15
+  training:
+    k: 12
+    params: 
+      objective: binary # lambdarank
+      boosting_type: gbdt
+      metric: auc # map
+      verbose: 1
+      # eval_at: 12 # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    optuna_params:
+      n_trials: 10
+      direction: maximize # minimize
+      study_name: my_study
+      log_models: false

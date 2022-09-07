@@ -19,6 +19,7 @@ from gid_ml_framework.pipelines import automated_feature_engineering as afe
 from gid_ml_framework.pipelines import candidates_feature_engineering as cfe
 from gid_ml_framework.pipelines import merge_candidate_features as mcf
 from gid_ml_framework.pipelines import ranking as r
+from gid_ml_framework.pipelines import ranking_optuna as ro
 from gid_ml_framework.pipelines import recommendation_generation as rg
 
 
@@ -45,6 +46,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
     candidates_feature_engineering_pipeline = cfe.create_pipeline()
     merge_candidate_features_pipeline = mcf.create_pipeline()
     ranking_pipeline = r.create_pipeline()
+    ranking_optuna_pipeline = ro.create_pipeline()
     recommendation_generation_pipeline = rg.create_pipeline()
 
     return {
@@ -68,6 +70,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "mcf": merge_candidate_features_pipeline,
         "r": ranking_pipeline,
         "train_ranking_model": (merge_candidate_features_pipeline + ranking_pipeline),
+        "ro": ranking_optuna_pipeline,
+        "train_ranking_optuna_model": (merge_candidate_features_pipeline + ranking_optuna_pipeline),
         "rg": recommendation_generation_pipeline,
         "generate_recommendations": (merge_candidate_features_pipeline + recommendation_generation_pipeline),
         }
