@@ -195,6 +195,14 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "cloudpickle"]
 
 [[package]]
+name = "autopage"
+version = "0.5.1"
+description = "A library to provide automatic paging for console output"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "babel"
 version = "2.10.3"
 description = "Internationalization utilities"
@@ -362,6 +370,22 @@ python-versions = ">=3.7"
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
+name = "cliff"
+version = "4.0.0"
+description = "Command Line Interface Formulation Framework"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+autopage = ">=0.4.0"
+cmd2 = ">=1.0.0"
+importlib-metadata = ">=4.4"
+PrettyTable = ">=0.7.2"
+PyYAML = ">=3.12"
+stevedore = ">=2.0.1"
+
+[[package]]
 name = "cloudpickle"
 version = "2.1.0"
 description = "Extended pickling support for Python objects"
@@ -370,12 +394,56 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "cmaes"
+version = "0.8.2"
+description = "Lightweight Covariance Matrix Adaptation Evolution Strategy (CMA-ES) implementation for Python 3."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
+name = "cmd2"
+version = "2.4.2"
+description = "cmd2 - quickly build feature-rich and user-friendly interactive command line applications in Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+attrs = ">=16.3.0"
+pyperclip = ">=1.6"
+pyreadline3 = {version = "*", markers = "sys_platform == \"win32\""}
+wcwidth = ">=0.1.7"
+
+[package.extras]
+dev = ["codecov", "doc8", "flake8", "invoke", "mypy (==0.902)", "nox", "pytest (>=4.6)", "pytest-cov", "pytest-mock", "sphinx", "sphinx-rtd-theme", "sphinx-autobuild", "twine (>=1.11)"]
+test = ["codecov", "coverage", "pytest (>=4.6)", "pytest-cov", "pytest-mock", "gnureadline"]
+validate = ["flake8", "mypy (==0.902)", "types-pkg-resources"]
+
+[[package]]
 name = "colorama"
 version = "0.4.5"
 description = "Cross-platform colored terminal text."
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
+name = "colorlog"
+version = "6.7.0"
+description = "Add colours to the output of Python's logging module."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
+
+[package.extras]
+development = ["black", "flake8", "mypy", "pytest", "types-colorama"]
 
 [[package]]
 name = "commonmark"
@@ -1933,22 +2001,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "lightgbm"
-version = "3.3.2"
-description = "LightGBM Python Package"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-numpy = "*"
-scikit-learn = "!=0.22.0"
-scipy = "*"
-
-[package.extras]
-dask = ["dask[array] (>=2.0.0)", "dask[dataframe] (>=2.0.0)", "dask[distributed] (>=2.0.0)", "pandas"]
-
-[[package]]
 name = "kubernetes"
 version = "18.20.0"
 description = "Kubernetes python client"
@@ -1969,6 +2021,22 @@ websocket-client = ">=0.32.0,<0.40.0 || >0.40.0,<0.41.0 || >=0.43.0"
 
 [package.extras]
 adal = ["adal (>=1.0.2)"]
+
+[[package]]
+name = "lightgbm"
+version = "3.3.2"
+description = "LightGBM Python Package"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+numpy = "*"
+scikit-learn = "!=0.22.0"
+scipy = "*"
+
+[package.extras]
+dask = ["dask[array] (>=2.0.0)", "dask[dataframe] (>=2.0.0)", "dask[distributed] (>=2.0.0)", "pandas"]
 
 [[package]]
 name = "locket"
@@ -2408,6 +2476,35 @@ python-versions = ">=3.6"
 et-xmlfile = "*"
 
 [[package]]
+name = "optuna"
+version = "3.0.0"
+description = "A hyperparameter optimization framework"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+alembic = "*"
+cliff = "*"
+cmaes = ">=0.8.2"
+colorlog = "*"
+numpy = "*"
+packaging = ">=20.0"
+PyYAML = "*"
+scipy = ">=1.7.0,<1.9.0"
+sqlalchemy = ">=1.1.0"
+tqdm = "*"
+typing-extensions = ">=3.10.0.0"
+
+[package.extras]
+test = ["fakeredis", "fakeredis (<=1.7.1)", "pytest", "kaleido", "codecov"]
+optional = ["scikit-learn (>=0.24.2)", "redis", "plotly (>=4.0.0)", "pandas", "matplotlib"]
+integration = ["torchvision (==0.12.0)", "torchaudio (==0.11.0)", "torch (==1.11.0)", "tensorflow", "skorch", "pytorch-lightning (>=1.5.0)", "pytorch-ignite", "fastai", "catalyst (>=21.3)", "botorch (>=0.4.0)", "cached-path (<=1.1.2)", "allennlp (>=2.2.0)", "xgboost", "wandb", "tensorflow-datasets", "shap", "scikit-optimize", "scikit-learn (>=0.24.2)", "pandas", "mxnet", "mpi4py", "mlflow", "lightgbm", "cma", "chainer (>=5.0.0)", "catboost (>=0.26)"]
+document = ["torchvision (==0.12.0)", "torchaudio (==0.11.0)", "torch (==1.11.0)", "thop", "sphinx-rtd-theme", "sphinx-plotly-directive", "sphinx-gallery", "sphinx-copybutton", "sphinx", "scikit-optimize", "scikit-learn", "protobuf (<=3.20.1)", "plotly (>=4.0.0)", "pillow", "pandas", "onnx", "mlflow", "matplotlib", "lightgbm", "cma"]
+checking = ["types-setuptools", "types-redis", "types-pyyaml", "mypy", "isort", "hacking", "blackdoc", "black"]
+benchmark = ["virtualenv", "scikit-optimize", "cma", "botorch", "asv (>=0.5.0)"]
+
+[[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"
@@ -2511,6 +2608,14 @@ description = "Utility library for gitignore style pattern matching of file path
 category = "dev"
 optional = false
 python-versions = ">=3.7"
+
+[[package]]
+name = "pbr"
+version = "5.10.0"
+description = "Python Build Reasonableness"
+category = "main"
+optional = false
+python-versions = ">=2.6"
 
 [[package]]
 name = "pep517"
@@ -2638,6 +2743,20 @@ nodeenv = ">=0.11.1"
 pyyaml = ">=5.1"
 toml = "*"
 virtualenv = ">=20.0.8"
+
+[[package]]
+name = "prettytable"
+version = "3.4.1"
+description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+wcwidth = "*"
+
+[package.extras]
+tests = ["pytest", "pytest-cov", "pytest-lazy-fixture"]
 
 [[package]]
 name = "prometheus-client"
@@ -2842,6 +2961,22 @@ python-versions = ">=3.6.8"
 
 [package.extras]
 diagrams = ["railroad-diagrams", "jinja2"]
+
+[[package]]
+name = "pyperclip"
+version = "1.8.2"
+description = "A cross-platform clipboard module for Python. (Only handles plain text for now.)"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "pyreadline3"
+version = "3.4.1"
+description = "A python implementation of GNU readline."
+category = "main"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "pyrsistent"
@@ -3204,14 +3339,14 @@ benchmark = ["memory-profiler (>=0.57.0)", "pandas (>=1.0.5)", "matplotlib (>=3.
 
 [[package]]
 name = "scipy"
-version = "1.9.1"
+version = "1.8.1"
 description = "SciPy: Scientific Library for Python"
 category = "main"
 optional = false
-python-versions = ">=3.8,<3.12"
+python-versions = ">=3.8,<3.11"
 
 [package.dependencies]
-numpy = ">=1.18.5,<1.25.0"
+numpy = ">=1.17.3,<1.25.0"
 
 [[package]]
 name = "seaborn"
@@ -3383,6 +3518,17 @@ python-versions = ">=3.6"
 
 [package.extras]
 full = ["aiofiles", "graphene", "itsdangerous", "jinja2", "python-multipart", "pyyaml", "requests"]
+
+[[package]]
+name = "stevedore"
+version = "4.0.0"
+description = "Manage dynamic plugins for Python applications"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 
 [[package]]
 name = "strawberry-graphql"
@@ -3896,7 +4042,7 @@ anyio = ">=3.0.0,<4"
 name = "wcwidth"
 version = "0.2.5"
 description = "Measures the displayed width of unicode strings in a terminal"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -4020,7 +4166,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8.12"
-content-hash = "aa3181b4123b925efa31ae4d2564c9769579cc0fbbaef97c78fb2d7e47462b76"
+content-hash = "5b02cd5de1ca36caf28018fade851421ea4ebff31a24b521addbb83d87ab752a"
 
 [metadata.files]
 absl-py = []
@@ -4039,6 +4185,7 @@ asgiref = []
 async-timeout = []
 atomicwrites = []
 attrs = []
+autopage = []
 babel = []
 backcall = []
 beautifulsoup4 = []
@@ -4053,8 +4200,12 @@ cfgv = []
 chardet = []
 charset-normalizer = []
 click = []
+cliff = []
 cloudpickle = []
+cmaes = []
+cmd2 = []
 colorama = []
+colorlog = []
 commonmark = []
 convertdate = []
 cookiecutter = []
@@ -4185,6 +4336,7 @@ notebook-shim = []
 numpy = []
 oauthlib = []
 openpyxl = []
+optuna = []
 packaging = []
 pandas = []
 pandas-profiling = []
@@ -4192,6 +4344,7 @@ pandocfilters = []
 parso = []
 partd = []
 pathspec = []
+pbr = []
 pep517 = []
 pexpect = []
 phik = []
@@ -4202,6 +4355,7 @@ platformdirs = []
 plotly = []
 pluggy = []
 pre-commit = []
+prettytable = []
 prometheus-client = []
 prometheus-flask-exporter = []
 prompt-toolkit = []
@@ -4222,6 +4376,8 @@ pygments = []
 pyjwt = []
 pymeeus = []
 pyparsing = []
+pyperclip = []
+pyreadline3 = []
 pyrsistent = []
 pytest = []
 pytest-cov = []
@@ -4264,6 +4420,7 @@ soupsieve = []
 sqlalchemy = []
 sqlparse = []
 starlette = []
+stevedore = []
 strawberry-graphql = []
 strip-hints = []
 tabulate = []

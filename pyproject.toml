@@ -48,6 +48,7 @@ lightgbm = "^3.3.2"
 kedro-vertexai = "0.6.0"
 kedro-docker = "0.3.0"
 google-cloud-aiplatform = "1.15.0"
+optuna = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "21.5b1"
