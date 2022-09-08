@@ -11,6 +11,7 @@ conf/**/*credentials*
 # ignore everything in the following folders
 data/**
 logs/**
+lightning_logs/**
 
 # except their sub-folders
 !data/**/

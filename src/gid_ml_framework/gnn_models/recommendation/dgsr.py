@@ -1,13 +1,23 @@
+from typing import Any, Tuple
+
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 
-from gid_ml_framework.extras.graph_utils.dgsr_utils import graph_item, graph_user
+from gid_ml_framework.extras.graph_utils.dgsr_utils import (
+    eval_metric,
+    graph_item,
+    graph_user,
+)
 
 
-class DGSR(nn.Module):
+class DGSR(pl.LightningModule):
     def __init__(
         self,
+        lr,
+        l2,
         user_num,
         item_num,
         input_dim,
@@ -26,6 +36,8 @@ class DGSR(nn.Module):
         time=True,
     ):
         super(DGSR, self).__init__()
+        self.lr = lr
+        self.l2 = l2
         self.user_num = user_num
         self.item_num = item_num
         self.hidden_size = input_dim
@@ -71,18 +83,19 @@ class DGSR(nn.Module):
                 for _ in range(self.layer_num)
             ]
         )
+        self.loss_func = nn.CrossEntropyLoss()
         self.reset_parameters()
 
-    def forward(
-        self, g, user_index=None, last_item_index=None, neg_tar=None, is_training=False
-    ):
+    def forward(self, x: Tuple) -> Tuple[torch.tensor]:
+        g, user_index, last_item_index = x
+        g, user_index, last_item_index = g, user_index, last_item_index
         feat_dict = None
         user_layer = []
         g.nodes["user"].data["user_h"] = self.user_embedding(
-            g.nodes["user"].data["user_id"].cuda()
+            g.nodes["user"].data["user_id"]
         )
         g.nodes["item"].data["item_h"] = self.item_embedding(
-            g.nodes["item"].data["item_id"].cuda()
+            g.nodes["item"].data["item_id"]
         )
         if self.layer_num > 0:
             for conv in self.layers:
@@ -95,14 +108,93 @@ class DGSR(nn.Module):
         score = torch.matmul(
             unified_embedding, self.item_embedding.weight.transpose(1, 0)
         )
-        if is_training:
-            return score
-        else:
-            neg_embedding = self.item_embedding(neg_tar)
-            score_neg = torch.matmul(
-                unified_embedding.unsqueeze(1), neg_embedding.transpose(2, 1)
-            ).squeeze(1)
-            return score, score_neg
+        return score, unified_embedding
+
+    def training_step(self, batch: Any, batch_idx: int) -> torch.tensor:
+        user, batch_graph, label, last_item = batch
+        score, _ = self((batch_graph, user, last_item))
+        loss_func = nn.CrossEntropyLoss()
+        loss = loss_func(score, label)
+        self.log(
+            "train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
+        )
+        return loss
+
+    def validation_step(self, batch: Any, batch_idx: int) -> torch.tensor:
+        top = []
+        user, batch_graph, label, last_item, neg_tar = batch
+        score, unified_embedding = self((batch_graph, user, last_item))
+        neg_tar = torch.cat([label.unsqueeze(1), neg_tar], -1)
+        neg_embedding = self.item_embedding(neg_tar)
+        score_neg = torch.matmul(
+            unified_embedding.unsqueeze(1), neg_embedding.transpose(2, 1)
+        ).squeeze(1)
+        loss_func = nn.CrossEntropyLoss()
+        loss = loss_func(score, label)
+        top.append(score_neg.detach().cpu().numpy())
+        _, recall10, _, _, ndgg10, _ = eval_metric(top)
+        self.log(
+            "val_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
+        )
+        self.log(
+            "val_recall10",
+            recall10,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
+        self.log(
+            "val_ndgg10",
+            ndgg10,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
+        return loss
+
+    def test_step(self, batch: Any, batch_idx: int) -> torch.tensor:
+        top = []
+        user, batch_graph, label, last_item, neg_tar = batch
+        score, unified_embedding = self((batch_graph, user, last_item))
+        neg_embedding = self.item_embedding(neg_tar)
+        score_neg = torch.matmul(
+            unified_embedding.unsqueeze(1), neg_embedding.transpose(2, 1)
+        ).squeeze(1)
+        loss_func = nn.CrossEntropyLoss()
+        loss = loss_func(score, label)
+        top.append(score_neg.detach().cpu().numpy())
+        _, recall10, _, _, ndgg10, _ = eval_metric(top)
+        self.log(
+            "test_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
+        )
+        self.log(
+            "test_recall10",
+            recall10,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
+        self.log(
+            "test_ndgg10",
+            ndgg10,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
+        return score, score_neg
+
+    def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> Any:
+        user, batch_graph, _, last_item = batch
+        score, _ = self((batch_graph, user, last_item))
+        return score
+
+    def configure_optimizers(self):
+        optimizer = optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.l2)
+        return optimizer
 
     def reset_parameters(self):
         gain = nn.init.calculate_gain("relu")
