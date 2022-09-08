@@ -74,6 +74,14 @@ poetry shell
 exit
 ```
 
+## How to install remaining dependencies with Poe the Poet
+
+To run poethepoet tasks and install remaining dependencies run:
+```
+poe force-<package_name>
+```
+for selected package from `[tool.poe.tasks]` section from `pyproject.toml` file.
+
 ## How to setup pre-commit
 
 To setup pre-commit hooks: 

@@ -71,7 +71,6 @@ poethepoet = "^0.16.1"
 [tool.poe.tasks]
 force-torch = "python -m pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116"
 force-dgl = "python -m pip install dgl-cu113 dglgo -f https://data.dgl.ai/wheels/repo.html"
-force-pyg = "python -m pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-1.12.0+cu116.html"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
