@@ -2,10 +2,13 @@ import logging
 from operator import itemgetter
 from typing import Dict, Tuple
 
+import mlflow.pytorch
 import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+from mlflow import MlflowClient
+from pytorch_lightning.utilities.seed import seed_everything
 from torch.utils.data import DataLoader
 
 from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
@@ -109,6 +112,20 @@ def _unpack_train_params(train_params) -> Tuple:
     return params
 
 
+def _log_auto_logged_info(mlflow_run: mlflow.entities.Run) -> None:
+    tags = {
+        k: v for k, v in mlflow_run.data.tags.items() if not k.startswith("mlflow.")
+    }
+    artifacts = [
+        f.path for f in MlflowClient().list_artifacts(mlflow_run.info.run_id, "model")
+    ]
+    logger.info(f"run_id: {mlflow_run.info.run_id}")
+    logger.info(f"artifacts: {artifacts}")
+    logger.info(f"params: {mlflow_run.data.params}")
+    logger.info(f"metrics: {mlflow_run.data.metrics}")
+    logger.info(f"tags: {tags}")
+
+
 def train_model(
     train_set: SubGraphsDataset,
     val_set: SubGraphsDataset,
@@ -117,6 +134,8 @@ def train_model(
     negative_samples: pd.DataFrame,
     model_params: Dict,
     train_params: Dict,
+    save_model: bool = False,
+    seed: int = 321,
 ) -> None:
     """Trains a GNN recommendation model, logs the model and metrics to MLflow.
 
@@ -127,6 +146,8 @@ def train_model(
         model_params (Dict): parameters for chosen GNN model
         train_params (Dict): parameters for training process
     """
+    seed_everything(seed, True)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transactions = _concat_chunks(transactions)
     data_stats = _get_data_stats(transactions, train_set, test_set)
@@ -135,8 +156,30 @@ def train_model(
     )
     model = _get_model(device, model_params, train_params, data_stats)
     epochs, validate = _unpack_train_params(train_params)
-    trainer = pl.Trainer(max_epochs=epochs, devices=1, accelerator="auto")
+
+    early_stop_callback = pl.callbacks.early_stopping.EarlyStopping(
+        monitor="val_loss", min_delta=0.00001, patience=5, verbose=True, mode="min"
+    )
+
+    trainer = pl.Trainer(
+        max_epochs=epochs,
+        devices=1,
+        accelerator="auto",
+        enable_checkpointing=False,
+        callbacks=[early_stop_callback],
+    )
+
+    mlflow.pytorch.autolog(log_models=save_model)
     if validate:
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
     else:
         trainer.fit(model, train_dataloaders=train_loader)
+    _log_auto_logged_info(mlflow.active_run())
+
+
+def test_model():
+    pass
+
+
+def tune_model():
+    pass

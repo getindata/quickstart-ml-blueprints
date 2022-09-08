@@ -25,6 +25,8 @@ def create_pipeline(dataset: str, model: str, **kwargs) -> Pipeline:
                     "negative_transactions_samples",
                     "params:training.model_params",
                     "params:training.train_params",
+                    "params:save_model",
+                    "params:seed",
                 ],
                 outputs=None,
                 name="train_model_node",
