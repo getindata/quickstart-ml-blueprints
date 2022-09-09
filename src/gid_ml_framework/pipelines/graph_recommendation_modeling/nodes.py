@@ -1,5 +1,6 @@
 import logging
 from typing import Dict, List, Tuple
+from xmlrpc.client import Boolean
 
 import dgl
 import numpy as np
@@ -96,11 +97,11 @@ def _generate_subgraphs(
     sub_graph = dgl.edge_subgraph(
         graph, edges={"by": sub_u_eid, "pby": sub_i_eid}, relabel_nodes=False
     )
-    u_temp = torch.tensor([user])
+    current_user = torch.tensor([user])
     graph_i = select_topk(
-        sub_graph, item_max_length, weight="time", nodes={"user": u_temp}
+        sub_graph, item_max_length, weight="time", nodes={"user": current_user}
     )
-    return graph_i, sub_graph, u_temp
+    return graph_i, sub_graph, current_user
 
 
 def _iterate_subgraphs(
@@ -112,24 +113,26 @@ def _iterate_subgraphs(
     his_user: int,
 ) -> Tuple:
     """Iterates through subgraph to sample neighbors and create final graph"""
-    i_temp = torch.unique(graph_i.edges(etype="by")[0])
+    current_item = torch.unique(graph_i.edges(etype="by")[0])
     his_item = torch.unique(graph_i.edges(etype="by")[0])
     edge_i = [graph_i.edges["by"].data[dgl.NID]]
     edge_u = []
     # Iterating for k_hop neighbors
     for _ in range(k_hop - 1):
         graph_u = select_topk(
-            sub_graph, user_max_length, weight="time", nodes={"item": i_temp}
+            sub_graph, user_max_length, weight="time", nodes={"item": current_item}
         )
-        u_temp = np.setdiff1d(torch.unique(graph_u.edges(etype="pby")[0]), his_user)[
-            -user_max_length:
-        ]
+        current_user = np.setdiff1d(
+            torch.unique(graph_u.edges(etype="pby")[0]), his_user
+        )[-user_max_length:]
         graph_i = select_topk(
-            sub_graph, item_max_length, weight="time", nodes={"user": u_temp}
+            sub_graph, item_max_length, weight="time", nodes={"user": current_user}
         )
-        his_user = torch.unique(torch.cat([torch.tensor(u_temp), his_user]))
-        i_temp = np.setdiff1d(torch.unique(graph_i.edges(etype="by")[0]), his_item)
-        his_item = torch.unique(torch.cat([torch.tensor(i_temp), his_item]))
+        his_user = torch.unique(torch.cat([torch.tensor(current_user), his_user]))
+        current_item = np.setdiff1d(
+            torch.unique(graph_i.edges(etype="by")[0]), his_item
+        )
+        his_item = torch.unique(torch.cat([torch.tensor(current_item), his_item]))
         edge_i.append(graph_i.edges["by"].data[dgl.NID])
         edge_u.append(graph_u.edges["pby"].data[dgl.NID])
     all_edge_u = torch.unique(torch.cat(edge_u))
@@ -165,8 +168,24 @@ def _prepare_user_data(data: pd.DataFrame, user: int) -> Tuple:
     data_user["time"] = data_user["time"].astype("int32")
     u_time = data_user["time"].values
     u_seq = data_user["item_id"].values
-    split_point = len(u_seq) - 1
-    return u_seq, u_time, split_point
+    len_u_seq = len(u_seq)
+    return u_seq, u_time, len_u_seq
+
+
+def _split_subgraphs(all_subgraphs: List, n_subsets: int) -> Tuple[List]:
+    """Train/val/test split based on order in a transactions sequence"""
+    train_list, val_list, test_list = ([], [], [])
+    if n_subsets == 3:
+        # Strange train/val split but leaving as it was in original implementation
+        train_list = all_subgraphs[:-1]
+        val_list = all_subgraphs[-2:-1]
+        test_list = all_subgraphs[-1:]
+    elif n_subsets == 2:
+        train_list = all_subgraphs
+        val_list = all_subgraphs[-1:]
+    else:
+        train_list = all_subgraphs
+    return train_list, val_list, test_list
 
 
 def _generate_user_subgraphs(
@@ -175,8 +194,9 @@ def _generate_user_subgraphs(
     graph: dgl.DGLGraph,
     item_max_length: int,
     user_max_length: int,
-    k_hop: int = 3,
-) -> Tuple:
+    k_hop: int,
+    subsets: List[Boolean],
+) -> Tuple[List]:
     """Generates subgraphs of transactions for each users interaction.
 
     Args:
@@ -186,14 +206,18 @@ def _generate_user_subgraphs(
         item_max_length (int): maximum length of item interactions for single user
         user_max_length (int): maximum number of users to sample into subgraph
         k_hop (int): number of iterations for subgraphs creation
+        subsets (List[Boolean]): list of booleans which indicates if we want to generate subgraphs for val and test
+            subsets accordingly. Always generating subset for train set. Only considered possibilities are only train,
+            train + val and train + val + test
 
     Returns:
         Tuple: (train_list, val_list, test_list) - each one contains subgraphs for train/val/test subsets
     """
-    u_seq, u_time, split_point = _prepare_user_data(data, user)
-    train_list, val_list, test_list = ([], [], [])
-    # Considering only users with at least 3 transactions
-    if len(u_seq) < 3:
+    n_subsets = sum(subsets) + 1
+    u_seq, u_time, len_u_seq = _prepare_user_data(data, user)
+    train_list, val_list, test_list, all_subgraphs = ([], [], [], [])
+    # Considering only users with at least one transaction for each subset
+    if (len_u_seq < n_subsets) or (n_subsets == 1 and len_u_seq < 2):
         return train_list, val_list, test_list
     else:
         for j, _ in enumerate(u_time[0:-1]):
@@ -210,13 +234,8 @@ def _generate_user_subgraphs(
                 sub_graph, graph_i, k_hop, user_max_length, item_max_length, his_user
             )
             graph_dict = _prepare_graph_dict(fin_graph, user, u_seq, j)
-            # Train/val/test split based on order in sequence
-            if j < split_point - 1:
-                train_list.append([user, j, fin_graph, graph_dict])
-            if j == split_point - 1 - 1:
-                val_list.append([user, j, fin_graph, graph_dict])
-            if j == split_point - 1:
-                test_list.append([user, j, fin_graph, graph_dict])
+            all_subgraphs.append([user, j, fin_graph, graph_dict])
+        train_list, val_list, test_list = _split_subgraphs(all_subgraphs, n_subsets)
     return train_list, val_list, test_list
 
 
@@ -225,12 +244,12 @@ def _generate_model_input(
     graph,
     item_max_length,
     user_max_length,
-    job=10,
-    k_hop=3,
+    k_hop,
+    subsets,
 ):
     """Wrapper for generating subgraphs for each user"""
     user = data.loc[:, "user_id"].unique()
-    sample_lists = Parallel(n_jobs=job)(
+    sample_lists = Parallel(n_jobs=10)(
         delayed(
             lambda u: _generate_user_subgraphs(
                 u,
@@ -239,6 +258,7 @@ def _generate_model_input(
                 item_max_length,
                 user_max_length,
                 k_hop,
+                subsets,
             )
         )(u)
         for u in user
@@ -256,8 +276,9 @@ def preprocess_dgsr(
     graph: dgl.DGLGraph,
     item_max_length: int = 50,
     user_max_length: int = 50,
-    job: int = 10,
-    k_hop: int = 2,
+    k_hop: int = 3,
+    val_flag: Boolean = False,
+    test_flag: Boolean = True,
 ):
     """Preprocess raw transaction data and graph created from all transaction into user's transactions subgraphs which
     are final model inputs.
@@ -267,12 +288,14 @@ def preprocess_dgsr(
         graph (dgl.DGLGraph): graph object created from whole dataset
         item_max_length (int): maximum length of item interactions for single user
         user_max_length (int): maximum number of users to sample into subgraph
-        job (int): number of maximum concurrently running jobs for Parallel function from joblib module
         k_hop (int): number of iterations for subgraphs creation
+        val (Boolean): if we want to generate validation subset
+        test (Boolean): if we want to generate test subset
 
     Returns:
         Tuple: (train_list, val_list, test_list) - each one contains subgraphs for train/val/test subsets
     """
+    subsets = [val_flag, test_flag]
     df = _concat_chunks(df)
     df = _preprocess_transactions(df)
     sample_lists = _generate_model_input(
@@ -280,8 +303,8 @@ def preprocess_dgsr(
         graph,
         item_max_length,
         user_max_length,
-        job=job,
         k_hop=k_hop,
+        subsets=subsets,
     )
     train_list, val_list, test_list = ([], [], [])
     for train, val, test in sample_lists:

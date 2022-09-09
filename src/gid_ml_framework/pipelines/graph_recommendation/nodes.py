@@ -50,7 +50,7 @@ def _get_loaders(
     data_stats: Tuple[int],
 ) -> Tuple[DataLoader]:
     """Creates torch DataLoader from given datasets. Collates negative samples with test and val sets."""
-    batch_size, validate = itemgetter("batch_size", "validate")(train_params)
+    batch_size = train_params.get("batch_size")
     _, item_num = data_stats
     train_loader = DataLoader(
         dataset=train_set,
@@ -67,16 +67,13 @@ def _get_loaders(
         pin_memory=True,
         num_workers=12,
     )
-    if validate:
-        val_loader = DataLoader(
-            dataset=val_set,
-            batch_size=batch_size,
-            collate_fn=lambda x: collate_test(x, negative_samples, item_num),
-            pin_memory=True,
-            num_workers=12,
-        )
-    else:
-        val_loader = test_loader
+    val_loader = DataLoader(
+        dataset=val_set,
+        batch_size=batch_size,
+        collate_fn=lambda x: collate_test(x, negative_samples, item_num),
+        pin_memory=True,
+        num_workers=12,
+    )
     return train_loader, val_loader, test_loader
 
 
@@ -157,16 +154,19 @@ def train_model(
     model = _get_model(device, model_params, train_params, data_stats)
     epochs, validate = _unpack_train_params(train_params)
 
-    early_stop_callback = pl.callbacks.early_stopping.EarlyStopping(
-        monitor="val_loss", min_delta=0.00001, patience=5, verbose=True, mode="min"
-    )
+    if validate:
+        early_stop_callback = pl.callbacks.early_stopping.EarlyStopping(
+            monitor="val_loss", min_delta=0.00001, patience=5, verbose=True, mode="min"
+        )
+    else:
+        early_stop_callback = None
 
     trainer = pl.Trainer(
         max_epochs=epochs,
         devices=1,
         accelerator="auto",
         enable_checkpointing=False,
-        callbacks=[early_stop_callback],
+        callbacks=early_stop_callback,
     )
 
     mlflow.pytorch.autolog(log_models=save_model)

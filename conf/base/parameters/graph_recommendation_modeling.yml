@@ -1,5 +1,31 @@
-# This is a boilerplate parameters config generated for pipeline 'graph_recommendation_modeling'
-# using Kedro 0.18.2.
-#
-# Documentation for this file format can be found in "Parameters"
-# Link: https://kedro.readthedocs.io/en/0.18.2/kedro_project_setup/configuration.html#parameters
+santander_dgsr_train_val_test_grm:
+  preprocess:
+    item_max_length: 50
+    user_max_length: 50
+    k_hop: 3
+    val_flag: True
+    test_flag: True
+
+santander_dgsr_only_train_grm:
+  preprocess:
+    item_max_length: 50
+    user_max_length: 50
+    k_hop: 3
+    val_flag: False
+    test_flag: False
+
+hm_dgsr_train_val_test_grm:
+  preprocess:
+    item_max_length: 50
+    user_max_length: 50
+    k_hop: 3
+    val_flag: True
+    test_flag: True
+
+hm_dgsr_only_train_grm:
+  preprocess:
+    item_max_length: 50
+    user_max_length: 50
+    k_hop: 3
+    val_flag: False
+    test_flag: False

@@ -66,18 +66,34 @@ def register_pipelines() -> Dict[str, Pipeline]:
     graph_recommendation_modeling_santander_dgsr_pipeline = grm.create_pipeline(
         dataset="santander",
         model="dgsr",
+        subsets="train_val_test",
     )
     graph_recommendation_modeling_hm_dgsr_pipeline = grm.create_pipeline(
         dataset="hm",
         model="dgsr",
+        subsets="train_val_test",
     )
     graph_recommendation_santander_dgsr_pipeline = gr.create_pipeline(
         dataset="santander",
         model="dgsr",
+        subsets="train_val_test",
     )
     graph_recommendation_hm_dgsr_pipeline = gr.create_pipeline(
         dataset="hm",
         model="dgsr",
+        subsets="train_val_test",
+    )
+    graph_recommendation_modeling_santander_dgsr_only_train_pipeline = (
+        grm.create_pipeline(
+            dataset="santander",
+            model="dgsr",
+            subsets="only_train",
+        )
+    )
+    graph_recommendation_santander_dgsr_only_train_pipeline = gr.create_pipeline(
+        dataset="santander",
+        model="dgsr",
+        subsets="only_train",
     )
 
     return {
@@ -111,4 +127,6 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "hm_dgsr_grm": graph_recommendation_modeling_hm_dgsr_pipeline,
         "santander_dgsr_gr": graph_recommendation_santander_dgsr_pipeline,
         "hm_dgsr_gr": graph_recommendation_hm_dgsr_pipeline,
+        "santander_dgsr_only_train_grm": graph_recommendation_modeling_santander_dgsr_only_train_pipeline,
+        "santander_dgsr_only_train_gr": graph_recommendation_santander_dgsr_only_train_pipeline,
     }
