@@ -1,7 +1,7 @@
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from .nodes import train_model
+from .nodes import get_predictions, train_model
 
 
 def create_pipeline(dataset: str, model: str, subsets: str, **kwargs) -> Pipeline:
@@ -15,7 +15,7 @@ def create_pipeline(dataset: str, model: str, subsets: str, **kwargs) -> Pipelin
     namespace = "_".join([dataset, model, subsets, "gr"])
     graph_modelling_namespace = "_".join([dataset, model, subsets, "grm"])
 
-    train_pipeline = pipeline(
+    pipeline_template = pipeline(
         [
             node(
                 func=train_model,
@@ -30,7 +30,14 @@ def create_pipeline(dataset: str, model: str, subsets: str, **kwargs) -> Pipelin
                     "params:save_model",
                     "params:seed",
                 ],
-                outputs=None,
+                outputs="model",
+                name="train_model_node",
+                tags=["train"],
+            ),
+            node(
+                func=get_predictions,
+                inputs=["model", "prediction_set"],
+                outputs="predictions",
                 name="train_model_node",
                 tags=["train"],
             ),
@@ -38,7 +45,7 @@ def create_pipeline(dataset: str, model: str, subsets: str, **kwargs) -> Pipelin
     )
 
     main_pipeline = pipeline(
-        pipe=train_pipeline,
+        pipe=pipeline_template,
         inputs={
             "transactions_mapped": f"{dataset}_transactions_mapped",
             "negative_transactions_samples": f"{graph_modelling_namespace}_negative_transactions_samples",
@@ -46,7 +53,10 @@ def create_pipeline(dataset: str, model: str, subsets: str, **kwargs) -> Pipelin
             "val_graphs": f"{graph_modelling_namespace}_val_graphs",
             "test_graphs": f"{graph_modelling_namespace}_test_graphs",
         },
-        outputs=None,
+        outputs={
+            "model": f"{namespace}_model",
+            "predictions": f"{namespace}_predictions",
+        },
         namespace=namespace,
     )
 

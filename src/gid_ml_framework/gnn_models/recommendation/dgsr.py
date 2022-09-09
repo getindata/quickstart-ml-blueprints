@@ -190,6 +190,7 @@ class DGSR(pl.LightningModule):
     def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> Any:
         user, batch_graph, _, last_item = batch
         score, _ = self((batch_graph, user, last_item))
+
         return score
 
     def configure_optimizers(self):

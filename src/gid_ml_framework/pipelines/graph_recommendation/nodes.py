@@ -1,6 +1,6 @@
 import logging
 from operator import itemgetter
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 import mlflow.pytorch
 import pandas as pd
@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 def _get_data_stats(
     transactions: pd.DataFrame,
     train_set: SubGraphsDataset,
-    test_set: SubGraphsDataset,
 ) -> Tuple[int]:
 
     user = transactions["user_id"].unique()
@@ -35,45 +34,48 @@ def _get_data_stats(
     item_num = len(item)
 
     logger.info(f"Train set size: {train_set.size}")
-    logger.info(f"Test set size: {test_set.size}")
     logger.info(f"Number of all unique users: {user_num}")
     logger.info(f"Number of all unique items: {item_num}")
     return user_num, item_num
 
 
 def _get_loaders(
-    train_set: SubGraphsDataset,
-    val_set: SubGraphsDataset,
-    test_set: SubGraphsDataset,
+    train_set: Union[SubGraphsDataset, None],
+    val_set: Union[SubGraphsDataset, None],
+    test_set: Union[SubGraphsDataset, None],
     negative_samples: pd.DataFrame,
     train_params: Dict,
     data_stats: Tuple[int],
-) -> Tuple[DataLoader]:
+) -> Tuple[DataLoader, None]:
     """Creates torch DataLoader from given datasets. Collates negative samples with test and val sets."""
     batch_size = train_params.get("batch_size")
     _, item_num = data_stats
-    train_loader = DataLoader(
-        dataset=train_set,
-        batch_size=batch_size,
-        collate_fn=collate,
-        shuffle=True,
-        pin_memory=True,
-        num_workers=12,
-    )
-    test_loader = DataLoader(
-        dataset=test_set,
-        batch_size=batch_size,
-        collate_fn=lambda x: collate_test(x, negative_samples, item_num),
-        pin_memory=True,
-        num_workers=12,
-    )
-    val_loader = DataLoader(
-        dataset=val_set,
-        batch_size=batch_size,
-        collate_fn=lambda x: collate_test(x, negative_samples, item_num),
-        pin_memory=True,
-        num_workers=12,
-    )
+    train_loader, val_loader, test_loader = (None, None, None)
+    if train_set:
+        train_loader = DataLoader(
+            dataset=train_set,
+            batch_size=batch_size,
+            collate_fn=collate,
+            shuffle=True,
+            pin_memory=True,
+            num_workers=12,
+        )
+    if train_set:
+        test_loader = DataLoader(
+            dataset=test_set,
+            batch_size=batch_size,
+            collate_fn=lambda x: collate_test(x, negative_samples, item_num),
+            pin_memory=True,
+            num_workers=12,
+        )
+    if test_set:
+        val_loader = DataLoader(
+            dataset=val_set,
+            batch_size=batch_size,
+            collate_fn=lambda x: collate_test(x, negative_samples, item_num),
+            pin_memory=True,
+            num_workers=12,
+        )
     return train_loader, val_loader, test_loader
 
 
@@ -126,14 +128,13 @@ def _log_auto_logged_info(mlflow_run: mlflow.entities.Run) -> None:
 def train_model(
     train_set: SubGraphsDataset,
     val_set: SubGraphsDataset,
-    test_set: SubGraphsDataset,
     transactions: pd.DataFrame,
     negative_samples: pd.DataFrame,
     model_params: Dict,
     train_params: Dict,
     save_model: bool = False,
     seed: int = 321,
-) -> None:
+) -> pl.LightningModule:
     """Trains a GNN recommendation model, logs the model and metrics to MLflow.
 
     Args:
@@ -147,9 +148,9 @@ def train_model(
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transactions = _concat_chunks(transactions)
-    data_stats = _get_data_stats(transactions, train_set, test_set)
+    data_stats = _get_data_stats(transactions, train_set)
     train_loader, val_loader, _ = _get_loaders(
-        train_set, val_set, test_set, negative_samples, train_params, data_stats
+        train_set, val_set, None, negative_samples, train_params, data_stats
     )
     model = _get_model(device, model_params, train_params, data_stats)
     epochs, validate = _unpack_train_params(train_params)
@@ -175,10 +176,18 @@ def train_model(
     else:
         trainer.fit(model, train_dataloaders=train_loader)
     _log_auto_logged_info(mlflow.active_run())
+    return model
 
 
 def test_model():
     pass
+
+
+def get_predictions(predict_set: SubGraphsDataset, model) -> pd.DataFrame:
+    trainer = pl.Trainer(devices=1, accelerator="auto")
+    predict_dataloader, _, _ = _get_loaders(predict_set, None, None)
+    predictions = trainer.predict(model, dataloaders=predict_dataloader)
+    return predictions
 
 
 def tune_model():

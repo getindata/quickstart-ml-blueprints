@@ -383,3 +383,9 @@ santander_dgsr_only_train_grm_test_graphs:
   dir: data/05_model_input/santander/santander_dgsr_only_train_grm_test_graphs
   save_args:
     file_extension: bin
+
+santander_dgsr_only_train_gr_model:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/santander/santander_dgsr_only_train_trained_model.pkl
