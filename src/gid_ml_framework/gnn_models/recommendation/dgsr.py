@@ -112,8 +112,7 @@ class DGSR(pl.LightningModule):
     def training_step(self, batch: Any, batch_idx: int) -> torch.tensor:
         user, batch_graph, label, last_item = batch
         score, _ = self((batch_graph, user, last_item))
-        loss_func = nn.CrossEntropyLoss()
-        loss = loss_func(score, label)
+        loss = self.loss_func(score, label)
         self.log(
             "train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
         )
@@ -128,8 +127,7 @@ class DGSR(pl.LightningModule):
         score_neg = torch.matmul(
             unified_embedding.unsqueeze(1), neg_embedding.transpose(2, 1)
         ).squeeze(1)
-        loss_func = nn.CrossEntropyLoss()
-        loss = loss_func(score, label)
+        loss = self.loss_func(score, label)
         top.append(score_neg.detach().cpu().numpy())
         _, recall10, _, _, ndgg10, _ = eval_metric(top)
         self.log(
@@ -161,8 +159,7 @@ class DGSR(pl.LightningModule):
         score_neg = torch.matmul(
             unified_embedding.unsqueeze(1), neg_embedding.transpose(2, 1)
         ).squeeze(1)
-        loss_func = nn.CrossEntropyLoss()
-        loss = loss_func(score, label)
+        loss = self.loss_func(score, label)
         top.append(score_neg.detach().cpu().numpy())
         _, recall10, _, _, ndgg10, _ = eval_metric(top)
         self.log(

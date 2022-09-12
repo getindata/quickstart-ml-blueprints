@@ -33,11 +33,13 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
                     "params:preprocess.k_hop",
                     "params:preprocess.val_flag",
                     "params:preprocess.test_flag",
+                    "params:preprocess.predict_flag",
                 ],
                 outputs=[
                     "train_graphs",
                     "val_graphs",
                     "test_graphs",
+                    "predict_graphs",
                 ],
                 name="preprocess_node",
                 tags=["preprocess"],
@@ -63,6 +65,7 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
             "train_graphs": f"{namespace}_train_graphs",
             "val_graphs": f"{namespace}_val_graphs",
             "test_graphs": f"{namespace}_test_graphs",
+            "predict_graphs": f"{namespace}_predict_graphs",
         },
         namespace=namespace,
     )

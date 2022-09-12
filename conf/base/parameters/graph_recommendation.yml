@@ -24,7 +24,7 @@ santander_dgsr_train_val_test_gr:
       user_max_length: 50
       k_hop: 2
 
-santander_dgsr_only_train_gr:
+santander_dgsr_kaggle_gr:
   seed: 123
   save_model: True
   training:
@@ -76,7 +76,7 @@ hm_dgsr_train_val_test_gr:
       user_max_length: 50
       k_hop: 2
 
-hm_dgsr_only_train_gr:
+hm_dgsr_kaggle_gr:
   seed: 123
   save_model: True
   training:

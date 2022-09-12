@@ -22,7 +22,6 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
                 inputs=[
                     "train_graphs",
                     "val_graphs",
-                    "test_graphs",
                     "transactions_mapped",
                     "negative_transactions_samples",
                     "params:training.model_params",
@@ -36,9 +35,9 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
             ),
             node(
                 func=get_predictions,
-                inputs=["model", "prediction_set"],
+                inputs=["prediction_graphs", "model", "params:training.train_params"],
                 outputs="predictions",
-                name="train_model_node",
+                name="get_predictions_node",
                 tags=["train"],
             ),
         ]
@@ -51,7 +50,8 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
             "negative_transactions_samples": f"{graph_modelling_namespace}_negative_transactions_samples",
             "train_graphs": f"{graph_modelling_namespace}_train_graphs",
             "val_graphs": f"{graph_modelling_namespace}_val_graphs",
-            "test_graphs": f"{graph_modelling_namespace}_test_graphs",
+            # "test_graphs": f"{graph_modelling_namespace}_test_graphs",
+            "prediction_graphs": f"{graph_modelling_namespace}_predict_graphs",
         },
         outputs={
             "model": f"{namespace}_model",

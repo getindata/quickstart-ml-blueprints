@@ -79,6 +79,14 @@ def generate_graph_dgsr(df: pd.DataFrame) -> dgl.DGLGraph:
     return graph
 
 
+def _conditional_compare(
+    timestamp_1: np.array,
+    timestamp_2: np.array,
+    condition: Boolean,
+) -> Tuple[Boolean]:
+    return timestamp_1 <= timestamp_2 if condition else timestamp_1 < timestamp_2
+
+
 def _generate_subgraphs(
     graph: dgl.DGLGraph,
     u_time: List,
@@ -86,14 +94,23 @@ def _generate_subgraphs(
     user: int,
     item_max_length: int,
     j: int,
+    seq_len: int,
 ) -> Tuple[dgl.DGLGraph, dgl.DGLGraph, torch.tensor]:
     """Generates subgraph for user based on transactions timestamps."""
-    sub_u_eid = (graph.edges["by"].data["time"] < u_time[j + 1]) & (
-        graph.edges["by"].data["time"] >= start_t
-    )
-    sub_i_eid = (graph.edges["pby"].data["time"] < u_time[j + 1]) & (
-        graph.edges["pby"].data["time"] >= start_t
-    )
+    predict_condition = j == (seq_len - 1)
+    next_index = j + 1
+    if predict_condition:
+        next_index = j
+    sub_u_eid = (
+        _conditional_compare(
+            graph.edges["by"].data["time"], u_time[next_index], predict_condition
+        )
+    ) & (graph.edges["by"].data["time"] >= start_t)
+    sub_i_eid = (
+        _conditional_compare(
+            graph.edges["by"].data["time"], u_time[next_index], predict_condition
+        )
+    ) & (graph.edges["pby"].data["time"] >= start_t)
     sub_graph = dgl.edge_subgraph(
         graph, edges={"by": sub_u_eid, "pby": sub_i_eid}, relabel_nodes=False
     )
@@ -151,8 +168,9 @@ def _prepare_graph_dict(
     j: int,
     seq_len: int,
 ) -> Dict:
+    # No target/label for predicting unseen data
     if j == (seq_len - 1):
-        target = None
+        target = np.int64(0)
     else:
         target = u_seq[j + 1]
     last_item = u_seq[j]
@@ -181,12 +199,13 @@ def _split_subgraphs(all_subgraphs: List, subsets: List[Boolean]) -> Tuple[List]
     n_subsets = sum(subsets[0:2]) + 1
     train_list, val_list, test_list, predict_list = ([], [], [], [])
     if predict_flag:
-        predict_list, all_subgraphs = all_subgraphs[-1], all_subgraphs[:-1]
+        predict_list, all_subgraphs = all_subgraphs[-1:], all_subgraphs[:-1]
     if n_subsets == 3:
-        test_list, all_subgraphs = all_subgraphs[-1], all_subgraphs[:-1]
+        test_list, all_subgraphs = all_subgraphs[-1:], all_subgraphs[:-1]
     # Strange train/val split but leaving as it was in original implementation
+    if n_subsets > 1:
+        val_list = all_subgraphs[-1:]
     train_list = all_subgraphs
-    val_list = all_subgraphs[-1:]
     return train_list, val_list, test_list, predict_list
 
 
@@ -215,7 +234,7 @@ def _generate_user_subgraphs(
     Returns:
         Tuple: (train_list, val_list, test_list) - each one contains subgraphs for train/val/test subsets
     """
-    predict_flag = subsets[3]
+    predict_flag = subsets[2]
     u_seq, u_time = _prepare_user_data(data, user)
     train_list, val_list, test_list, predict_list, all_subgraphs = ([], [], [], [], [])
     u_time_seq = u_time[0:-1]
@@ -234,7 +253,7 @@ def _generate_user_subgraphs(
             else:
                 start_t = u_time[j - item_max_length]
             graph_i, sub_graph, his_user = _generate_subgraphs(
-                graph, u_time, start_t, user, item_max_length, j
+                graph, u_time, start_t, user, item_max_length, j, seq_len
             )
             fin_graph = _iterate_subgraphs(
                 sub_graph, graph_i, k_hop, user_max_length, item_max_length, his_user

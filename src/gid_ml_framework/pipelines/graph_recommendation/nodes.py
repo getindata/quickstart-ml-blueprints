@@ -49,7 +49,8 @@ def _get_loaders(
 ) -> Tuple[DataLoader, None]:
     """Creates torch DataLoader from given datasets. Collates negative samples with test and val sets."""
     batch_size = train_params.get("batch_size")
-    _, item_num = data_stats
+    if data_stats:
+        _, item_num = data_stats
     train_loader, val_loader, test_loader = (None, None, None)
     if train_set:
         train_loader = DataLoader(
@@ -183,11 +184,17 @@ def test_model():
     pass
 
 
-def get_predictions(predict_set: SubGraphsDataset, model) -> pd.DataFrame:
+def get_predictions(
+    predict_set: SubGraphsDataset, model: pl.LightningModule, train_params: Dict
+) -> pd.DataFrame:
     trainer = pl.Trainer(devices=1, accelerator="auto")
-    predict_dataloader, _, _ = _get_loaders(predict_set, None, None)
+    predict_dataloader, _, _ = _get_loaders(
+        predict_set, None, None, None, train_params, None
+    )
     predictions = trainer.predict(model, dataloaders=predict_dataloader)
-    return predictions
+    # predictions.argsort(1).argsort(1)
+    predictions_df = pd.DataFrame(predictions)
+    return predictions_df
 
 
 def tune_model():

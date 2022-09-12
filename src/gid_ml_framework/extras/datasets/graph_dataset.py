@@ -58,14 +58,16 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
         else:
             logger.info(f"Creating new directory: {save_path}")
             save_path.mkdir(parents=True, exist_ok=False)
-
-        for row in data:
-            if row:
-                user, item_number, graph, graph_dict = row
-                save_dir = os.path.join(save_path, str(user))
-                file_name = "_".join([str(user), str(item_number)])
-                save_filepath = os.path.join(save_dir, f"{file_name}.{file_extension}")
-                save_graphs(save_filepath, graph, graph_dict)
+        if data:
+            for row in data:
+                if row:
+                    user, item_number, graph, graph_dict = row
+                    save_dir = os.path.join(save_path, str(user))
+                    file_name = "_".join([str(user), str(item_number)])
+                    save_filepath = os.path.join(
+                        save_dir, f"{file_name}.{file_extension}"
+                    )
+                    save_graphs(save_filepath, graph, graph_dict)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""

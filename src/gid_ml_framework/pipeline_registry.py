@@ -66,32 +66,32 @@ def register_pipelines() -> Dict[str, Pipeline]:
     graph_recommendation_modeling_santander_dgsr_pipeline = grm.create_pipeline(
         dataset="santander",
         model="dgsr",
-        comment="train_val_test",
+        comments="train_val_test",
     )
     graph_recommendation_modeling_hm_dgsr_pipeline = grm.create_pipeline(
         dataset="hm",
         model="dgsr",
-        comment="train_val_test",
+        comments="train_val_test",
     )
     graph_recommendation_santander_dgsr_pipeline = gr.create_pipeline(
         dataset="santander",
         model="dgsr",
-        comment="train_val_test",
+        comments="train_val_test",
     )
     graph_recommendation_hm_dgsr_pipeline = gr.create_pipeline(
         dataset="hm",
         model="dgsr",
-        comment="train_val_test",
+        comments="train_val_test",
     )
     graph_recommendation_modeling_santander_dgsr_kaggle_pipeline = grm.create_pipeline(
         dataset="santander",
         model="dgsr",
-        comment="kaggle",
+        comments="kaggle",
     )
     graph_recommendation_santander_dgsr_kaggle_pipeline = gr.create_pipeline(
         dataset="santander",
         model="dgsr",
-        comment="kaggle",
+        comments="kaggle",
     )
 
     return {
