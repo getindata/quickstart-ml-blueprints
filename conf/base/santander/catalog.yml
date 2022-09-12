@@ -354,38 +354,38 @@ santander_dgsr_train_val_test_grm_test_graphs:
     file_extension: bin
 
 
-##only_train
-santander_dgsr_only_train_grm_transactions_graph:
+##Kaggle
+santander_dgsr_kaggle_grm_transactions_graph:
   type: pickle.PickleDataSet
-  filepath: data/04_feature/santander/santander_dgsr_only_train_grm_transactions_graph.pickle
+  filepath: data/04_feature/santander/santander_dgsr_kaggle_grm_transactions_graph.pickle
   layer: feature
   backend: pickle
 
-santander_dgsr_only_train_grm_negative_transactions_samples:
+santander_dgsr_kaggle_grm_negative_transactions_samples:
   type: pickle.PickleDataSet
-  filepath: data/03_primary/santander/santander_dgsr_only_train_grm_negative_transactions_samples.pickle
+  filepath: data/03_primary/santander/santander_dgsr_kaggle_grm_negative_transactions_samples.pickle
   layer: primary
 
-santander_dgsr_only_train_grm_train_graphs:
+santander_dgsr_kaggle_grm_train_graphs:
   type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
-  dir: data/05_model_input/santander/santander_dgsr_only_train_grm_train_graphs
+  dir: data/05_model_input/santander/santander_dgsr_kaggle_grm_train_graphs
   save_args:
     file_extension: bin
 
-santander_dgsr_only_train_grm_val_graphs:
+santander_dgsr_kaggle_grm_val_graphs:
   type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
-  dir: data/05_model_input/santander/santander_dgsr_only_train_grm_val_graphs
+  dir: data/05_model_input/santander/santander_dgsr_kaggle_val_graphs
   save_args:
     file_extension: bin
 
-santander_dgsr_only_train_grm_test_graphs:
+santander_dgsr_kaggle_grm_test_graphs:
   type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
-  dir: data/05_model_input/santander/santander_dgsr_only_train_grm_test_graphs
+  dir: data/05_model_input/santander/santander_dgsr_kaggle_grm_test_graphs
   save_args:
     file_extension: bin
 
-santander_dgsr_only_train_gr_model:
+santander_dgsr_kaggle_gr_model:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
   data_set:
     type: pickle.PickleDataSet
-    filepath: data/06_models/santander/santander_dgsr_only_train_trained_model.pkl
+    filepath: data/06_models/santander/santander_dgsr_kaggle_trained_model.pkl

@@ -4,16 +4,16 @@ from kedro.pipeline.modular_pipeline import pipeline
 from .nodes import get_predictions, train_model
 
 
-def create_pipeline(dataset: str, model: str, subsets: str, **kwargs) -> Pipeline:
+def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeline:
     """Creates pipeline for graph recommendation models training
 
     Args:
         dataset (str): dataset name
         model (str): name of gnn model to use
-        subsets (str): indication of which subsets we want to create (only_train, train_val, train_val_test)
+        comments (str): i.e. indication of which subsets we want to create (only_train, train_val, train_val_test)
     """
-    namespace = "_".join([dataset, model, subsets, "gr"])
-    graph_modelling_namespace = "_".join([dataset, model, subsets, "grm"])
+    namespace = "_".join([dataset, model, comments, "gr"])
+    graph_modelling_namespace = "_".join([dataset, model, comments, "grm"])
 
     pipeline_template = pipeline(
         [

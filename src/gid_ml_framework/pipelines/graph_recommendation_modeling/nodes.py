@@ -149,8 +149,12 @@ def _prepare_graph_dict(
     user: int,
     u_seq: List,
     j: int,
+    seq_len: int,
 ) -> Dict:
-    target = u_seq[j + 1]
+    if j == (seq_len - 1):
+        target = None
+    else:
+        target = u_seq[j + 1]
     last_item = u_seq[j]
     u_alis = torch.where(fin_graph.nodes["user"].data["user_id"] == user)[0]
     last_alis = torch.where(fin_graph.nodes["item"].data["item_id"] == last_item)[0]
@@ -168,24 +172,22 @@ def _prepare_user_data(data: pd.DataFrame, user: int) -> Tuple:
     data_user["time"] = data_user["time"].astype("int32")
     u_time = data_user["time"].values
     u_seq = data_user["item_id"].values
-    len_u_seq = len(u_seq)
-    return u_seq, u_time, len_u_seq
+    return u_seq, u_time
 
 
-def _split_subgraphs(all_subgraphs: List, n_subsets: int) -> Tuple[List]:
+def _split_subgraphs(all_subgraphs: List, subsets: List[Boolean]) -> Tuple[List]:
     """Train/val/test split based on order in a transactions sequence"""
-    train_list, val_list, test_list = ([], [], [])
+    _, _, predict_flag = subsets
+    n_subsets = sum(subsets[0:2]) + 1
+    train_list, val_list, test_list, predict_list = ([], [], [], [])
+    if predict_flag:
+        predict_list, all_subgraphs = all_subgraphs[-1], all_subgraphs[:-1]
     if n_subsets == 3:
-        # Strange train/val split but leaving as it was in original implementation
-        train_list = all_subgraphs[:-1]
-        val_list = all_subgraphs[-2:-1]
-        test_list = all_subgraphs[-1:]
-    elif n_subsets == 2:
-        train_list = all_subgraphs
-        val_list = all_subgraphs[-1:]
-    else:
-        train_list = all_subgraphs
-    return train_list, val_list, test_list
+        test_list, all_subgraphs = all_subgraphs[-1], all_subgraphs[:-1]
+    # Strange train/val split but leaving as it was in original implementation
+    train_list = all_subgraphs
+    val_list = all_subgraphs[-1:]
+    return train_list, val_list, test_list, predict_list
 
 
 def _generate_user_subgraphs(
@@ -206,21 +208,25 @@ def _generate_user_subgraphs(
         item_max_length (int): maximum length of item interactions for single user
         user_max_length (int): maximum number of users to sample into subgraph
         k_hop (int): number of iterations for subgraphs creation
-        subsets (List[Boolean]): list of booleans which indicates if we want to generate subgraphs for val and test
-            subsets accordingly. Always generating subset for train set. Only considered possibilities are only train,
-            train + val and train + val + test
+        subsets (List[Boolean]): list of booleans which indicates if we want to generate subgraphs for val, test,
+            predict subsets accordingly. Always generating subset for train set. Considered possibilities are train,
+            train + val, train + val + test and all combinations with predict subset.
 
     Returns:
         Tuple: (train_list, val_list, test_list) - each one contains subgraphs for train/val/test subsets
     """
-    n_subsets = sum(subsets) + 1
-    u_seq, u_time, len_u_seq = _prepare_user_data(data, user)
-    train_list, val_list, test_list, all_subgraphs = ([], [], [], [])
-    # Considering only users with at least one transaction for each subset
-    if (len_u_seq < n_subsets) or (n_subsets == 1 and len_u_seq < 2):
-        return train_list, val_list, test_list
+    predict_flag = subsets[3]
+    u_seq, u_time = _prepare_user_data(data, user)
+    train_list, val_list, test_list, predict_list, all_subgraphs = ([], [], [], [], [])
+    u_time_seq = u_time[0:-1]
+    if predict_flag:
+        u_time_seq = u_time
+    # Considering only users with at least two transactions
+    seq_len = len(u_time_seq)
+    if seq_len < 2:
+        return train_list, val_list, test_list, predict_list
     else:
-        for j, _ in enumerate(u_time[0:-1]):
+        for j, _ in enumerate(u_time_seq):
             if j == 0:
                 continue
             if j < item_max_length:
@@ -233,10 +239,12 @@ def _generate_user_subgraphs(
             fin_graph = _iterate_subgraphs(
                 sub_graph, graph_i, k_hop, user_max_length, item_max_length, his_user
             )
-            graph_dict = _prepare_graph_dict(fin_graph, user, u_seq, j)
+            graph_dict = _prepare_graph_dict(fin_graph, user, u_seq, j, seq_len)
             all_subgraphs.append([user, j, fin_graph, graph_dict])
-        train_list, val_list, test_list = _split_subgraphs(all_subgraphs, n_subsets)
-    return train_list, val_list, test_list
+        train_list, val_list, test_list, predict_list = _split_subgraphs(
+            all_subgraphs, subsets
+        )
+    return train_list, val_list, test_list, predict_list
 
 
 def _generate_model_input(
@@ -279,6 +287,7 @@ def preprocess_dgsr(
     k_hop: int = 3,
     val_flag: Boolean = False,
     test_flag: Boolean = True,
+    predict_flag: Boolean = False,
 ):
     """Preprocess raw transaction data and graph created from all transaction into user's transactions subgraphs which
     are final model inputs.
@@ -289,13 +298,15 @@ def preprocess_dgsr(
         item_max_length (int): maximum length of item interactions for single user
         user_max_length (int): maximum number of users to sample into subgraph
         k_hop (int): number of iterations for subgraphs creation
-        val (Boolean): if we want to generate validation subset
-        test (Boolean): if we want to generate test subset
+        val_flag (Boolean): if we want to generate validation subset
+        test_flag (Boolean): if we want to generate test subset
+        predict_flag (Booleand): if we want to generate predict subset
 
     Returns:
-        Tuple: (train_list, val_list, test_list) - each one contains subgraphs for train/val/test subsets
+        Tuple: (train_list, val_list, test_list, predict_list) - each one contains subgraphs for train/val/test/predict
+        subsets
     """
-    subsets = [val_flag, test_flag]
+    subsets = [val_flag, test_flag, predict_flag]
     df = _concat_chunks(df)
     df = _preprocess_transactions(df)
     sample_lists = _generate_model_input(
@@ -306,18 +317,21 @@ def preprocess_dgsr(
         k_hop=k_hop,
         subsets=subsets,
     )
-    train_list, val_list, test_list = ([], [], [])
-    for train, val, test in sample_lists:
+    train_list, val_list, test_list, predict_list = ([], [], [], [])
+    for train, val, test, predict in sample_lists:
         train_list.append(train)
         val_list.append(val)
         test_list.append(test)
+        predict_list.append(predict)
     train_list = _correct_shape(train_list)
     val_list = _correct_shape(val_list)
     test_list = _correct_shape(test_list)
+    predict_list = _correct_shape(predict_list)
     logger.info(f"The number of samples in train set: {len(train_list)}")
     logger.info(f"The number of samples in val set: {len(val_list)}")
     logger.info(f"The number of samples in test set: {len(test_list)}")
-    return train_list, val_list, test_list
+    logger.info(f"The number of samples in predict set: {len(predict_list)}")
+    return train_list, val_list, test_list, predict_list
 
 
 def sample_negatives_dgsr(df: pd.DataFrame) -> pd.DataFrame:

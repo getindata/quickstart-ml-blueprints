@@ -6,13 +6,14 @@ santander_dgsr_train_val_test_grm:
     val_flag: True
     test_flag: True
 
-santander_dgsr_only_train_grm:
+santander_dgsr_kaggle_grm:
   preprocess:
     item_max_length: 50
     user_max_length: 50
     k_hop: 3
     val_flag: False
     test_flag: False
+    predict_flag: True
 
 hm_dgsr_train_val_test_grm:
   preprocess:
@@ -22,10 +23,11 @@ hm_dgsr_train_val_test_grm:
     val_flag: True
     test_flag: True
 
-hm_dgsr_only_train_grm:
+hm_dgsr_kaggle_grm:
   preprocess:
     item_max_length: 50
     user_max_length: 50
     k_hop: 3
     val_flag: False
     test_flag: False
+    predict_flag: True

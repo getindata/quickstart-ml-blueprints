@@ -4,15 +4,15 @@ from kedro.pipeline.modular_pipeline import pipeline
 from .nodes import generate_graph_dgsr, preprocess_dgsr, sample_negatives_dgsr
 
 
-def create_pipeline(dataset: str, model: str, subsets: str, **kwargs) -> Pipeline:
+def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeline:
     """Creates pipeline for graph data modeling for given GNN model
 
     Args:
         dataset (str): dataset name
         model (str): name of gnn model to use
-        subsets (str): indication of which subsets we want to create (only_train, train_val, train_val_test)
+        comments (str): i.e. indication of which subsets we want to create (only_train, train_val, train_val_test)
     """
-    namespace = "_".join([dataset, model, subsets, "grm"])
+    namespace = "_".join([dataset, model, comments, "grm"])
 
     dgsr_pipeline = pipeline(
         [

@@ -88,7 +88,6 @@ class DGSR(pl.LightningModule):
 
     def forward(self, x: Tuple) -> Tuple[torch.tensor]:
         g, user_index, last_item_index = x
-        g, user_index, last_item_index = g, user_index, last_item_index
         feat_dict = None
         user_layer = []
         g.nodes["user"].data["user_h"] = self.user_embedding(
