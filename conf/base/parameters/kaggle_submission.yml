@@ -1,5 +1,7 @@
-# This is a boilerplate parameters config generated for pipeline 'kaggle_submission'
-# using Kedro 0.18.2.
-#
-# Documentation for this file format can be found in "Parameters"
-# Link: https://kedro.readthedocs.io/en/0.18.2/kedro_project_setup/configuration.html#parameters
+santander:
+  new_item_column: added_products
+  new_user_column: ncodpers
+
+hm:
+  new_item_column: prediction
+  new_user_column: customer_id

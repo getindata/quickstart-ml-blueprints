@@ -4,15 +4,18 @@ from .nodes import generate_submission
 
 
 def create_pipeline(dataset: str, **kwargs) -> Pipeline:
+    namespace = dataset
     gr_namespace = "dgsr_kaggle_gr"
     pipeline_template = pipeline(
         [
             node(
-                func=generate_submission(dataset),
+                func=generate_submission,
                 inputs=[
                     "predictions",
                     "user_mapping",
                     "item_mapping",
+                    "params:new_item_column",
+                    "params:new_user_column",
                 ],
                 outputs="submission",
                 name=f"generate_{dataset}_submission_node",
@@ -30,7 +33,7 @@ def create_pipeline(dataset: str, **kwargs) -> Pipeline:
         outputs={
             "submission": f"{dataset}_submission",
         },
-        namespace=dataset,
+        namespace=namespace,
     )
 
     return main_pipeline

@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 import pandas as pd
 
@@ -60,19 +60,22 @@ def _impute_missing_predictions(
     return left_predictions
 
 
-def _get_santander_columns(predictions: pd.DataFrame) -> Tuple:
+def _get_columns(predictions: pd.DataFrame) -> Tuple:
     columns_list = set(predictions.columns)
-    new_item_column = "added_products"
     user_column = "user_id"
     item_columns = list(columns_list.difference(set([user_column])))
     item_columns = sorted(item_columns, key=int)
-    return user_column, item_columns, new_item_column
+    return user_column, item_columns
 
 
-def generate_santander_submission(
-    predictions: pd.DataFrame, user_mapping: Dict, item_mapping: Dict
+def generate_submission(
+    predictions: pd.DataFrame,
+    user_mapping: Dict,
+    item_mapping: Dict,
+    new_item_column: str,
+    new_user_column: str,
 ) -> pd.DataFrame:
-    """Generates santander submission file based on predictions from GNN model. It imputes predictions for missing
+    """Generates kaggle submission file based on predictions from GNN model. It imputes predictions for missing
     users and remap user and item ids.
 
     Args:
@@ -81,10 +84,10 @@ def generate_santander_submission(
         item_mapping (Dict): user mapping dict used to map original user ids to ones consistent with GNNs models
 
     Returns:
-        pd.DataFrame: dataframe with santander submission dataframe
+        pd.DataFrame: dataframe with kaggle submission dataframe
     """
     predictions = _concat_chunks(predictions)
-    user_column, item_columns, new_item_column = _get_santander_columns(predictions)
+    user_column, item_columns = _get_columns(predictions)
     predictions = _map_to_original(
         predictions, user_mapping, item_mapping, user_column, item_columns
     )
@@ -96,21 +99,8 @@ def generate_santander_submission(
     ].values.tolist()
     predictions = predictions.loc[:, [user_column, new_item_column]]
     submission = pd.concat([predictions, left_predictions])
-    submission.rename(columns={user_column: "ncodpers"}, inplace=True)
+    submission.rename(columns={user_column: new_user_column}, inplace=True)
     submission.loc[:, new_item_column] = submission.loc[:, new_item_column].str.join(
         " "
     )
     return submission
-
-
-def generate_hm_submission():
-    pass
-
-
-def generate_submission(dataset: str) -> Callable:
-    """Wrapper for dataset specific submission functions"""
-    func_dict = {
-        "santander": generate_santander_submission,
-        "hm": generate_hm_submission,
-    }
-    return func_dict.get(dataset)
