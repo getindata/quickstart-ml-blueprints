@@ -110,7 +110,7 @@ class DGSR(pl.LightningModule):
         return score, unified_embedding
 
     def training_step(self, batch: Any, batch_idx: int) -> torch.tensor:
-        user, batch_graph, label, last_item = batch
+        user, batch_graph, label, last_item, _ = batch
         score, _ = self((batch_graph, user, last_item))
         loss = self.loss_func(score, label)
         self.log(
@@ -184,10 +184,9 @@ class DGSR(pl.LightningModule):
         return score, score_neg
 
     def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> Any:
-        user, batch_graph, _, last_item = batch
+        user, batch_graph, _, last_item, original_user_id = batch
         score, _ = self((batch_graph, user, last_item))
-
-        return score
+        return original_user_id, score
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.l2)

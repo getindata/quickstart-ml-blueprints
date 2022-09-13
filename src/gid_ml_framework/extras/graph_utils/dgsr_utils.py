@@ -3,6 +3,7 @@ Auxiliary functions for DGSR graph model
 """
 import os
 import sys
+from pathlib import Path
 from typing import Any, List, Tuple
 
 import _pickle as cPickle
@@ -25,7 +26,7 @@ class SubGraphsDataset(Dataset):
     def __getitem__(self, index):
         dir_ = self.dir_list[index]
         data = self.loader(dir_)
-        return data
+        return data, dir_
 
     def __len__(self):
         return self.size
@@ -65,7 +66,10 @@ def neg_generate(user: List, data_neg: pd.DataFrame, item_num: int) -> np.array:
 def collate(data: pd.DataFrame) -> Tuple:
     """Collate function for torch subgraphs dataset"""
     user, user_l, graph, label, last_item = ([], [], [], [], [])
-    for row in data:
+    # Get user ids from path
+    original_user_ids = [int(Path(row[1]).stem.split("_")[0]) for row in data]
+    graphs = [row[0] for row in data]
+    for row in graphs:
         user.append(row[1]["user"])
         user_l.append(row[1]["u_alis"])
         graph.append(row[0][0])
@@ -76,6 +80,7 @@ def collate(data: pd.DataFrame) -> Tuple:
         dgl.batch(graph),
         torch.tensor(label).long(),
         torch.tensor(last_item).long(),
+        torch.tensor(original_user_ids).long(),
     )
 
 

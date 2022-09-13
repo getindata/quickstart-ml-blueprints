@@ -144,6 +144,9 @@ def train_model(
         test_set (SubGraphsDataset): test subset of data
         model_params (Dict): parameters for chosen GNN model
         train_params (Dict): parameters for training process
+
+    Returns:
+        pl.LightningModule: trained GNN pytorch lightning model
     """
     seed_everything(seed, True)
 
@@ -187,12 +190,25 @@ def test_model():
 def get_predictions(
     predict_set: SubGraphsDataset, model: pl.LightningModule, train_params: Dict
 ) -> pd.DataFrame:
+    """Generates predictions of recommendation model based on predict set.
+
+    Args:
+        predict_set (SubGraphsDataset): predict subset of data
+        model (pl.LightningModule): trained pytorch lightning model
+        train_params (Dict): model parameters for training and inference process
+
+    Returns:
+        pd.DataFrame: dataframe with sorted predictions for each user
+    """
     trainer = pl.Trainer(devices=1, accelerator="auto")
     predict_dataloader, _, _ = _get_loaders(
         predict_set, None, None, None, train_params, None
     )
-    predictions = trainer.predict(model, dataloaders=predict_dataloader)
-    # predictions.argsort(1).argsort(1)
+    outputs = trainer.predict(model, dataloaders=predict_dataloader)
+    user_ids = torch.cat([row[0] for row in outputs])
+    predictions = torch.cat([(-row[1]).argsort(1) for row in outputs])
+    predictions_df = pd.DataFrame(predictions.numpy())
+    predictions_df["user_id"] = user_ids
     predictions_df = pd.DataFrame(predictions)
     return predictions_df
 
