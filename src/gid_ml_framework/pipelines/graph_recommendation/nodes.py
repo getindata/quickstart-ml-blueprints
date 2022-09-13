@@ -209,7 +209,7 @@ def get_predictions(
     predictions = torch.cat([(-row[1]).argsort(1) for row in outputs])
     predictions_df = pd.DataFrame(predictions.numpy())
     predictions_df["user_id"] = user_ids
-    predictions_df = pd.DataFrame(predictions)
+    logger.info(f"Predisction dataframe size: {predictions_df.size}")
     return predictions_df
 
 

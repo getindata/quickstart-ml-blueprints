@@ -413,3 +413,13 @@ santander_dgsr_kaggle_gr_predictions:
   load_args:
     chunksize: 1000000
     low_memory: False
+
+santander_submission:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/santander/santander_submission.csv
+  layer: model_output
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False

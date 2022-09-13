@@ -16,6 +16,7 @@ from gid_ml_framework.pipelines import (
 )
 from gid_ml_framework.pipelines import image_embeddings as ie
 from gid_ml_framework.pipelines import image_resizer as ir
+from gid_ml_framework.pipelines import kaggle_submission as ks
 from gid_ml_framework.pipelines import manual_feature_engineering as mfe
 from gid_ml_framework.pipelines import sample_data as sd
 from gid_ml_framework.pipelines import santander_preprocessing as sp
@@ -93,6 +94,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
         model="dgsr",
         comments="kaggle",
     )
+    santander_kaggle_submission = ks.create_pipeline(dataset="santander")
 
     return {
         "__default__": sample_data_pipeline,
@@ -127,4 +129,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "hm_dgsr_gr": graph_recommendation_hm_dgsr_pipeline,
         "santander_dgsr_kaggle_grm": graph_recommendation_modeling_santander_dgsr_kaggle_pipeline,
         "santander_dgsr_kaggle_gr": graph_recommendation_santander_dgsr_kaggle_pipeline,
+        "santander_ks": santander_kaggle_submission,
     }
