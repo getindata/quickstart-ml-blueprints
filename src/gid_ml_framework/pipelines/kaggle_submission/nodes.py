@@ -51,7 +51,7 @@ def _impute_missing_predictions(
     rankings = predictions.loc[:, item_columns].values.tolist()
     aggregated_ranking = _borda_sort(rankings)
     all_users = set(user_mapping.keys())
-    pred_users = set(predictions.loc[:, [user_column]])
+    pred_users = set(predictions.loc[:, user_column])
     left_users = list(all_users.difference(pred_users))
     left_predictions = pd.DataFrame({user_column: left_users})
     left_predictions.loc[:, new_item_column] = [aggregated_ranking] * len(
@@ -98,7 +98,7 @@ def generate_submission(
         :, item_columns
     ].values.tolist()
     predictions = predictions.loc[:, [user_column, new_item_column]]
-    submission = pd.concat([predictions, left_predictions])
+    submission = pd.concat([predictions, left_predictions], ignore_index=True)
     submission.rename(columns={user_column: new_user_column}, inplace=True)
     submission.loc[:, new_item_column] = submission.loc[:, new_item_column].str.join(
         " "

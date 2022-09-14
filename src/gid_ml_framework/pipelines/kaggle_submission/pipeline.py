@@ -4,7 +4,7 @@ from .nodes import generate_submission
 
 
 def create_pipeline(dataset: str, **kwargs) -> Pipeline:
-    namespace = dataset
+    namespace = f"{dataset}_ks"
     gr_namespace = "dgsr_kaggle_gr"
     pipeline_template = pipeline(
         [

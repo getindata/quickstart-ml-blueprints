@@ -96,6 +96,18 @@ def register_pipelines() -> Dict[str, Pipeline]:
     )
     santander_kaggle_submission = ks.create_pipeline(dataset="santander")
 
+    graph_recommendation_modeling_hm_dgsr_kaggle_pipeline = grm.create_pipeline(
+        dataset="hm",
+        model="dgsr",
+        comments="kaggle",
+    )
+    graph_recommendation_hm_dgsr_kaggle_pipeline = gr.create_pipeline(
+        dataset="hm",
+        model="dgsr",
+        comments="kaggle",
+    )
+    hm_kaggle_submission = ks.create_pipeline(dataset="hm")
+
     return {
         "__default__": sample_data_pipeline,
         "sd": sample_data_pipeline,
@@ -124,10 +136,13 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "santander_grp": graph_recommendation_preprocessing_santander_pipeline,
         "hm_grp": graph_recommendation_preprocessing_hm_pipeline,
         "santander_dgsr_grm": graph_recommendation_modeling_santander_dgsr_pipeline,
-        "hm_dgsr_grm": graph_recommendation_modeling_hm_dgsr_pipeline,
         "santander_dgsr_gr": graph_recommendation_santander_dgsr_pipeline,
+        "hm_dgsr_grm": graph_recommendation_modeling_hm_dgsr_pipeline,
         "hm_dgsr_gr": graph_recommendation_hm_dgsr_pipeline,
         "santander_dgsr_kaggle_grm": graph_recommendation_modeling_santander_dgsr_kaggle_pipeline,
         "santander_dgsr_kaggle_gr": graph_recommendation_santander_dgsr_kaggle_pipeline,
         "santander_ks": santander_kaggle_submission,
+        "hm_dgsr_kaggle_grm": graph_recommendation_modeling_hm_dgsr_kaggle_pipeline,
+        "hm_dgsr_kaggle_gr": graph_recommendation_hm_dgsr_kaggle_pipeline,
+        "hm_ks": hm_kaggle_submission,
     }

@@ -160,3 +160,30 @@ hm_dgsr_only_train_train_graphs:
   dir: data/05_model_input/hm/hm_dgsr_only_train_train_graphs
   load_args:
     file_extension: bin
+
+hm_dgsr_kaggle_gr_model:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  layer: model
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/hm/hm_dgsr_kaggle_trained_model.pkl
+
+hm_dgsr_kaggle_gr_predictions:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/hm/hm_dgsr_kaggle_gr_predictions.csv
+  layer: model_output
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+hm_submission:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/hm/hm_submission.csv
+  layer: model_output
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
