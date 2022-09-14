@@ -27,7 +27,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=assign_global_articles,
                 inputs=[
-                    "customers_sample",
+                    "customers",
                     "global_articles_set",
                     ],
                 outputs="global_articles_df",
@@ -36,7 +36,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         ],
         namespace="global_candidate_generation",
         # transactions
-        inputs=["train_transactions", "customers_sample"],
+        inputs=["train_transactions", "customers"],
         outputs=["global_articles_df"],
     )
 
@@ -45,7 +45,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=segment_by_customer_age,
                 inputs=[
-                    "customers_sample",
+                    "customers",
                     "params:segment_articles.no_segments",
                     ],
                 outputs="customers_bins",
@@ -75,7 +75,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         ],
         namespace="segment_candidate_generation",
         # transactions
-        inputs=["train_transactions", "customers_sample"],
+        inputs=["train_transactions", "customers"],
         outputs=["segment_articles_df"],
     )
 
@@ -95,7 +95,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     # transactions
                     "train_transactions",
-                    "articles_sample",
+                    "articles",
                     ],
                 outputs="prev_bought_prod_name_df",
                 name="collect_prev_bought_prod_name_node",
@@ -103,7 +103,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         ],
         namespace="prev_bought_candidate_generation",
         # transactions
-        inputs=["train_transactions", "articles_sample"],
+        inputs=["train_transactions", "articles"],
         outputs=["prev_bought_df", "prev_bought_prod_name_df"],
     )
 

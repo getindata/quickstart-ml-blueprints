@@ -1,4 +1,5 @@
 train_val_split:
   candidate_selection:
     date_column: t_dat
-    no_week: 1
+    no_train_week: 6
+    no_val_week: 1

@@ -1,0 +1,5 @@
+generate_predictions:
+  models:
+    - 7551ddaa95324470906809d26b247775
+    - f3d6b2d8473d4d1e8dd69f305590197e
+  k: 12

@@ -1,11 +1,11 @@
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from .nodes import train_val_split, train_single_model
+from ..ranking.nodes import train_val_split, train_optuna_model
 
 
 def create_pipeline(**kwargs) -> Pipeline:
-    train_single_ranking_model_pipeline = pipeline(
+    train_optuna_ranking_model_pipeline = pipeline(
         [
             node(
                 func=train_val_split,
@@ -17,19 +17,20 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["train_candidates", "val_candidates"],
             ),
             node(
-                func=train_single_model,
-                name="train_single_model_node",
+                func=train_optuna_model,
+                name="train_optuna_model_node",
                 inputs=[
                     "train_candidates",
                     "val_candidates",
                     "val_transactions",
                     "params:training.params",
+                    "params:training.optuna_params",
                     "params:training.k",
                     ],
                 outputs=None,
             ),
         ],
-        namespace="train_ranking",
+        namespace="train_optuna_ranking",
         inputs=[
             "final_candidates",
             "val_transactions",
@@ -37,4 +38,4 @@ def create_pipeline(**kwargs) -> Pipeline:
         outputs=None,
     )
     
-    return train_single_ranking_model_pipeline
+    return train_optuna_ranking_model_pipeline

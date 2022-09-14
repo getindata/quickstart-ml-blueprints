@@ -9,15 +9,16 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=train_val_split,
                 inputs=[
-                    "transactions_sample",
+                    "transactions",
                     "params:candidate_selection.date_column",
-                    "params:candidate_selection.no_week",
+                    "params:candidate_selection.no_train_week",
+                    "params:candidate_selection.no_val_week",
                     ],
                 outputs=["train_transactions", "val_transactions"],
                 name="train_val_split_node",
             ),
         ],
         namespace="train_val_split",
-        inputs=["transactions_sample"],
+        inputs=["transactions"],
         outputs=["train_transactions", "val_transactions"],
     )
