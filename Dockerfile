@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=nvidia/cuda:11.3.0-cudnn8-devel-ubuntu22.04
+ARG BASE_IMAGE=nvidia/cuda:11.7.0-cudnn8-devel-ubuntu22.04
 
 FROM $BASE_IMAGE
 
@@ -19,35 +19,21 @@ RUN groupadd -f -g ${KEDRO_GID} kedro_group && \
 ENV HOME /home/kedro
 WORKDIR ${HOME}
 
-
-# pyenv
-RUN git clone --depth=1 https://github.com/pyenv/pyenv.git ~/.pyenv
-ENV PYENV_ROOT="${HOME}/.pyenv"
-ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
-
 # python
-ENV PYTHON_VERSION=3.8.12
-RUN pyenv install ${PYTHON_VERSION}
-RUN pyenv global ${PYTHON_VERSION}
+COPY install/ubuntu_install_conda.sh /install/ubuntu_install_conda.sh
+RUN bash /install/ubuntu_install_conda.sh
+
+ENV CONDA_ALWAYS_YES="true"
 
 # poetry
 ENV POETRY_VERSION=1.2.0
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$PATH:${HOME}/.local/bin"
 
-# requirements
-RUN poetry config virtualenvs.create false
-COPY pyproject.toml poetry.lock ./
-RUN poetry run pip install --upgrade pip
-# RUN pip install wheel==0.37.1
-RUN poetry install
-#RUN poetry run poe force-torch
-RUN python -m poethepoet force-torch
-#RUN poetry run poe force-dgl
-RUN python -m poethepoet force-dgl
-RUN rm -rf ${HOME}/.cache/pypoetry
-RUN pyenv rehash
+# conda
+COPY install/ubuntu_setup_conda.sh /install/ubuntu_setup_conda.sh
+RUN bash /install/ubuntu_setup_conda.sh
 
 COPY . .
 
-CMD ["ls"]
+CMD ["kedro", "run"]

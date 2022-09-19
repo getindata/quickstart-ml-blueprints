@@ -1,0 +1,23 @@
+name: gid_ml_framework
+channels:
+  - pytorch
+  - dglteam
+  - conda-forge
+  # We want to have a reproducible setup, so we don't want default channels,
+  # which may be different for different users. All required channels should
+  # be listed explicitly here.
+  - nodefaults
+dependencies:
+  - python=3.8.12
+  - mamba
+  - pip  # pip must be mentioned explicitly, or conda-lock will fail
+  - poetry
+  - conda-forge::cudatoolkit=11.6
+  - pytorch::pytorch=1.12.1
+  - pytorch::torchaudio=0.12.1
+  - pytorch::torchvision=0.13.1
+  - dglteam::dgl-cuda11.3
+
+# Non-standard section listing target platforms for conda-lock:
+platforms:
+  - linux-64

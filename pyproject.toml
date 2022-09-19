@@ -37,10 +37,8 @@ openpyxl = "^3.0.6"
 scikit-learn = "~=1.0"
 wheel = ">=0.35,<0.37"
 pytorch-lightning = "1.6.5"
-torchvision = "^0.13.0"
 Pillow = "^9.2.0"
 pyarrow = "^6.0.1"
-torch = "1.12.0"
 pip = "^22.1.2"
 sentence-transformers = "^2.2.2"
 featuretools = "^1.12.1"
@@ -49,6 +47,10 @@ kedro-vertexai = "0.6.0"
 kedro-docker = "0.3.0"
 google-cloud-aiplatform = "1.15.0"
 optuna = "^3.0.0"
+torch = "1.12.1"
+torchaudio = "0.12.1"
+torchvision = "0.13.1"
+conda-lock = "^1.1.1"
 
 [tool.poetry.dev-dependencies]
 black = "21.5b1"
@@ -69,7 +71,7 @@ pre-commit = "^2.20.0"
 poethepoet = "^0.16.1"
 
 [tool.poe.tasks]
-force-torch = "python -m pip install --upgrade torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113"
+force-torch = "python -m pip install --upgrade torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116"
 force-dgl = "python -m pip install dgl-cu113 dglgo -f https://data.dgl.ai/wheels/repo.html"
 
 [build-system]
