@@ -3,7 +3,7 @@ export LANG=C.UTF-8 LC_ALL=C.UTF-8
 export PATH=/opt/conda/bin:$PATH
 
 apt-get update --fix-missing && \
-    apt-get install -y wget bzip2 ca-certificates curl git && \
+    apt-get install -y bzip2 ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
