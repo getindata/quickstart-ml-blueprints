@@ -50,4 +50,5 @@ RUN poetry install
 
 COPY . .
 
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "gid_ml_framework"]
 CMD ["kedro", "run"]
