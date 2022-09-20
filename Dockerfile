@@ -31,6 +31,7 @@ ENV CONDA_ALWAYS_YES="true"
 ENV POETRY_VERSION=1.2.0
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$PATH:${HOME}/.local/bin"
+RUN poetry config virtualenvs.create false
 COPY pyproject.toml poetry.lock ./
 
 # conda and poetry setup
@@ -44,9 +45,13 @@ RUN conda env remove -n temp
 
 # requirements
 COPY conda-linux-64.lock ./
-RUN conda create --name gid_ml_framework --file conda-linux-64.lock
+RUN conda create --name gid_ml_framework --file conda-linux-64.lock && conda clean -afy \
+    && find /opt/conda/ -follow -type f -name '*.a' -delete \
+    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+    && find /opt/conda/ -follow -type f -name '*.js.map' -delete \
+    && find /opt/conda/lib/python*/site-packages/bokeh/server/static -follow -type f -name '*.js' ! -name '*.min.js' -delete
 SHELL ["conda", "run", "-n", "gid_ml_framework", "/bin/bash", "-c"]
-RUN poetry install
+RUN poetry install && rm -rf ${HOME}/.cache/pypoetry
 
 COPY . .
 
