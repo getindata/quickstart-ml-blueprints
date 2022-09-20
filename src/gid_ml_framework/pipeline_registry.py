@@ -145,4 +145,11 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "hm_dgsr_kaggle_grm": graph_recommendation_modeling_hm_dgsr_kaggle_pipeline,
         "hm_dgsr_kaggle_gr": graph_recommendation_hm_dgsr_kaggle_pipeline,
         "hm_ks": hm_kaggle_submission,
+        "santander_e2e": (
+            santander_preprocessing_pipeline
+            + santander_to_act_piepline
+            + graph_recommendation_preprocessing_santander_pipeline
+            + graph_recommendation_modeling_santander_dgsr_kaggle_pipeline
+            + santander_kaggle_submission
+        ),
     }

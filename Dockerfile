@@ -51,4 +51,4 @@ RUN poetry install
 COPY . .
 
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "gid_ml_framework"]
-CMD ["kedro", "run"]
+CMD ["kedro", "run", "-p", "santander_e2e"]
