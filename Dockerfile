@@ -48,12 +48,13 @@ COPY conda-linux-64.lock ./
 RUN conda create --name gid_ml_framework --file conda-linux-64.lock && conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-    && find /opt/conda/ -follow -type f -name '*.js.map' -delete \
-    && find /opt/conda/lib/python*/site-packages/bokeh/server/static -follow -type f -name '*.js' ! -name '*.min.js' -delete
+    && find /opt/conda/ -follow -type f -name '*.js.map' -delete
 SHELL ["conda", "run", "-n", "gid_ml_framework", "/bin/bash", "-c"]
 RUN poetry install && rm -rf ${HOME}/.cache/pypoetry
 
 COPY . .
+    
+ENV PATH /opt/conda/envs/gid_ml_framework/bin:$PATH
+ENV CONDA_DEFAULT_ENV gid_ml_framework
 
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "gid_ml_framework"]
 CMD ["kedro", "run", "-p", "santander_e2e"]
