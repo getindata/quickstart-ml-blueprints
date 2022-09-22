@@ -14,7 +14,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=filter_out_old_transactions,
-                inputs=["hm_transactions_input", "params:sampling.cutoff_date"],
+                inputs=["hm_transactions_input", "params:cutoff_date"],
                 outputs="latest_transactions",
                 name="filter_out_old_transactions_node",
             ),
@@ -22,9 +22,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=sample_articles,
                 inputs=[
                     "hm_articles_input",
-                    "params:sampling.article_img_dir",
-                    "params:sampling.article_img_sample_dir",
-                    "params:sampling.articles_sample_size",
+                    "params:article_img_dir",
+                    "params:article_img_sample_dir",
+                    "params:articles_sample_size",
                 ],
                 outputs="hm_articles",
                 name="sample_articles_node",
@@ -34,7 +34,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     "hm_customers_input",
                     "latest_transactions",
-                    "params:sampling.customers_sample_size",
+                    "params:customers_sample_size",
                 ],
                 outputs="hm_customers",
                 name="sample_customers_node",
