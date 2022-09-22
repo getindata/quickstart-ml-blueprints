@@ -23,7 +23,7 @@ def _sort_transactions(data: pd.DataFrame, colname: str) -> pd.DataFrame:
 
 
 def _refine_time(data: pd.DataFrame) -> pd.DataFrame:
-    """Adds time gaps to events with same timestamp to introduce order."""
+    """Adds time gaps to events with same timestamp to introduce some kind of order"""
     data = data.sort_values(["time"], kind="mergesort")
     time_seq = data.loc[:, "time"].values
     time_gap = 1
@@ -41,32 +41,10 @@ def _preprocess_transactions(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def generate_graph_dgsr(df: pd.DataFrame) -> dgl.DGLGraph:
-    """Generates graph from whole dataset.
-
-    Args:
-        df (pd.DataFrame): dataframe with mapped transactions
-
-    Returns:
-        dgl.DGLGraph: graph object created from transaction in input dataframe
+def _construct_graph(user: List, item: List, time: List) -> dgl.DGLGraph:
+    """Constructs heterogeneous bidirectional graph object with interactions between users and items with information
+    about timestamps.
     """
-    df = _concat_chunks(df)
-    data = _preprocess_transactions(df)
-    data = data.groupby("user_id").apply(_refine_time).reset_index(drop=True)
-    data = (
-        data.groupby("user_id")
-        .apply(lambda x: _sort_transactions(x, "order"))
-        .reset_index(drop=True)
-    )
-    data = (
-        data.groupby("item_id")
-        .apply(lambda x: _sort_transactions(x, "u_order"))
-        .reset_index(drop=True)
-    )
-    user = data.loc[:, "user_id"].values
-    item = data.loc[:, "item_id"].values
-    time = data.loc[:, "time"].values
-    # Heterogeneous bidirectional graph with interactions between users and items with information about timestamps
     graph_data = {
         ("item", "by", "user"): (torch.tensor(item), torch.tensor(user)),
         ("user", "pby", "item"): (torch.tensor(user), torch.tensor(item)),
@@ -79,6 +57,36 @@ def generate_graph_dgsr(df: pd.DataFrame) -> dgl.DGLGraph:
     return graph
 
 
+def generate_graph_dgsr(df: pd.DataFrame) -> dgl.DGLGraph:
+    """Generates graph from whole dataset. This graph will be used for creating transactions subgraphs for each user.
+
+    Args:
+        df (pd.DataFrame): dataframe with mapped transactions
+
+    Returns:
+        dgl.DGLGraph: graph object created from transaction in input dataframe
+    """
+    df = _concat_chunks(df)
+    user_column, item_column, time_column = ("user_id", "item_id", "time")
+    data = _preprocess_transactions(df)
+    data = data.groupby(user_column).apply(_refine_time).reset_index(drop=True)
+    data = (
+        data.groupby(user_column)
+        .apply(lambda x: _sort_transactions(x, "order"))
+        .reset_index(drop=True)
+    )
+    data = (
+        data.groupby(item_column)
+        .apply(lambda x: _sort_transactions(x, "u_order"))
+        .reset_index(drop=True)
+    )
+    user = data.loc[:, user_column].values
+    item = data.loc[:, item_column].values
+    time = data.loc[:, time_column].values
+    graph = _construct_graph(user, item, time)
+    return graph
+
+
 def _conditional_compare(
     timestamp_1: np.array,
     timestamp_2: np.array,
@@ -87,20 +95,14 @@ def _conditional_compare(
     return timestamp_1 <= timestamp_2 if condition else timestamp_1 < timestamp_2
 
 
-def _generate_subgraphs(
+def _get_sub_edges(
     graph: dgl.DGLGraph,
     u_time: List,
+    predict_condition: bool,
     start_t: int,
-    user: int,
-    item_max_length: int,
-    j: int,
-    seq_len: int,
-) -> Tuple[dgl.DGLGraph, dgl.DGLGraph, torch.tensor]:
-    """Generates subgraph for user based on transactions timestamps."""
-    predict_condition = j == (seq_len - 1)
-    next_index = j + 1
-    if predict_condition:
-        next_index = j
+    next_index: int,
+) -> Tuple[dgl.DGLGraph]:
+    """Retrun subsets of edges between users and items based on specified timeframe"""
     sub_u_eid = (
         _conditional_compare(
             graph.edges["by"].data["time"], u_time[next_index], predict_condition
@@ -111,6 +113,26 @@ def _generate_subgraphs(
             graph.edges["by"].data["time"], u_time[next_index], predict_condition
         )
     ) & (graph.edges["pby"].data["time"] >= start_t)
+    return (sub_u_eid, sub_i_eid)
+
+
+def _generate_subgraphs(
+    graph: dgl.DGLGraph,
+    u_time: List,
+    start_t: int,
+    user: int,
+    item_max_length: int,
+    seq_item: int,
+    seq_len: int,
+) -> Tuple[dgl.DGLGraph, dgl.DGLGraph, torch.tensor]:
+    """Generates subgraphs from whole data graph for users based on selected transactions timestamps."""
+    predict_condition = seq_item == (seq_len - 1)
+    next_index = seq_item + 1
+    if predict_condition:
+        next_index = seq_item
+    sub_u_eid, sub_i_eid = _get_sub_edges(
+        graph, u_time, predict_condition, start_t, next_index
+    )
     sub_graph = dgl.edge_subgraph(
         graph, edges={"by": sub_u_eid, "pby": sub_i_eid}, relabel_nodes=False
     )
@@ -119,6 +141,38 @@ def _generate_subgraphs(
         sub_graph, item_max_length, weight="time", nodes={"user": current_user}
     )
     return graph_i, sub_graph, current_user
+
+
+def _iterate_k_hops(
+    k_hop: int,
+    sub_graph: dgl.DGLGraph,
+    user_max_length: int,
+    item_max_length: int,
+    his_user: int,
+    current_item: int,
+    graph_i: dgl.DGLGraph,
+) -> Tuple[List]:
+    """Sample user and item edges from k_hop iteration through graph"""
+    edge_i = [graph_i.edges["by"].data[dgl.NID]]
+    edge_u = []
+    for _ in range(k_hop - 1):
+        graph_u = select_topk(
+            sub_graph, user_max_length, weight="time", nodes={"item": current_item}
+        )
+        current_user = np.setdiff1d(
+            torch.unique(graph_u.edges(etype="pby")[0]), his_user
+        )[-user_max_length:]
+        graph_i = select_topk(
+            sub_graph, item_max_length, weight="time", nodes={"user": current_user}
+        )
+        his_user = torch.unique(torch.cat([torch.tensor(current_user), his_user]))
+        diff_item = np.setdiff1d(
+            torch.unique(graph_i.edges(etype="by")[0]), current_item
+        )
+        current_item = torch.unique(torch.cat([torch.tensor(diff_item), current_item]))
+        edge_i.append(graph_i.edges["by"].data[dgl.NID])
+        edge_u.append(graph_u.edges["pby"].data[dgl.NID])
+    return (edge_i, edge_u)
 
 
 def _iterate_subgraphs(
@@ -131,27 +185,15 @@ def _iterate_subgraphs(
 ) -> Tuple:
     """Iterates through subgraph to sample neighbors and create final graph"""
     current_item = torch.unique(graph_i.edges(etype="by")[0])
-    his_item = torch.unique(graph_i.edges(etype="by")[0])
-    edge_i = [graph_i.edges["by"].data[dgl.NID]]
-    edge_u = []
-    # Iterating for k_hop neighbors
-    for _ in range(k_hop - 1):
-        graph_u = select_topk(
-            sub_graph, user_max_length, weight="time", nodes={"item": current_item}
-        )
-        current_user = np.setdiff1d(
-            torch.unique(graph_u.edges(etype="pby")[0]), his_user
-        )[-user_max_length:]
-        graph_i = select_topk(
-            sub_graph, item_max_length, weight="time", nodes={"user": current_user}
-        )
-        his_user = torch.unique(torch.cat([torch.tensor(current_user), his_user]))
-        current_item = np.setdiff1d(
-            torch.unique(graph_i.edges(etype="by")[0]), his_item
-        )
-        his_item = torch.unique(torch.cat([torch.tensor(current_item), his_item]))
-        edge_i.append(graph_i.edges["by"].data[dgl.NID])
-        edge_u.append(graph_u.edges["pby"].data[dgl.NID])
+    edge_i, edge_u = _iterate_k_hops(
+        k_hop,
+        sub_graph,
+        user_max_length,
+        item_max_length,
+        his_user,
+        current_item,
+        graph_i,
+    )
     all_edge_u = torch.unique(torch.cat(edge_u))
     all_edge_i = torch.unique(torch.cat(edge_i))
     # Creating final graph
@@ -165,22 +207,23 @@ def _prepare_graph_dict(
     fin_graph: dgl.DGLGraph,
     user: int,
     u_seq: List,
-    j: int,
+    seq_item: int,
     seq_len: int,
 ) -> Dict:
+    """Prepare dictionary object with graph data"""
     # No target/label for predicting unseen data
-    if j == (seq_len - 1):
+    if seq_item == (seq_len - 1):
         target = np.int64(0)
     else:
-        target = u_seq[j + 1]
-    last_item = u_seq[j]
-    u_alis = torch.where(fin_graph.nodes["user"].data["user_id"] == user)[0]
-    last_alis = torch.where(fin_graph.nodes["item"].data["item_id"] == last_item)[0]
+        target = u_seq[seq_item + 1]
+    last_item = u_seq[seq_item]
+    u_alias = torch.where(fin_graph.nodes["user"].data["user_id"] == user)[0]
+    last_alias = torch.where(fin_graph.nodes["item"].data["item_id"] == last_item)[0]
     graph_dict = {
         "user": torch.tensor([user]),
         "target": torch.tensor([target]),
-        "u_alis": u_alis,
-        "last_alis": last_alis,
+        "u_alias": u_alias,
+        "last_alias": last_alias,
     }
     return graph_dict
 
@@ -245,21 +288,21 @@ def _generate_user_subgraphs(
     if seq_len < 2:
         return train_list, val_list, test_list, predict_list
     else:
-        for j, _ in enumerate(u_time_seq):
-            if j == 0:
+        for seq_item, _ in enumerate(u_time_seq):
+            if seq_item == 0:
                 continue
-            if j < item_max_length:
+            if seq_item < item_max_length:
                 start_t = u_time[0]
             else:
-                start_t = u_time[j - item_max_length]
+                start_t = u_time[seq_item - item_max_length]
             graph_i, sub_graph, his_user = _generate_subgraphs(
-                graph, u_time, start_t, user, item_max_length, j, seq_len
+                graph, u_time, start_t, user, item_max_length, seq_item, seq_len
             )
             fin_graph = _iterate_subgraphs(
                 sub_graph, graph_i, k_hop, user_max_length, item_max_length, his_user
             )
-            graph_dict = _prepare_graph_dict(fin_graph, user, u_seq, j, seq_len)
-            all_subgraphs.append([user, j, fin_graph, graph_dict])
+            graph_dict = _prepare_graph_dict(fin_graph, user, u_seq, seq_item, seq_len)
+            all_subgraphs.append([user, seq_item, fin_graph, graph_dict])
         train_list, val_list, test_list, predict_list = _split_subgraphs(
             all_subgraphs, subsets
         )
@@ -267,12 +310,12 @@ def _generate_user_subgraphs(
 
 
 def _generate_model_input(
-    data,
-    graph,
-    item_max_length,
-    user_max_length,
-    k_hop,
-    subsets,
+    data: pd.DataFrame,
+    graph: dgl.DGLGraph,
+    item_max_length: int,
+    user_max_length: int,
+    k_hop: int,
+    subsets: List,
 ):
     """Wrapper for generating subgraphs for each user"""
     user = data.loc[:, "user_id"].unique()

@@ -118,7 +118,7 @@ class DGSR(pl.LightningModule):
         )
         return loss
 
-    def validation_step(self, batch: Any, batch_idx: int) -> torch.tensor:
+    def _eval_step_template(self, batch: Any, step_name: str) -> torch.tensor:
         top = []
         user, batch_graph, label, last_item, neg_tar = batch
         score, unified_embedding = self((batch_graph, user, last_item))
@@ -131,10 +131,15 @@ class DGSR(pl.LightningModule):
         top.append(score_neg.detach().cpu().numpy())
         _, recall10, _, _, ndgg10, _ = eval_metric(top)
         self.log(
-            "val_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
+            f"{step_name}_loss",
+            loss,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
         )
         self.log(
-            "val_recall10",
+            f"{step_name}_recall10",
             recall10,
             on_step=True,
             on_epoch=True,
@@ -142,7 +147,7 @@ class DGSR(pl.LightningModule):
             logger=True,
         )
         self.log(
-            "val_ndgg10",
+            f"{step_name}_ndgg10",
             ndgg10,
             on_step=True,
             on_epoch=True,
@@ -151,37 +156,13 @@ class DGSR(pl.LightningModule):
         )
         return loss
 
+    def validation_step(self, batch: Any, batch_idx: int) -> torch.tensor:
+        loss = self._eval_step_template(batch, "val")
+        return loss
+
     def test_step(self, batch: Any, batch_idx: int) -> torch.tensor:
-        top = []
-        user, batch_graph, label, last_item, neg_tar = batch
-        score, unified_embedding = self((batch_graph, user, last_item))
-        neg_embedding = self.item_embedding(neg_tar)
-        score_neg = torch.matmul(
-            unified_embedding.unsqueeze(1), neg_embedding.transpose(2, 1)
-        ).squeeze(1)
-        loss = self.loss_func(score, label)
-        top.append(score_neg.detach().cpu().numpy())
-        _, recall10, _, _, ndgg10, _ = eval_metric(top)
-        self.log(
-            "test_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
-        )
-        self.log(
-            "test_recall10",
-            recall10,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )
-        self.log(
-            "test_ndgg10",
-            ndgg10,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )
-        return score, score_neg
+        loss = self._eval_step_template(batch, "test")
+        return loss
 
     def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> Any:
         user, batch_graph, _, last_item, original_user_id = batch

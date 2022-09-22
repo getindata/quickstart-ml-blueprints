@@ -4,6 +4,11 @@ from .nodes import generate_submission
 
 
 def create_pipeline(dataset: str, **kwargs) -> Pipeline:
+    """Creates pipeline for generating kaggle submission file from saved predictions
+
+    Args:
+        dataset (str): dataset name [santander/hm]
+    """
     namespace = f"{dataset}_ks"
     gr_namespace = "dgsr_kaggle_gr"
     pipeline_template = pipeline(

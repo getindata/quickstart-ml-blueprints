@@ -10,7 +10,7 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
     Args:
         dataset (str): dataset name
         model (str): name of gnn model to use
-        comments (str): i.e. indication of which subsets we want to create (only_train, train_val, train_val_test)
+        comments (str): i.e. indication of which subsets we want to create graphs
     """
     namespace = "_".join([dataset, model, comments, "grm"])
 

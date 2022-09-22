@@ -71,10 +71,10 @@ def collate(data: pd.DataFrame) -> Tuple:
     graphs = [row[0] for row in data]
     for row in graphs:
         user.append(row[1]["user"])
-        user_l.append(row[1]["u_alis"])
+        user_l.append(row[1]["u_alias"])
         graph.append(row[0][0])
         label.append(row[1]["target"])
-        last_item.append(row[1]["last_alis"])
+        last_item.append(row[1]["last_alias"])
     return (
         torch.tensor(user_l).long(),
         dgl.batch(graph),
@@ -88,10 +88,10 @@ def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame, item_num: int):
     """Collate function for torch test subgraphs dataset. Includes negative samples."""
     user, graph, label, last_item = ([], [], [], [])
     for row in data:
-        user.append(row[1]["u_alis"])
+        user.append(row[1]["u_alias"])
         graph.append(row[0][0])
         label.append(row[1]["target"])
-        last_item.append(row[1]["last_alis"])
+        last_item.append(row[1]["last_alias"])
     return (
         torch.tensor(user).long(),
         dgl.batch(graph),

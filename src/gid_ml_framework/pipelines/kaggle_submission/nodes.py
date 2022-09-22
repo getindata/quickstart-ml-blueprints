@@ -61,6 +61,7 @@ def _impute_missing_predictions(
 
 
 def _get_columns(predictions: pd.DataFrame) -> Tuple:
+    """Returns list of user and items columns names needed for further processing"""
     columns_list = set(predictions.columns)
     user_column = "user_id"
     item_columns = list(columns_list.difference(set([user_column])))
@@ -75,13 +76,15 @@ def generate_submission(
     new_item_column: str,
     new_user_column: str,
 ) -> pd.DataFrame:
-    """Generates kaggle submission file based on predictions from GNN model. It imputes predictions for missing
-    users and remap user and item ids.
+    """Generates kaggle submission file based on predictions from model. It imputes predictions for missing
+    users, remap user and item ids and apply required formatting.
 
     Args:
         predictions (pd.DataFrame): dataframe with sorted predictions for each user with more than two transactions
         user_mapping (Dict): user mapping dict used to map original user ids to ones consistent with GNNs models
         item_mapping (Dict): user mapping dict used to map original user ids to ones consistent with GNNs models
+        new_item_column (str): name of item column required by Kaggle submission format
+        new_user_column (str): name of user column required by Kaggle submission format
 
     Returns:
         pd.DataFrame: dataframe with kaggle submission dataframe

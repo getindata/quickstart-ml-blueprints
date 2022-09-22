@@ -27,6 +27,7 @@ def _get_data_stats(
     transactions: pd.DataFrame,
     train_set: SubGraphsDataset,
 ) -> Tuple[int]:
+    """Get data stats required by GNN model"""
 
     user = transactions["user_id"].unique()
     item = transactions["item_id"].unique()
@@ -47,7 +48,7 @@ def _get_loaders(
     train_params: Dict,
     data_stats: Tuple[int],
 ) -> Tuple[DataLoader, None]:
-    """Creates torch DataLoader from given datasets. Collates negative samples with test and val sets."""
+    """Creates torch DataLoader from chosen datasets. Collates negative samples with test and val sets."""
     batch_size = train_params.get("batch_size")
     if data_stats:
         _, item_num = data_stats
@@ -61,7 +62,7 @@ def _get_loaders(
             pin_memory=True,
             num_workers=12,
         )
-    if train_set:
+    if test_set:
         test_loader = DataLoader(
             dataset=test_set,
             batch_size=batch_size,
@@ -69,7 +70,7 @@ def _get_loaders(
             pin_memory=True,
             num_workers=12,
         )
-    if test_set:
+    if val_set:
         val_loader = DataLoader(
             dataset=val_set,
             batch_size=batch_size,
@@ -83,6 +84,7 @@ def _get_loaders(
 def _get_model(
     device: str, model_params: Dict, train_params: Dict, data_stats: Tuple[int]
 ) -> nn.Module:
+    """Returns initialize GNN model with given parameters"""
     user_num, item_num = data_stats
     model = DGSR(
         lr=train_params.get("lr"),
@@ -113,6 +115,7 @@ def _unpack_train_params(train_params) -> Tuple:
 
 
 def _log_auto_logged_info(mlflow_run: mlflow.entities.Run) -> None:
+    """Add kedro logging for chosen parameters logged to mlflow"""
     tags = {
         k: v for k, v in mlflow_run.data.tags.items() if not k.startswith("mlflow.")
     }
@@ -139,11 +142,14 @@ def train_model(
     """Trains a GNN recommendation model, logs the model and metrics to MLflow.
 
     Args:
-        train_set (SubGraphsDataset): training subset of data
-        val_set (SubGraphsDataset): validation subset of data
-        test_set (SubGraphsDataset): test subset of data
+        train_set (SubGraphsDataset): training subset of graph data
+        val_set (SubGraphsDataset): validation subset of graph data
+        transactions (pd.DataFrame): dataframe with all transactions
+        negative_samples (pd.DataFrame): negative samples for validation dataset
         model_params (Dict): parameters for chosen GNN model
         train_params (Dict): parameters for training process
+        save_model (bool): flag for saving trained model
+        seed (int): parameter for seeding training process
 
     Returns:
         pl.LightningModule: trained GNN pytorch lightning model
@@ -193,7 +199,7 @@ def get_predictions(
     """Generates predictions of recommendation model based on predict set.
 
     Args:
-        predict_set (SubGraphsDataset): predict subset of data
+        predict_set (SubGraphsDataset): subset of data (users) for which we want to generate predictions
         model (pl.LightningModule): trained pytorch lightning model
         train_params (Dict): model parameters for training and inference process
 
@@ -209,7 +215,7 @@ def get_predictions(
     predictions = torch.cat([(-row[1]).argsort(1) for row in outputs])
     predictions_df = pd.DataFrame(predictions.numpy())
     predictions_df["user_id"] = user_ids
-    logger.info(f"Predisction dataframe size: {predictions_df.size}")
+    logger.info(f"Prediction dataframe size: {predictions_df.size}")
     return predictions_df
 
 
