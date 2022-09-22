@@ -3,22 +3,12 @@ from typing import Dict
 
 from kedro.pipeline import Pipeline
 
-from gid_ml_framework.pipelines import automated_feature_engineering as afe
-from gid_ml_framework.pipelines import calculate_image_embeddings as cie
-from gid_ml_framework.pipelines import candidate_generation as cg
-from gid_ml_framework.pipelines import candidate_generation_validation as cgv
-from gid_ml_framework.pipelines import candidates_feature_engineering as cfe
-from gid_ml_framework.pipelines import exploratory_data_analysis as eda
 from gid_ml_framework.pipelines import graph_recommendation as gr
 from gid_ml_framework.pipelines import graph_recommendation_modeling as grm
 from gid_ml_framework.pipelines import (
     graph_recommendation_preprocessing as grp,
 )
-from gid_ml_framework.pipelines import image_embeddings as ie
-from gid_ml_framework.pipelines import image_resizer as ir
 from gid_ml_framework.pipelines import kaggle_submission as ks
-from gid_ml_framework.pipelines import manual_feature_engineering as mfe
-from gid_ml_framework.pipelines import sample_data as sd
 from gid_ml_framework.pipelines import santander_preprocessing as sp
 from gid_ml_framework.pipelines import santander_to_act as sta
 from gid_ml_framework.pipelines import candidate_generation as cg
@@ -40,12 +30,6 @@ def register_pipelines() -> Dict[str, Pipeline]:
         A mapping from a pipeline name to a ``Pipeline`` object.
 
     """
-    sample_data_pipeline = sd.create_pipeline()
-    eda_pipeline = eda.create_pipeline()
-    image_embeddings_pipeline = ie.create_pipeline()
-    calculate_image_embeddings_pipeline = cie.create_pipeline()
-    text_embeddings_pipeline = te.create_pipeline()
-    image_resizer_pipeline = ir.create_pipeline()
     santander_preprocessing_pipeline = sp.create_pipeline()
     santander_to_act_piepline = sta.create_pipeline()
     candidate_generation_pipeline = cg.create_pipeline()
@@ -61,61 +45,23 @@ def register_pipelines() -> Dict[str, Pipeline]:
     graph_recommendation_preprocessing_santander_pipeline = grp.create_pipeline(
         dataset_namespace="santander"
     )
-    graph_recommendation_preprocessing_hm_pipeline = grp.create_pipeline(
-        dataset_namespace="hm"
-    )
-    graph_recommendation_modeling_santander_dgsr_pipeline = grm.create_pipeline(
-        dataset="santander",
-        model="dgsr",
-        comments="train_val_test",
-    )
-    graph_recommendation_modeling_hm_dgsr_pipeline = grm.create_pipeline(
-        dataset="hm",
-        model="dgsr",
-        comments="train_val_test",
-    )
-    graph_recommendation_santander_dgsr_pipeline = gr.create_pipeline(
-        dataset="santander",
-        model="dgsr",
-        comments="train_val_test",
-    )
-    graph_recommendation_hm_dgsr_pipeline = gr.create_pipeline(
-        dataset="hm",
-        model="dgsr",
-        comments="train_val_test",
-    )
+
     graph_recommendation_modeling_santander_dgsr_kaggle_pipeline = grm.create_pipeline(
         dataset="santander",
         model="dgsr",
         comments="kaggle",
     )
+
     graph_recommendation_santander_dgsr_kaggle_pipeline = gr.create_pipeline(
         dataset="santander",
         model="dgsr",
         comments="kaggle",
     )
+
     santander_kaggle_submission = ks.create_pipeline(dataset="santander")
 
-    graph_recommendation_modeling_hm_dgsr_kaggle_pipeline = grm.create_pipeline(
-        dataset="hm",
-        model="dgsr",
-        comments="kaggle",
-    )
-    graph_recommendation_hm_dgsr_kaggle_pipeline = gr.create_pipeline(
-        dataset="hm",
-        model="dgsr",
-        comments="kaggle",
-    )
-    hm_kaggle_submission = ks.create_pipeline(dataset="hm")
-
     return {
-        "__default__": sample_data_pipeline,
-        "sd": sample_data_pipeline,
-        "eda": eda_pipeline,
-        "ie": image_embeddings_pipeline,
-        "cie": calculate_image_embeddings_pipeline,
-        "te": text_embeddings_pipeline,
-        "ir": image_resizer_pipeline,
+        "__default__": santander_preprocessing_pipeline,
         "sp": santander_preprocessing_pipeline,
         "sta": santander_to_act_piepline,
         "cg": candidate_generation_pipeline,
@@ -150,6 +96,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
             + santander_to_act_piepline
             + graph_recommendation_preprocessing_santander_pipeline
             + graph_recommendation_modeling_santander_dgsr_kaggle_pipeline
+            + graph_recommendation_santander_dgsr_kaggle_pipeline
             + santander_kaggle_submission
         ),
     }

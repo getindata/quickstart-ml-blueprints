@@ -1,18 +1,18 @@
 """Project settings. There is no need to edit this file unless you want to change values
 from the Kedro defaults. For further information, including these default values, see
 https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
-from kedro_mlflow.framework.hooks import MlflowHook
-from kedro_vertexai.auth.gcp import MLFlowGoogleIAMRequestHeaderProvider
-from kedro_vertexai.auth.mlflow_request_header_provider_hook import (
-    MLFlowRequestHeaderProviderHook,
-)
 
+# flake8: noqa
 # # Instantiated project hooks.
 # from gid_ml_framework.hooks import ProjectHooks
 # HOOKS = (ProjectHooks(), )
 
 DISABLE_HOOKS_FOR_PLUGINS = ("kedro-mlflow",)
-
+from kedro_mlflow.framework.hooks import MlflowHook
+from kedro_vertexai.auth.gcp import MLFlowGoogleIAMRequestHeaderProvider
+from kedro_vertexai.auth.mlflow_request_header_provider_hook import (
+    MLFlowRequestHeaderProviderHook,
+)
 
 HOOKS = (
     MlflowHook(),

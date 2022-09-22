@@ -157,6 +157,7 @@ def train_model(
     seed_everything(seed, True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info(f"Device used for training: {device}")
     transactions = _concat_chunks(transactions)
     data_stats = _get_data_stats(transactions, train_set)
     train_loader, val_loader, _ = _get_loaders(
