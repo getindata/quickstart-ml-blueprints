@@ -1,11 +1,11 @@
 import logging
 import os
-from pathlib import Path
 from typing import Any, Dict, List
 
 from dgl import load_graphs, save_graphs
 from kedro.io import AbstractDataSet
 from kedro.io.core import get_protocol_and_path
+from pathy import Pathy
 
 from gid_ml_framework.extras.graph_utils.dgsr_utils import SubGraphsDataset
 
@@ -32,7 +32,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
         Args:
             dir: The directory with images to load/save data.
         """
-        self._dir = Path(dir)
+        self._dir = Pathy(dir)
         protocol, _ = get_protocol_and_path(dir)
         self._protocol = protocol
 
