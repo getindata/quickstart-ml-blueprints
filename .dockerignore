@@ -18,6 +18,7 @@ logs
 notebooks
 references
 results
+conf/base/parameters
 
 # except the following
 !logs/.gitkeep

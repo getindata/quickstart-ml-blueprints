@@ -57,14 +57,13 @@ run_config:
 
     # # Training nodes can utilize more than one CPU if the algoritm
     # # supports it
-    # model_training:
-    #   cpu: 8
-    #   memory: 1Gi
+    santander_dgsr_kaggle_gr.train_model_node:
+      nvidia.com/gpu: 1
 
     # Default settings for the nodes
     __default__:
       cpu: 2000m
-      memory: 32Gi
+      memory: 64Gi
 
   # Optional section allowing to generate config files at runtime,
   # useful e.g. when you need to obtain credentials dynamically and store them in credentials.yaml

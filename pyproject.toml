@@ -68,11 +68,6 @@ pytest-cov = "~=3.0"
 pytest-mock = "^1.7.1"
 scikit-learn = "~=1.0"
 pre-commit = "^2.20.0"
-poethepoet = "^0.16.1"
-
-[tool.poe.tasks]
-force-torch = "python -m pip install --upgrade torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116"
-force-dgl = "python -m pip install dgl-cu113 dglgo -f https://data.dgl.ai/wheels/repo.html"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

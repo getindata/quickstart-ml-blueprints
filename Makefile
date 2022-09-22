@@ -9,7 +9,7 @@ push-tag:
 
 push:
 	@ echo "pushing docker image to gcp"
-	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
+	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework:latest
 
 tag:
 	@ echo "tagging docker image"
