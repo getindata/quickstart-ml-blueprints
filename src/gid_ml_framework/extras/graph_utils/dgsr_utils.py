@@ -2,16 +2,40 @@
 Auxiliary functions for DGSR graph model
 """
 import os
+import pickle
 import sys
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import _pickle as cPickle
 import dgl
 import numpy as np
 import pandas as pd
 import torch
+from dgl import DGLHeteroGraph
+from dgl.data.heterograph_serialize import HeteroGraphData
 from torch.utils.data import Dataset
+
+
+def graph_loader(graph_dir: str) -> List:
+    pass
+
+
+def graph_saver(save_filepath: str, graph: dgl.DGLGraph, graph_dict: Dict) -> None:
+    """Save heterographs into file"""
+    if graph_dict is None:
+        graph_dict = {}
+    if isinstance(graph, DGLHeteroGraph):
+        graph = [graph]
+        graph_dict = [graph_dict]
+    assert all(
+        [type(g) == DGLHeteroGraph for g in graph]
+    ), "Invalid DGLHeteroGraph in graph argument"
+    gdata_list = [
+        [HeteroGraphData.create(g), graph_dict[i]] for i, g in enumerate(graph)
+    ]
+    with open(save_filepath, "wb") as file:
+        pickle.dump(gdata_list, file)
 
 
 class SubGraphsDataset(Dataset):

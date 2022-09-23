@@ -58,7 +58,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
             logger.warning("Directory already exists, it may be not empty!")
         else:
             logger.info(f"Creating new directory: {save_path}")
-            save_path.mkdir(parents=True, exist_ok=False)
+            save_path.mkdir(parents=True, exist_ok=True)
         if data:
             for row in data:
                 if row:
@@ -68,6 +68,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
                     save_filepath = os.path.join(
                         save_dir, f"{file_name}.{file_extension}"
                     )
+                    logger.info(f"Saving graph here: {save_filepath}")
                     save_graphs(save_filepath, graph, graph_dict)
 
     def _describe(self) -> Dict[str, Any]:
