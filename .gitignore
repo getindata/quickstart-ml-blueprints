@@ -164,3 +164,4 @@ mlruns/
 
 .ipython
 .pytest_cache
+.dive-ci
