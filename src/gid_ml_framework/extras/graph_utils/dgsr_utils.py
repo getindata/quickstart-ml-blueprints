@@ -43,7 +43,7 @@ def select(all_items: List, user_items: List) -> np.array:
 
 
 def user_neg(data: pd.DataFrame, item_num: int) -> pd.DataFrame:
-    """ "Generate negative items sample for all users"""
+    """Generate negative items sample for all users"""
     all_items = range(item_num)
     data = data.groupby("user_id")["item_id"].apply(lambda x: select(all_items, x))
     return data

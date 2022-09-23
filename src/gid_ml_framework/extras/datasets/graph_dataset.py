@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 from typing import Any, Dict, List
 
 from dgl import load_graphs, save_graphs
@@ -32,7 +33,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
         Args:
             dir: The directory with images to load/save data.
         """
-        self._dir = Pathy(dir)
+        self._dir = Pathy(dir) if dir[0:5] == "gs://" else Path(dir)
         protocol, _ = get_protocol_and_path(dir)
         self._protocol = protocol
 
