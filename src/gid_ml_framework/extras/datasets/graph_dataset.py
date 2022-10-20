@@ -73,9 +73,15 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
                     save_filepath = os.path.join(
                         save_dir, f"{file_name}.{file_extension}"
                     )
+                    _create_parent_dir(save_filepath)
                     logger.info(f"Saving graph here: {save_filepath}")
                     save_graphs_python(save_filepath, graph, graph_dict)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""
         return dict(filepath=self._dir, protocol=self._protocol)
+
+
+def _create_parent_dir(path: str) -> None:
+    path_object = Pathy(path) if path[0:5] == "gs://" else Path(path)
+    path_object.parent.mkdir(parents=True, exist_ok=True)

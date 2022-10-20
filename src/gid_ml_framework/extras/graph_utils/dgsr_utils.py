@@ -112,9 +112,10 @@ def collate(data: pd.DataFrame) -> Tuple:
 def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame, item_num: int):
     """Collate function for torch test subgraphs dataset. Includes negative samples."""
     user, graph, label, last_item = ([], [], [], [])
+    data = [row[0][0] for row in data]
     for row in data:
         user.append(row[1]["u_alias"])
-        graph.append(row[0][0])
+        graph.append(row[0])
         label.append(row[1]["target"])
         last_item.append(row[1]["last_alias"])
     return (
