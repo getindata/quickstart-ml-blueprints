@@ -7,22 +7,24 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-import _pickle as cPickle
 import dgl
 import numpy as np
 import pandas as pd
 import torch
 from dgl import DGLHeteroGraph
-from dgl.data.heterograph_serialize import HeteroGraphData
 from torch.utils.data import Dataset
 
 
-def graph_loader(graph_dir: str) -> List:
-    pass
+def load_graphs_python(graph_dir: str) -> List:
+    """Load heterpgraphs from a given path using only Python functions instead of dgl C implementation"""
+    data = pickle_loader(graph_dir)
+    return data
 
 
-def graph_saver(save_filepath: str, graph: dgl.DGLGraph, graph_dict: Dict) -> None:
-    """Save heterographs into file"""
+def save_graphs_python(
+    save_filepath: str, graph: dgl.DGLGraph, graph_dict: Dict
+) -> None:
+    """Save heterographs into file using only Python functions instead of dgl C implementation"""
     if graph_dict is None:
         graph_dict = {}
     if isinstance(graph, DGLHeteroGraph):
@@ -31,11 +33,9 @@ def graph_saver(save_filepath: str, graph: dgl.DGLGraph, graph_dict: Dict) -> No
     assert all(
         [type(g) == DGLHeteroGraph for g in graph]
     ), "Invalid DGLHeteroGraph in graph argument"
-    gdata_list = [
-        [HeteroGraphData.create(g), graph_dict[i]] for i, g in enumerate(graph)
-    ]
+    gdata_list = [[g, graph_dict[i]] for i, g in enumerate(graph)]
     with open(save_filepath, "wb") as file:
-        pickle.dump(gdata_list, file)
+        pickle.dump(gdata_list, file, protocol=-1)
 
 
 class SubGraphsDataset(Dataset):
@@ -57,7 +57,8 @@ class SubGraphsDataset(Dataset):
 
 
 def pickle_loader(path: str) -> Any:
-    pickle_object = cPickle.load(open(path, "rb"))
+    with open(path, "rb") as f:
+        pickle_object = pickle.load(f)
     return pickle_object
 
 
@@ -92,11 +93,11 @@ def collate(data: pd.DataFrame) -> Tuple:
     user, user_l, graph, label, last_item = ([], [], [], [], [])
     # Get user ids from path
     original_user_ids = [int(Path(row[1]).stem.split("_")[0]) for row in data]
-    graphs = [row[0] for row in data]
+    graphs = [row[0][0] for row in data]
     for row in graphs:
         user.append(row[1]["user"])
         user_l.append(row[1]["u_alias"])
-        graph.append(row[0][0])
+        graph.append(row[0])
         label.append(row[1]["target"])
         last_item.append(row[1]["last_alias"])
     return (

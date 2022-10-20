@@ -3,12 +3,15 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
-from dgl import load_graphs, save_graphs
 from kedro.io import AbstractDataSet
 from kedro.io.core import get_protocol_and_path
 from pathy import Pathy
 
-from gid_ml_framework.extras.graph_utils.dgsr_utils import SubGraphsDataset
+from gid_ml_framework.extras.graph_utils.dgsr_utils import (
+    SubGraphsDataset,
+    load_graphs_python,
+    save_graphs_python,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +34,9 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
         using dgl loaders.
 
         Args:
-            dir: The directory with images to load/save data.
+            dir: The directory location to load/save data.
+            save_args: Additional arguments to kedro AbstractDataSet saving function
+            load_args: Additional arguments to kedro AbstractDataSet loading function
         """
         self._dir = Pathy(dir) if dir[0:5] == "gs://" else Path(dir)
         protocol, _ = get_protocol_and_path(dir)
@@ -47,7 +52,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
 
     def _load(self) -> SubGraphsDataset:
         load_path = self._dir
-        dataset = SubGraphsDataset(load_path, load_graphs)
+        dataset = SubGraphsDataset(load_path, load_graphs_python)
         return dataset
 
     def _save(self, data: List) -> None:
@@ -69,7 +74,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
                         save_dir, f"{file_name}.{file_extension}"
                     )
                     logger.info(f"Saving graph here: {save_filepath}")
-                    save_graphs(save_filepath, graph, graph_dict)
+                    save_graphs_python(save_filepath, graph, graph_dict)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""
