@@ -378,7 +378,7 @@ santander_dgsr_kaggle_grm_train_graphs:
 
 santander_dgsr_kaggle_grm_val_graphs:
   type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
-  dir: data/05_model_input/santander/santander_dgsr_kaggle_val_graphs
+  dir: data/05_model_input/santander/santander_dgsr_kaggle_grm_val_graphs
   layer: model_input
   save_args:
     file_extension: bin

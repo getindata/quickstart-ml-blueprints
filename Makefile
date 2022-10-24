@@ -1,6 +1,6 @@
 build:
 	@ echo "building docker image"
-	kedro docker build --docker-args=--platform=linux/amd64
+	kedro docker build --docker-args '--platform=linux/amd64 --network=host'
 
 push-tag:
 	@ echo "tagging & pushing docker image"
