@@ -1,0 +1,7 @@
+santander_ks:
+  new_item_column: added_products
+  new_user_column: ncodpers
+
+hm_ks:
+  new_item_column: prediction
+  new_user_column: customer_id

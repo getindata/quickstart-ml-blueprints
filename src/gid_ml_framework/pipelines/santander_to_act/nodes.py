@@ -3,17 +3,11 @@ import re
 from typing import Iterator, Tuple
 
 import pandas as pd
-from kedro.extras.datasets.pandas import CSVDataSet
 
-from gid_ml_framework.extras.datasets.chunks_dataset import (
-    _concat_chunks,
-    _load,
-)
+from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
 
 pd.options.mode.chained_assignment = None
 log = logging.getLogger(__name__)
-# Overwriting load method because of chunksize bug in Kedro < 0.18
-CSVDataSet._load = _load
 
 
 def santander_to_articles(santander: Iterator[pd.DataFrame]) -> pd.DataFrame:
@@ -38,7 +32,9 @@ def santander_to_articles(santander: Iterator[pd.DataFrame]) -> pd.DataFrame:
 
 
 def santander_to_customers(
-    santander: Iterator[pd.DataFrame], merge_type: str
+    santander_train: Iterator[pd.DataFrame],
+    santander_val: Iterator[pd.DataFrame],
+    merge_type: str,
 ) -> pd.DataFrame:
     """From Santander train/val/test dataset extract customers data
 
@@ -50,16 +46,21 @@ def santander_to_customers(
     Returns:
         pd.DataFrame: dataframe with features of each customer
     """
-    santander = _concat_chunks(santander)
-    santander.rename(columns={"ncodpers": "customer_id"}, inplace=True)
+    train_df = _concat_chunks(santander_train)
+    val_df = _concat_chunks(santander_val)
+    df = pd.concat([train_df, val_df])
+    df.rename(columns={"ncodpers": "customer_id"}, inplace=True)
     if merge_type == "last":
-        # Customers features from last month
-        last_month = santander.loc[:, "fecha_dato"].max()
-        customers = santander.loc[santander["fecha_dato"] >= last_month, :]
+        # Customers features from last months of available data
+        customers = (
+            df.sort_values(["customer_id", "fecha_dato"])
+            .groupby("customer_id", as_index=False)
+            .last()
+        )
         customers.drop(["fecha_dato"], axis=1, inplace=True)
     else:
         # If no merge_type specified list of unique customer_id is returned
-        customers = pd.DataFrame({"customer_id": santander["customer_id"].unique()})
+        customers = pd.DataFrame({"customer_id": df["customer_id"].unique()})
     log.info(f"Number of unique customers: {customers.shape[0]}")
     log.info(f"Number of customers features: {customers.shape[1]}")
     log.info(

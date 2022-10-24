@@ -11,6 +11,7 @@ conf/**/*credentials*
 # ignore everything in the following folders
 data/**
 logs/**
+lightning_logs/**
 
 # except their sub-folders
 !data/**/
@@ -30,6 +31,9 @@ logs/**
 *.iml
 out/
 .idea_modules/
+
+#Vscode
+.vscode
 
 ### macOS
 *.DS_Store
@@ -160,3 +164,4 @@ mlruns/
 
 .ipython
 .pytest_cache
+.dive-ci

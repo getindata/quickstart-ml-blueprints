@@ -74,6 +74,33 @@ poetry shell
 exit
 ```
 
+## How to prepare GPU environment with Conda and Poetry
+
+First install miniconda and Poetry for you OS version. Next create conda-lock file with requirements:
+```
+conda create -n temp -c conda-forge mamba conda-lock poetry='1.*' python='3.8.12' && conda clean -afy
+conda activate temp
+conda-lock -k explicit --conda mamba
+poetry add --lock torch=1.12.1 torchaudio=0.12.1 torchvision=0.13.1 conda-lock
+conda activate base
+conda env remove -n temp
+```
+
+Create new conda environment and install poetry dependencies:
+
+```
+conda create --name gid_ml_framework --file conda-linux-64.lock && conda clean -afy
+conda activate gid_ml_framework
+poetry install
+```
+
+## How to setup pre-commit
+
+To setup pre-commit hooks: 
+```
+pre-commit install
+```
+
 ## How to run Kedro
 
 You can run your Kedro project with:

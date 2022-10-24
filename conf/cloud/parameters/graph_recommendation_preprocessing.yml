@@ -1,0 +1,7 @@
+santander:
+  concat:
+    date_column: 'date'
+
+hm:
+  concat:
+    date_column: 't_dat'

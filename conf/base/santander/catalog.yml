@@ -231,7 +231,7 @@ santander_test:
     low_memory: False
 
 # ACT
-santander_to_act_main.santander_articles:
+santander_articles:
   type: pandas.CSVDataSet
   filepath: data/03_primary/santander/santander_articles.csv
   layer: primary
@@ -240,10 +240,9 @@ santander_to_act_main.santander_articles:
   load_args:
     dtype:
       article_id: str
-    chunksize: 1000000
     low_memory: False
 
-santander_to_act_main.santander_customers:
+santander_customers:
   type: pandas.CSVDataSet
   filepath: data/03_primary/santander/santander_customers.csv
   layer: primary
@@ -258,10 +257,9 @@ santander_to_act_main.santander_customers:
       segmento: category
       ind_nuevo: category
       <<: *dtypes_train
-    chunksize: 1000000
     low_memory: False
 
-santander_to_act_main.santander_transactions_train:
+santander_transactions_train:
   type: pandas.CSVDataSet
   filepath: data/03_primary/santander/santander_transactions_train.csv
   layer: primary
@@ -270,11 +268,11 @@ santander_to_act_main.santander_transactions_train:
   load_args:
     dtype:
       article_id: str
-      client_id: int32
+      customer_id: int32
     chunksize: 1000000
     low_memory: False
 
-santander_to_act_main.santander_transactions_val:
+santander_transactions_val:
   type: pandas.CSVDataSet
   filepath: data/03_primary/santander/santander_transactions_val.csv
   layer: primary
@@ -283,6 +281,145 @@ santander_to_act_main.santander_transactions_val:
   load_args:
     dtype:
       article_id: str
-      client_id: int32
+      customer_id: int32
+    chunksize: 1000000
+    low_memory: False
+
+# GRAPH RECOMMENDATION
+santander.transactions_graph:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_transactions_graph.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      item_id: str
+      user_id: int32
+    chunksize: 1000000
+    low_memory: False
+
+santander_transactions_mapped:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/santander/santander_transactions_mapped.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+santander_users_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/santander/santander_users_mapping.pickle
+  layer: primary
+  backend: pickle
+
+santander_items_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/santander/santander_items_mapping.pickle
+  layer: primary
+  backend: pickle
+
+#DGSR
+
+##train_val_test
+santander_dgsr_train_val_test_grm_transactions_graph:
+  type: pickle.PickleDataSet
+  filepath: data/04_feature/santander/santander_dgsr_train_val_test_grm_transactions_graph.pickle
+  layer: feature
+  backend: pickle
+
+santander_dgsr_train_val_test_grm_negative_transactions_samples:
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/santander/santander_dgsr_train_val_grm_test_negative_transactions_samples.pickle
+  layer: primary
+
+santander_dgsr_train_val_test_grm_train_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_train_val_test_grm_train_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+santander_dgsr_train_val_test_grm_val_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_train_val_test_grm_val_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+santander_dgsr_train_val_test_grm_test_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_train_val_test_grm_test_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+
+##Kaggle
+santander_dgsr_kaggle_grm_transactions_graph:
+  type: pickle.PickleDataSet
+  filepath: data/04_feature/santander/santander_dgsr_kaggle_grm_transactions_graph.pickle
+  layer: feature
+  backend: pickle
+
+santander_dgsr_kaggle_grm_negative_transactions_samples:
+  type: pickle.PickleDataSet
+  filepath: data/03_primary/santander/santander_dgsr_kaggle_grm_negative_transactions_samples.pickle
+  layer: primary
+
+santander_dgsr_kaggle_grm_train_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_kaggle_grm_train_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+santander_dgsr_kaggle_grm_val_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_kaggle_grm_val_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+santander_dgsr_kaggle_grm_test_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_kaggle_grm_test_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+santander_dgsr_kaggle_grm_predict_graphs:
+  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/santander/santander_dgsr_kaggle_grm_predict_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+santander_dgsr_kaggle_gr_model:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  layer: model
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/santander/santander_dgsr_kaggle_trained_model.pkl
+
+santander_dgsr_kaggle_gr_predictions:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/santander/santander_dgsr_kaggle_gr_predictions.csv
+  layer: model_output
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+santander_submission:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/santander/santander_submission.csv
+  layer: model_output
+  save_args:
+    index: False
+  load_args:
     chunksize: 1000000
     low_memory: False
