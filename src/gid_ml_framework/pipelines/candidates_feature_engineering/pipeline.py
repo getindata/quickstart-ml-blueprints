@@ -8,35 +8,39 @@ from .nodes import (
     merge_similarity_features
 )
 
-# nodes for multiple use
-unpack_candidates_node = node(
-    func=unpack_candidates,
-    name="unpack_candidates_node",
-    inputs=[
-        "train_candidates",
-        "params:drop_random_strategies",
-        ],
-        outputs="unpacked_candidates",
-)
-filter_last_n_rows_per_customer_node = node(
-    func=filter_last_n_rows_per_customer,
-    name="filter_last_n_rows_per_customer_node",
-    inputs=[
-        "train_transactions",
-        "params:last_n_rows",
-        ],
-        outputs="latest_transactions",
-)
-create_list_of_previously_bought_articles_node = node(
-    func=create_list_of_previously_bought_articles,
-    name="create_list_of_previously_bought_articles_node",
-    inputs=[
-        "latest_transactions",
-        ],
-    outputs="customer_list_of_articles",
-)
 
 def create_pipeline(**kwargs) -> Pipeline:
+    # Train vs inference flag
+    TRAIN_FLAG='' # 'train_'/''
+
+    # nodes for multiple use
+    unpack_candidates_node = node(
+        func=unpack_candidates,
+        name="unpack_candidates_node",
+        inputs=[
+            f"{TRAIN_FLAG}candidates",
+            "params:drop_random_strategies",
+            ],
+            outputs="unpacked_candidates",
+    )
+    filter_last_n_rows_per_customer_node = node(
+        func=filter_last_n_rows_per_customer,
+        name="filter_last_n_rows_per_customer_node",
+        inputs=[
+            f"{TRAIN_FLAG}transactions",
+            "params:last_n_rows",
+            ],
+            outputs="latest_transactions",
+    )
+    create_list_of_previously_bought_articles_node = node(
+        func=create_list_of_previously_bought_articles,
+        name="create_list_of_previously_bought_articles_node",
+        inputs=[
+            "latest_transactions",
+            ],
+        outputs="customer_list_of_articles",
+    )
+
     jaccard_similarity_pipeline = pipeline(
         [
             unpack_candidates_node,
@@ -63,7 +67,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="candidates_feature_engineering",
-        inputs=["train_candidates", "articles", "train_transactions"],
+        inputs=[f"{TRAIN_FLAG}candidates", "articles", f"{TRAIN_FLAG}transactions"],
         outputs="jaccard_similarity_features",
     )
 
@@ -94,7 +98,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="candidates_feature_engineering",
-        inputs=["train_candidates", "train_transactions", "image_embeddings"],
+        inputs=[f"{TRAIN_FLAG}candidates", f"{TRAIN_FLAG}transactions", "image_embeddings"],
         outputs="image_cosine_similarity_features",
     )
 
@@ -125,7 +129,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="candidates_feature_engineering",
-        inputs=["train_candidates", "train_transactions", "text_embeddings"],
+        inputs=[f"{TRAIN_FLAG}candidates", f"{TRAIN_FLAG}transactions", "text_embeddings"],
         outputs="text_cosine_similarity_features",
     )
 

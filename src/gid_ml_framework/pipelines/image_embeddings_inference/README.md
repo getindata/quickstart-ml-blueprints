@@ -1,4 +1,4 @@
-# Pipeline automated_feature_engineering
+# Pipeline image_embeddings_inference
 
 > *Note:* This is a `README.md` boilerplate generated using `Kedro 0.17.7`.
 

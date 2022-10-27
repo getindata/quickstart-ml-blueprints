@@ -8,16 +8,16 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # HOOKS = (ProjectHooks(), )
 
 DISABLE_HOOKS_FOR_PLUGINS = ("kedro-mlflow",)
-from kedro_mlflow.framework.hooks import MlflowHook
+from kedro_vertexai.auth.mlflow_request_header_provider_hook import MLFlowRequestHeaderProviderHook
 from kedro_vertexai.auth.gcp import MLFlowGoogleIAMRequestHeaderProvider
-from kedro_vertexai.auth.mlflow_request_header_provider_hook import (
-    MLFlowRequestHeaderProviderHook,
-)
-
+from kedro_mlflow.framework.hooks import MlflowHook
+from gid_ml_framework.hooks import MemoryProfilingHooks, IgnoreDeprecationWarnings
 HOOKS = (
     MlflowHook(),
     MLFlowRequestHeaderProviderHook(MLFlowGoogleIAMRequestHeaderProvider),
-)
+    MemoryProfilingHooks(),
+    IgnoreDeprecationWarnings()
+    )
 
 # # Installed plugins for which to disable hook auto-registration.
 # DISABLE_HOOKS_FOR_PLUGINS = ("kedro-viz",)

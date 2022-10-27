@@ -1,0 +1,6 @@
+filter_latest_transactions:
+  date_column: t_dat
+  train:
+    no_weeks: 7
+  inference:
+    no_weeks: 6

@@ -1,19 +1,19 @@
 build:
 	@ echo "building docker image"
-	kedro docker build --docker-args '--platform=linux/amd64 --network=host'
+	kedro docker build --docker-args=--platform=linux/amd64
 
 push-tag:
 	@ echo "tagging & pushing docker image"
-	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
-	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
+	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-hm-data/gid-ml-framework
+	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-hm-data/gid-ml-framework
 
 push:
 	@ echo "pushing docker image to gcp"
-	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework:latest
+	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-hm-data/gid-ml-framework
 
 tag:
 	@ echo "tagging docker image"
-	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
+	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-hm-data/gid-ml-framework
 
 generate_token:
 	@ echo "generating identity token"
@@ -30,3 +30,21 @@ mlflow:
 
 kedro-viz:
 	poetry run kedro viz --autoreload
+
+
+santander-build:
+	@ echo "building docker image"
+	kedro docker build --docker-args '--platform=linux/amd64 --network=host'
+
+santander-push-tag:
+	@ echo "tagging & pushing docker image"
+	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
+	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
+
+santander-push:
+	@ echo "pushing docker image to gcp"
+	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework:latest
+
+santander-tag:
+	@ echo "tagging docker image"
+	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework

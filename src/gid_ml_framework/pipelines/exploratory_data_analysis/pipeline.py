@@ -20,7 +20,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=auto_eda,
-                inputs=["transactions", "params:transactions"],
+                inputs=["raw_transactions", "params:transactions"],
                 outputs=None,
                 name="transactions_node",
             ),
@@ -31,7 +31,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=manual_eda,
-                inputs=["articles", "transactions"],
+                inputs=["articles", "raw_transactions"],
                 outputs=None,
                 name="manual_eda_node",
             ),
@@ -40,6 +40,6 @@ def create_pipeline(**kwargs) -> Pipeline:
 
     return pipeline(
         pipe=auto_eda_pipeline + manual_eda_pipeline,
-        inputs=["customers", "articles", "transactions"],
+        inputs=["customers", "articles", "raw_transactions"],
         namespace="exploratory_data_analysis",
         )

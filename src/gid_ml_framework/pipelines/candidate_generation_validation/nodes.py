@@ -3,6 +3,7 @@ import numpy as np
 import logging
 from typing import List, Set
 import mlflow
+from gid_ml_framework.helpers.utils import reduce_memory_usage
 
 
 log = logging.getLogger(__name__)
@@ -47,6 +48,8 @@ def _get_recall(candidates: pd.DataFrame, val_transactions: pd.DataFrame, candid
     """
     exploded_candidates_df = candidates[['customer_id', candidate_col]].explode(candidate_col)
     exploded_candidates_df['recall'] = 1
+    # memory optimization
+    exploded_candidates_df = reduce_memory_usage(exploded_candidates_df)
     val_transactions = val_transactions.merge(
         exploded_candidates_df,
         left_on=['customer_id', 'article_id'],
@@ -96,4 +99,6 @@ def log_retrieval_recall(candidates: pd.DataFrame, val_transactions: pd.DataFram
         log.info(f'Calculating recall for {candidate_col}')
         recall = _get_recall(candidates, val_transactions, candidate_col)
         mlflow.log_metric(f'{candidate_col}_recall', recall)
+        # memory optimization
+        candidates = candidates.drop(candidate_col, axis=1)
     

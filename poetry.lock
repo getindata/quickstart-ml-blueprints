@@ -538,7 +538,7 @@ complete = ["bokeh (>=2.4.2)", "distributed (==2022.7.1)", "jinja2", "numpy (>=1
 dataframe = ["numpy (>=1.18)", "pandas (>=1.0)"]
 diagnostics = ["bokeh (>=2.4.2)", "jinja2"]
 distributed = ["distributed (==2022.7.1)"]
-test = ["pre-commit", "pytest", "pytest-rerunfailures", "pytest-xdist"]
+test = ["pytest", "pytest-rerunfailures", "pytest-xdist", "pre-commit"]
 
 [[package]]
 name = "databricks-cli"
@@ -1889,7 +1889,7 @@ version = "0.7.0"
 description = "Kedro plugin with GCP Vertex AI support"
 category = "main"
 optional = false
-python-versions = ">=3.8,<3.11"
+python-versions = ">=3.8,<3.11.8,<3.11"
 
 [package.dependencies]
 cachetools = ">=4.1,<5.0"
@@ -4296,7 +4296,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8.12"
-content-hash = "227ca3c355c0b5ceb9b4ded54ef3f5553538e0345195c9fc02964ef996c6e8ac"
+content-hash = "4628d1d78012fe38424b768826b089ce9b0ef92abb49e3a25cbee5bc66682d5d"
 
 [metadata.files]
 absl-py = [

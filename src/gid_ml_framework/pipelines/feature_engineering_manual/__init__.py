@@ -1,5 +1,5 @@
 """
-This is a boilerplate pipeline 'automated_feature_engineering'
+This is a boilerplate pipeline 'feature_engineering_manual'
 generated using Kedro 0.17.7
 """
 

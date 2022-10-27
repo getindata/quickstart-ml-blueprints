@@ -12,7 +12,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="train_val_split_node",
                 inputs=[
                     "final_candidates",
-                    "params:val_size",
+                    "params:dataset.val_size",
+                    "params:dataset.downsampling",
+                    "params:dataset.neg_samples",
                     ],
                 outputs=["train_candidates", "val_candidates"],
             ),

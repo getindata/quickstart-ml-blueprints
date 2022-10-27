@@ -1,4 +1,4 @@
-manual_feature_engineering:
+feature_engineering_manual:
   articles:
   customers:
     n_days: [7, 30, null]

@@ -1,5 +1,7 @@
 generate_predictions:
   models:
-    - 7551ddaa95324470906809d26b247775
-    - f3d6b2d8473d4d1e8dd69f305590197e
+    - f8aca99f5e1248a1846e087a663b2770 # 5M negative samples
+    - b226550924b64c078247a688f163bcb7 # 2M negative samples
+    - 88d216f2d8424926b064f19e06fcaa4d # 1M negative samples
+    - abe6d9e1e85243b3a75ed42d3a7a94e8 # all samples
   k: 12

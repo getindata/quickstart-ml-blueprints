@@ -4,6 +4,11 @@ from typing import Any, Dict, Iterable, Optional
 from kedro.config import ConfigLoader
 from kedro.framework.hooks import hook_impl
 from kedro.io import DataCatalog
+from kedro.framework.context import KedroContext
+
+from gid_ml_framework.helpers.utils import reduce_memory_usage
+import pandas as pd
+import warnings
 
 
 class ProjectHooks:
@@ -24,3 +29,17 @@ class ProjectHooks:
         return DataCatalog.from_config(
             catalog, credentials, load_versions, save_version
         )
+
+class MemoryProfilingHooks:
+    @hook_impl
+    def after_dataset_loaded(self, dataset_name: str, data: Any) -> None:
+        if isinstance(data, pd.DataFrame):
+            data = reduce_memory_usage(data)
+
+class IgnoreDeprecationWarnings:
+    @hook_impl
+    def after_context_created(
+        self,
+        context: KedroContext,
+    ) -> None:
+        warnings.filterwarnings("ignore", category=DeprecationWarning)

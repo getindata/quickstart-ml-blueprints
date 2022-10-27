@@ -40,12 +40,6 @@ loggers:
   kedro:
     level: INFO
 
-  spaceflights:
-    level: INFO
-
-  gid_ml_framework:
-    level: INFO
-
 root:
-  handlers: [rich, info_file_handler, error_file_handler]
+  handlers: [rich, info_file_handler, error_file_handler] # rich/console
   level: INFO

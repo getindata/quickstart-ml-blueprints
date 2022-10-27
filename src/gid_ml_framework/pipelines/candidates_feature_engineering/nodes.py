@@ -2,6 +2,7 @@ import logging
 import pandas as pd
 import numpy as np
 from typing import Set, List
+from gid_ml_framework.helpers.utils import reduce_memory_usage
 
 
 logger = logging.getLogger(__name__)
@@ -48,6 +49,8 @@ def unpack_candidates(candidates_df: pd.DataFrame, drop_random_strategies: bool 
         dfs.append(df)
     logger.info(f'Concatenating candidate strategies into one long dataframe')
     long_candidates = pd.concat(dfs, axis=0).reset_index()
+    # memory optimization
+    long_candidates = reduce_memory_usage(long_candidates)
     logger.info(f'Long candidates df shape: {long_candidates.shape}')
     # removing duplicates (multiple strategies can have the same item)
     if drop_random_strategies:
