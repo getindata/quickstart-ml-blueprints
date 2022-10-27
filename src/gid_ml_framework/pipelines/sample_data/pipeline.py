@@ -14,7 +14,10 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=filter_out_old_transactions,
-                inputs=["hm_transactions_input", "params:cutoff_date"],
+                inputs=[
+                    "raw_transactions",
+                    "params:cutoff_date"
+                    ],
                 outputs="latest_transactions",
                 name="filter_out_old_transactions_node",
             ),
@@ -47,6 +50,14 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="data_sampling",
-        inputs=["hm_transactions_input", "hm_articles_input", "hm_customers_input"],
-        outputs=["hm_transactions", "hm_articles", "hm_customers"],
+        inputs=[
+            "raw_transactions",
+            "articles",
+            "customers"
+            ],
+        outputs=[
+            "transactions_sample",
+            "articles_sample",
+            "customers_sample",
+            ],
     )

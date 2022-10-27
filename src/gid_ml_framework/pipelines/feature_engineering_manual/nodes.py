@@ -1,32 +1,10 @@
 import logging
 import pandas as pd
 from typing import List, Optional, Union
+from gid_ml_framework.helpers.utils import filter_dataframe_by_last_n_days
 
 
 logger = logging.getLogger(__name__)
-
-def _filter_dataframe_by_last_n_days(df: pd.DataFrame, n_days: int, date_column: str) -> pd.DataFrame:
-    """Filters out records in dataframe older than `max(date) - n_days`.
-
-    Args:
-        df (pd.DataFrame): dataframe with date column
-        n_days (int): number of days to keep
-        date_column (str): name of a column with date
-
-    Returns:
-        pd.DataFrame: filtered dataframe
-    """
-    if not n_days:
-        logger.info(f'n_days is equal to None, skipping the filtering by date step.')
-        return df
-    df.loc[:, date_column] = pd.to_datetime(df.loc[:, date_column])
-    max_date = df.loc[:, date_column].max()
-    filter_date = max_date - pd.Timedelta(days=n_days)
-    logger.info(f'Maximum date is: {max_date}, date for filtering is: {filter_date}, {n_days=}')
-    logger.info(f'Shape before filtering by date: {df.shape}')
-    df = df[df.loc[:, date_column]>=filter_date]
-    logger.info(f'Shape after filtering by date: {df.shape}')
-    return df
 
 def _concat_dataframes_on_index(list_of_dfs: List[pd.DataFrame], index_name: Union[str, List[str]]) -> pd.DataFrame:
     """Concatenates multiple dataframes on index.
@@ -126,7 +104,7 @@ def _count_of_article_id_per_customer_id(transactions: pd.DataFrame, n_days: Opt
     Returns:
         pd.DataFrame: dataframe with customer_id and count_of_article_per_customer
     """
-    filtered_transactions = _filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
+    filtered_transactions = filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
     df_count_articles = (
         filtered_transactions
             .groupby(['customer_id'])['article_id']
@@ -146,7 +124,7 @@ def _count_of_product_group_name_per_customer_id(transactions: pd.DataFrame, art
     Returns:
         pd.DataFrame: dataframe with customer_id and count_of_product_group_name_per_customer
     """
-    filtered_transactions = _filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
+    filtered_transactions = filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
     df_count_pg = (
         filtered_transactions
             .merge(articles[['article_id', 'product_group_name']], on='article_id')[['customer_id', 'product_group_name']]
@@ -257,7 +235,7 @@ def create_customer_features(transactions: pd.DataFrame, articles: pd.DataFrame,
     logger.info('Calculating time window customer features...')
     dfs_list = list()
     for n_days in n_days_list:
-        suffix_str = '_all' if n_days is None else f'_{n_days}'
+        suffix_str = '_all_manual' if n_days is None else f'_{n_days}_manual'
         df_count_articles = _count_of_article_id_per_customer_id(transactions, n_days)
         df_count_articles = _add_suffix_except_col(df_count_articles, suffix_str, 'customer_id')
         dfs_list.append(df_count_articles)

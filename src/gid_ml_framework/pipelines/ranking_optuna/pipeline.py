@@ -1,7 +1,7 @@
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from ..ranking.nodes import train_val_split, train_optuna_model
+from gid_ml_framework.pipelines.ranking.nodes import train_val_split, train_optuna_model
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -12,7 +12,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="train_val_split_node",
                 inputs=[
                     "final_candidates",
-                    "params:val_size",
+                    "params:dataset.val_size",
+                    "params:dataset.downsampling",
+                    "params:dataset.neg_samples",
                     ],
                 outputs=["train_candidates", "val_candidates"],
             ),

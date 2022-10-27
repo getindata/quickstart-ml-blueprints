@@ -13,12 +13,13 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     "params:run_id",
                     "params:image_path",
+                    "params:platform",
                     "params:batch_size",
                     ],
                 outputs="image_embeddings",
             ),
         ],
-        namespace="calculate_image_embeddings",
+        namespace="image_embeddings_inference",
         inputs=None,
         outputs=["image_embeddings"],
     )

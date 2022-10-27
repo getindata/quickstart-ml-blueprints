@@ -1,5 +1,5 @@
 """
-This is a boilerplate pipeline 'manual_feature_engineering'
+This is a boilerplate pipeline 'image_embeddings_inference'
 generated using Kedro 0.17.7
 """
 

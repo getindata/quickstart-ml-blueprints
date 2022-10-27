@@ -1,14 +1,19 @@
 import pytorch_lightning as pl
 from gid_ml_framework.image_embeddings.data.hm_data import HMDataLoader
 from gid_ml_framework.image_embeddings.model.pl_autoencoder_module import LitAutoEncoder
-from gid_ml_framework.image_embeddings.model import pl_encoders, pl_decoders
+import mlflow
 import mlflow.pytorch
 from pytorch_lightning.utilities.seed import seed_everything
 from typing import List
+from importlib import import_module
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 def train_image_embeddings(
     img_dir: str,
+    platform: str,
     encoder: str,
     decoder: str,
     batch_size: int = 32,
@@ -20,11 +25,12 @@ def train_image_embeddings(
     model_name: str = "image_embeddings_model",
     seed: int = 321) -> None:
 
+    logger.info(f'Setting seed at: {seed}')
     seed_everything(seed, True)
 
-    hm_dataloader = HMDataLoader(img_dir, batch_size=batch_size)
-    hm_encoder = getattr(pl_encoders, encoder)
-    hm_decoder = getattr(pl_decoders, decoder)
+    hm_dataloader = HMDataLoader(img_dir, batch_size=batch_size, platform=platform)
+    hm_encoder = getattr(import_module('gid_ml_framework.image_embeddings.model.pl_encoders'), encoder)
+    hm_decoder = getattr(import_module('gid_ml_framework.image_embeddings.model.pl_decoders'), decoder)
 
     hm_autoencoder = LitAutoEncoder(
         encoder=hm_encoder(embedding_size, image_size),
@@ -47,5 +53,6 @@ def train_image_embeddings(
         callbacks=[early_stop_callback])
 
     mlflow.pytorch.autolog(log_models=save_model, registered_model_name=model_name)
-
+    logger.info(f'Starting training autoencoder, {save_model=}, {model_name=}')
     hm_trainer.fit(model=hm_autoencoder, train_dataloaders=hm_dataloader)
+    logger.info('Finished training autoencoder')

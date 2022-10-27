@@ -3,6 +3,7 @@ import functools
 import numpy as np
 import pandas as pd
 
+
 logger = logging.getLogger(__name__)
 
 def log_memory_usage(f):
@@ -49,4 +50,34 @@ def reduce_memory_usage(df: pd.DataFrame) -> pd.DataFrame:
                 else:
                     df[col] = df[col].astype(np.float64)
         # if col_type == 'object':
+    return df
+
+def filter_dataframe_by_last_n_days(df: pd.DataFrame, n_days: int, date_column: str) -> pd.DataFrame:
+    """Filters out records in dataframe older than `max(date) - n_days`.
+
+    Args:
+        df (pd.DataFrame): dataframe with date column
+        n_days (int): number of days to keep
+        date_column (str): name of a column with date
+
+    Returns:
+        pd.DataFrame: filtered dataframe
+    """
+    if not n_days:
+        logger.info(f'n_days is equal to None, skipping the filtering by date step.')
+        return df
+    try:
+        df.loc[:, date_column] = pd.to_datetime(df.loc[:, date_column])
+    except KeyError:
+        logger.error('Given date_column does not exist in df')
+        raise
+    except ValueError:
+        logger.error('Given date_column is not convertible to datetime')
+        raise
+    max_date = df.loc[:, date_column].max()
+    filter_date = max_date - pd.Timedelta(days=n_days)
+    logger.info(f'Maximum date is: {max_date}, date for filtering is: {filter_date}, {n_days=}')
+    logger.info(f'Shape before filtering: {df.shape}')
+    df = df[df.loc[:, date_column]>=filter_date]
+    logger.info(f'Shape after filtering: {df.shape}')
     return df

@@ -2,6 +2,7 @@ import pandas as pd
 from typing import Union, Set, List, Dict, Iterable
 import logging
 from sklearn.neighbors import KDTree
+from gid_ml_framework.helpers.utils import filter_dataframe_by_last_n_days
 
 
 logger = logging.getLogger(__name__)
@@ -10,36 +11,6 @@ Bin = str
 ArticlesBin = Dict[Bin, ArticlesSet]
 
 # GLOBAL (for all users) ARTICLES
-def _filter_dataframe_by_last_n_days(df: pd.DataFrame, n_days: int, date_column: str) -> pd.DataFrame:
-    """Filters out records in dataframe older than `max(date) - n_days`.
-
-    Args:
-        df (pd.DataFrame): dataframe with date column
-        n_days (int): number of days to keep
-        date_column (str): name of a column with date
-
-    Returns:
-        pd.DataFrame: filtered dataframe
-    """
-    if not n_days:
-        logger.info(f'n_days is equal to None, skipping the filtering by date step.')
-        return df
-    try:
-        df.loc[:, date_column] = pd.to_datetime(df.loc[:, date_column])
-    except KeyError:
-        logger.error('Given date_column does not exist in df')
-        raise
-    except ValueError:
-        logger.error('Given date_column is not convertible to datetime')
-        raise
-    max_date = df.loc[:, date_column].max()
-    filter_date = max_date - pd.Timedelta(days=n_days)
-    logger.info(f'Maximum date is: {max_date}, date for filtering is: {filter_date}, {n_days=}')
-    logger.info(f'Shape before filtering: {df.shape}')
-    df = df[df.loc[:, date_column]>=filter_date]
-    logger.info(f'Shape after filtering: {df.shape}')
-    return df
-
 def _most_sold_articles(transactions: pd.DataFrame, top_k: int) -> ArticlesSet:
     """Calculates `top_k` most sold articles by count for given dataframe.
 
@@ -73,7 +44,7 @@ def collect_global_articles(transactions: pd.DataFrame, n_days_list: List[Union[
     """
     all_global_articles = set()
     for n_days, top_k in zip(n_days_list, top_k_list):
-        latest_transactions = _filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
+        latest_transactions = filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
         articles_set = _most_sold_articles(latest_transactions, top_k)
         logger.info(f'All articles size: {len(all_global_articles)} before adding articles from {n_days=}, {top_k=}')
         all_global_articles.update(articles_set)
@@ -173,7 +144,7 @@ def collect_segment_articles(transactions: pd.DataFrame, customers_bins: pd.Data
     """
     segment_articles = dict()
     for n_days, top_k in zip(n_days_list, top_k_list):
-        latest_transactions = _filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
+        latest_transactions = filter_dataframe_by_last_n_days(transactions, n_days, date_column='t_dat')
         articles_per_bin_dict = _most_sold_articles_by_segment(latest_transactions, customers_bins, top_k)
         segment_articles = _update_dict_of_sets(segment_articles, articles_per_bin_dict)
     return segment_articles

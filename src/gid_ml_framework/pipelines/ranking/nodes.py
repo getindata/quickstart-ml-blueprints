@@ -1,12 +1,11 @@
 import pandas as pd
-import numpy as np
 import logging
 import lightgbm as lgb
 import mlflow
 import mlflow.lightgbm
 from sklearn.model_selection import train_test_split
 from typing import List, Tuple, Dict
-from ...helpers.metrics import map_at_k
+from gid_ml_framework.helpers.metrics import map_at_k
 import optuna
 from optuna.integration.mlflow import MLflowCallback
 
@@ -64,7 +63,7 @@ def _prepare_lgb_dataset(
         )
     return lgb_dataset
 
-def train_val_split(candidates: pd.DataFrame, val_size: float = 0.15) -> Tuple[pd.DataFrame]:
+def train_val_split(candidates: pd.DataFrame, val_size: float = 0.15, downsampling: bool = True, neg_sample: int = 1_000_000) -> Tuple[pd.DataFrame]:
     """Splits dataset into training and validation set. It uses stratification based on whether bought any item or not.
 
     Args:
@@ -79,6 +78,14 @@ def train_val_split(candidates: pd.DataFrame, val_size: float = 0.15) -> Tuple[p
     train_candidates = candidates[candidates['customer_id'].isin(train_candidates['customer_id'].unique())]
     val_candidates = candidates[candidates['customer_id'].isin(val_candidates['customer_id'].unique())]
     logger.info(f'Train candidates shape: {train_candidates.shape}, \nval candidates shape{val_candidates.shape}')
+    if downsampling:
+        # downsampling
+        logger.info(f'Downsampling candidates. Number of added negative samples to the training set: {neg_sample}')
+        train_candidates = pd.concat(
+            [train_candidates[train_candidates.label>0], # positive samples 
+            train_candidates[train_candidates.label==0].sample(n=neg_sample, random_state=42)], # negative samples
+            axis=0)
+        logger.info(train_candidates.label.value_counts(normalize=False))
     return train_candidates, val_candidates
 
 def _predict(model: lgb.Booster, candidates: pd.DataFrame, k: int = 12) -> pd.DataFrame:
@@ -130,6 +137,7 @@ def train_single_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFr
         k (int, optional): top k recommended items. Defaults to 12.
     """
     logger.info(f'Train positive rate: {train_candidates.label.mean()}')
+    train_data_size = len(train_candidates)
     features = [col for col in train_candidates.columns if col not in ['label', 'customer_id', 'article_id']]
     cat_features = train_candidates.select_dtypes(include='category').columns.to_list()
     logger.info(f'Categorical features: {cat_features}')
@@ -148,8 +156,10 @@ def train_single_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFr
         valid_sets=[train_dataset, val_dataset],
         valid_names=['train', 'valid'],
         num_boost_round=500,
-        callbacks=[lgb.early_stopping(stopping_rounds=10)]
+        callbacks=[lgb.early_stopping(stopping_rounds=20)]
     )
+    # train_data_size
+    mlflow.log_metric('training_dataset_size', train_data_size)
     # train loss
     logger.info('Recommending for training candidates')
     train_predictions = _predict(model, train_candidates, k)
@@ -173,6 +183,7 @@ def train_optuna_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFr
         k (int, optional): top k recommended items. Defaults to 12.
     """
     logger.info(f'Train positive rate: {train_candidates.label.mean()}')
+    train_data_size = len(train_candidates)
     features = [col for col in train_candidates.columns if col not in ['label', 'customer_id', 'article_id']]
     cat_features = train_candidates.select_dtypes(include='category').columns.to_list()
     logger.info(f'Categorical features: {cat_features}')
@@ -185,7 +196,7 @@ def train_optuna_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFr
     val_dataset = _prepare_lgb_dataset(val_candidates, 'label', features, cat_features, val_group)
     
     mlflc = MLflowCallback(
-        tracking_uri='mlruns',
+        # tracking_uri='mlruns',
         metric_name='val_map_at_12',
         create_experiment=True,
     )
@@ -208,6 +219,8 @@ def train_optuna_model(train_candidates: pd.DataFrame, val_candidates: pd.DataFr
             num_boost_round=500,
             callbacks=[lgb.early_stopping(stopping_rounds=10)]
         )
+        # train_data_size
+        mlflow.log_param('training_dataset_size', train_data_size)
         # train loss
         logger.info('Recommending for training candidates')
         train_predictions = _predict(model, train_candidates, k)

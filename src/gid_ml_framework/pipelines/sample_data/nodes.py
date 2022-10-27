@@ -63,7 +63,7 @@ def sample_articles(articles: pd.DataFrame, article_img_dir: str, article_img_sa
     article_ids = set(articles_sample.article_id.unique())
     img_src_dir = Path.cwd() / article_img_dir
     img_dst_dir = Path.cwd() / article_img_sample_dir
-    _copy_images(img_src_dir, img_dst_dir, article_ids)
+    # _copy_images(img_src_dir, img_dst_dir, article_ids)
     return articles_sample
 
 def _calculate_distinct_transactions(transactions: pd.DataFrame) -> pd.DataFrame:

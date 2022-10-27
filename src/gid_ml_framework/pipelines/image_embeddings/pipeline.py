@@ -12,6 +12,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="train_image_embeddings",
                 inputs=[
                     "params:image_path",
+                    "params:platform",
                     "params:encoder",
                     "params:decoder",
                     "params:batch_size",

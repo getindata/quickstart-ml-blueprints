@@ -2,23 +2,51 @@ import pandas as pd
 import re
 import logging
 from typing import List, Any, Union
-from ...helpers.utils import reduce_memory_usage, log_memory_usage
+from gid_ml_framework.helpers.utils import reduce_memory_usage, log_memory_usage
 
 
 logger = logging.getLogger(__name__)
 
 @log_memory_usage
 def _fill_na_cast_to_int(df: pd.DataFrame, regex_pattern: str, fill_na_value: Any) -> pd.DataFrame:
+    """Fills NA values with `fill_na_value` in a dataframe for columns that match `regex_pattern`.
+
+    Args:
+        df (pd.DataFrame): dataframe
+        regex_pattern (str): regex pattern
+        fill_na_value (Any): fill value
+
+    Returns:
+        pd.DataFrame: dataframe with filled missing values
+    """
     cols = [col for col in df.columns if re.match(regex_pattern, col)]
     df.loc[:, cols] = df.loc[:, cols].fillna(fill_na_value).astype(int)
     return df
 
 @log_memory_usage
 def _cast_as_category(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
+    """Casts lists of columns in a dataframe to `pd.Category`.
+
+    Args:
+        df (pd.DataFrame): dataframe
+        cols (List[str]): list of column names
+
+    Returns:
+        pd.DataFrame: dataframe with categorical columns
+    """
     df.loc[:, cols] = df.loc[:, cols].astype('category')
     return df
 
 def add_label(candidates: pd.DataFrame, val_transactions: Union[pd.DataFrame, None]) -> pd.DataFrame:
+    """Adds label to candidates dataframe for training, or returns the same dataframe if there are no validation transactions.
+
+    Args:
+        candidates (pd.DataFrame): candidates
+        val_transactions (Union[pd.DataFrame, None]): validation transactions
+
+    Returns:
+        pd.DataFrame: candidates dataframe with label (or without)
+    """
     if val_transactions is None:
         logger.info('Skipping function add_label()')
         return candidates
@@ -30,14 +58,16 @@ def add_label(candidates: pd.DataFrame, val_transactions: Union[pd.DataFrame, No
             .assign(label=lambda x: 1)
     )
     logger.info(f'Number of validation transactions left: {val_transactions.shape}')
-    # sampling only some candidates for speed
-    candidates = (
-        candidates
-            .sample(frac=1, random_state=888)
-            .groupby(['customer_id'])
-            .head(15)
-            .reset_index(drop=True)
-    )
+    
+    # # sampling only some candidates for speed
+    # candidates = (
+    #     candidates
+    #         .sample(frac=1, random_state=888)
+    #         .groupby(['customer_id'])
+    #         .head(150)
+    #         .reset_index(drop=True)
+    # )
+
     candidates = (
         candidates
             .merge(val_transactions, on=['customer_id', 'article_id'], how='left')
@@ -54,13 +84,26 @@ def add_article_features(
     manual_article_features: pd.DataFrame,
     regex_pattern: str
     ) -> pd.DataFrame:
-    # # just for now
+    """Adds article features (automated & manual) to candidates dataframe based on `article_id`.
+
+    Args:
+        candidates (pd.DataFrame): candidates
+        automated_articles_features (pd.DataFrame): automated articles features
+        manual_article_features (pd.DataFrame): manual articles features
+        regex_pattern (str): regex pattern for filling missing values
+
+    Returns:
+        pd.DataFrame: candidates with articles features
+    """
+    # # if testing
     # return candidates
 
     # reduce memory
     candidates = reduce_memory_usage(candidates)
     automated_articles_features = reduce_memory_usage(automated_articles_features)
     manual_article_features = reduce_memory_usage(manual_article_features)
+    logger.info(f'Automated articles features shape: {automated_articles_features.shape}')
+    logger.info(f'Manual articles features shape: {manual_article_features.shape}')
     # merge
     candidates = (
         candidates
@@ -77,13 +120,26 @@ def add_customer_features(
     automated_customers_features: pd.DataFrame,
     manual_customer_features: pd.DataFrame,
     regex_pattern: str) -> pd.DataFrame:
-    # # just for now
+    """Adds customer features (automated & manual) to candidates dataframe based on `customer_id`.
+
+    Args:
+        candidates (pd.DataFrame): candidates
+        automated_customers_features (pd.DataFrame): automated customers features
+        manual_customer_features (pd.DataFrame): manual customers features
+        regex_pattern (str): regex pattern for filling missing values
+
+    Returns:
+        pd.DataFrame: candidates dataframe with customers features
+    """
+    # # if testing
     # return candidates
 
     # reduce memory
     candidates = reduce_memory_usage(candidates)
     automated_customers_features = reduce_memory_usage(automated_customers_features)
     manual_customer_features = reduce_memory_usage(manual_customer_features)
+    logger.info(f'Automated customers features shape: {automated_customers_features.shape}')
+    logger.info(f'Manual customers features shape: {manual_customer_features.shape}')
     # merge
     candidates = (
         candidates
@@ -102,10 +158,24 @@ def add_dict_features(
     category_cols: List[str],
     drop_cols: List[str]
     ) -> pd.DataFrame:
+    """Adds dictionary features to candidates dataframe.
+
+    Args:
+        candidates (pd.DataFrame): candidates
+        articles (pd.DataFrame): articles dictionary
+        customers (pd.DataFrame): customers dictionary
+        category_cols (List[str]): list of categorical columns
+        drop_cols (List[str]): list of columns to drop
+
+    Returns:
+        pd.DataFrame: candidates dataframe with dictionary features
+    """
     # reduce memory
     candidates = reduce_memory_usage(candidates)
     articles = reduce_memory_usage(articles)
     customers = reduce_memory_usage(customers)
+    logger.info(f'Dictionary articles features shape: {articles.shape}')
+    logger.info(f'Dictionary customers features shape: {customers.shape}')
 
     # merge/drop
     candidates = (

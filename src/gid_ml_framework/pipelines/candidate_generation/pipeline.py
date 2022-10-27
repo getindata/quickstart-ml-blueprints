@@ -11,13 +11,15 @@ from .nodes import (
 
 
 def create_pipeline(**kwargs) -> Pipeline:
+    # Train vs inference flag
+    TRAIN_FLAG='' # 'train_'/''
+    
     global_pipeline = pipeline(
         [
             node(
                 func=collect_global_articles,
                 inputs=[
-                    # transactions
-                    "train_transactions",
+                    f"{TRAIN_FLAG}transactions",
                     "params:global_articles.n_days",
                     "params:global_articles.top_n",
                     ],
@@ -35,8 +37,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="global_candidate_generation",
-        # transactions
-        inputs=["train_transactions", "customers"],
+        inputs=[f"{TRAIN_FLAG}transactions", "customers"],
         outputs=["global_articles_df"],
     )
 
@@ -54,8 +55,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=collect_segment_articles,
                 inputs=[
-                    # transactions
-                    "train_transactions",
+                    f"{TRAIN_FLAG}transactions",
                     "customers_bins",
                     "params:segment_articles.n_days",
                     "params:segment_articles.top_n",
@@ -74,8 +74,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="segment_candidate_generation",
-        # transactions
-        inputs=["train_transactions", "customers"],
+        inputs=[f"{TRAIN_FLAG}transactions", "customers"],
         outputs=["segment_articles_df"],
     )
 
@@ -84,8 +83,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=collect_previously_bought_articles,
                 inputs=[
-                    # transactions
-                    "train_transactions",
+                    f"{TRAIN_FLAG}transactions",
                     ],
                 outputs="prev_bought_df",
                 name="collect_prev_bought_node",
@@ -93,8 +91,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=collect_previously_bought_prod_name_articles,
                 inputs=[
-                    # transactions
-                    "train_transactions",
+                    f"{TRAIN_FLAG}transactions",
                     "articles",
                     ],
                 outputs="prev_bought_prod_name_df",
@@ -102,8 +99,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="prev_bought_candidate_generation",
-        # transactions
-        inputs=["train_transactions", "articles"],
+        inputs=[f"{TRAIN_FLAG}transactions", "articles"],
         outputs=["prev_bought_df", "prev_bought_prod_name_df"],
     )
 
@@ -112,8 +108,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=collect_similar_embeddings,
                 inputs=[
-                    # transactions
-                    "train_transactions",
+                    f"{TRAIN_FLAG}transactions",
                     "image_embeddings",
                     "params:image_embeddings.n_last_bought",
                     "params:image_embeddings.k_closest",
@@ -124,8 +119,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="closest_image_embeddings_candidate_generation",
-        # transactions
-        inputs=["train_transactions", "image_embeddings"],
+        inputs=[f"{TRAIN_FLAG}transactions", "image_embeddings"],
         outputs=["closest_image_embeddings_df"],
     )
 
@@ -134,8 +128,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=collect_similar_embeddings,
                 inputs=[
-                    # transactions
-                    "train_transactions",
+                    f"{TRAIN_FLAG}transactions",
                     "text_embeddings",
                     "params:text_embeddings.n_last_bought",
                     "params:text_embeddings.k_closest",
@@ -146,8 +139,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="closest_text_embeddings_candidate_generation",
-        # transactions
-        inputs=["train_transactions", "text_embeddings"],
+        inputs=[f"{TRAIN_FLAG}transactions", "text_embeddings"],
         outputs=["closest_text_embeddings_df"],
     )
 
@@ -163,8 +155,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "closest_image_embeddings_df",
                     "closest_text_embeddings_df",
                     ],
-                outputs="train_candidates",
-                # candidates
+                outputs=f"{TRAIN_FLAG}candidates",
                 name="collect_all_candidates_node",
             ),
         ],
@@ -177,8 +168,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             "closest_image_embeddings_df",
             "closest_text_embeddings_df",
             ],
-        outputs=["train_candidates"],
-        # candidates
+        outputs=[f"{TRAIN_FLAG}candidates"],
     )
 
     return (

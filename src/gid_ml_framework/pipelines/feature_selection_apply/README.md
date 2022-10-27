@@ -1,6 +1,6 @@
-# Pipeline calculate_image_embeddings
+# Pipeline feature_selection_apply
 
-> *Note:* This is a `README.md` boilerplate generated using `Kedro 0.17.7`.
+> *Note:* This is a `README.md` boilerplate generated using `Kedro 0.18.2`.
 
 ## Overview
 

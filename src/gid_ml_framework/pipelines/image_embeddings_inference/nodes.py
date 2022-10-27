@@ -1,19 +1,17 @@
 from typing import List, Union
 from gid_ml_framework.image_embeddings.data.hm_data import HMDataLoader
+import mlflow
 import mlflow.pytorch
-from mlflow.tracking import MlflowClient
 import pytorch_lightning as pl
 import torch
-import numpy as np
 import pandas as pd
 from itertools import chain
 import logging
 
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 def _stack_predictions(predictions: List, emb_size: Union[int, str]) -> pd.DataFrame:
-
     out_emb, out_labels = list(), list()
     for emb, labels in predictions:
         out_emb.append(emb)
@@ -26,20 +24,19 @@ def _stack_predictions(predictions: List, emb_size: Union[int, str]) -> pd.DataF
 def calculate_image_embeddings(
     run_id: str,
     img_dir: str,
+    platform: str,
     batch_size: int) -> None:
 
-    client = MlflowClient()
-    run = client.get_run(run_id)
-    log.info("run_id: {}".format(run.info.run_id))
-    log.info("params: {}".format(run.data.params))
-    log.info("status: {}".format(run.info.status))
     logged_model_uri = f'runs:/{run_id}/model'
+    logger.info(f'Loading model from {logged_model_uri=}')
     loaded_model = mlflow.pytorch.load_model(logged_model_uri)
 
-    hm_dataloader = HMDataLoader(img_dir, batch_size)
-
+    logger.info(f'Loading data from {img_dir=} on {platform=}')
+    hm_dataloader = HMDataLoader(img_dir, batch_size, platform=platform)
     trainer = pl.Trainer(max_epochs=1, logger=False)
+    logger.info('Starting generating predictions')
     predictions = trainer.predict(loaded_model, dataloaders=hm_dataloader)
-
-    df_embeddings = _stack_predictions(predictions, run.data.params['embedding_size'])
+    embedding_size = loaded_model.encoder.embedding_size
+    logger.info(f'Stacking all predictions, with {embedding_size=}')
+    df_embeddings = _stack_predictions(predictions, embedding_size)
     return df_embeddings

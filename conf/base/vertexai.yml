@@ -3,22 +3,22 @@ project_id: gid-ml-framework
 region: europe-west4
 run_config:
   # Name of the image to run as the pipeline steps
-  image: europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework:latest
+  image: europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-hm-data/gid-ml-framework:latest
 
   # Pull policy to be used for the steps. Use Always if you push the images
   # on the same tag, or Never if you use only local images
   image_pull_policy: Always
 
   # Location of Vertex AI GCS root
-  root: gid-ml-framework-data/temp
+  root: gid-ml-framework-hm-data/temp
 
   # Prefix of Vertex AI pipeline run
-  experiment_name: gid-ml-framework-gnns-santander
+  experiment_name: gid-ml-framework-hm-data
 
   # Name of the scheduled run, templated with the schedule parameters
-  scheduled_run_name: gid-ml-framework-gnns-santander
+  scheduled_run_name: gid-ml-framework-hm-data
 
-  run_name: gid-ml-framework-gnns-santander-${run_id}
+  run_name: gid-ml-framework-hm-data-${run_id}
 
   # Optional service account to run vertex AI Pipeline with
   # service_account: iap-accessor@gid-advanced-analytics-infra.iam.gserviceaccount.com
@@ -50,20 +50,66 @@ run_config:
   # for the nodes. When not provided they're set to 500m cpu and 1024Mi memory.
   # If you don't want to specify pipeline resources set both to None in __default__.
   resources:
+    # Default settings for the nodes
+    __default__:
+      cpu: 1
+      memory: 1Gi
 
-    # For nodes that require more RAM you can increase the "memory"
-    # data_import_step:
-    #   memory: 2Gi
+    # # most compute intensive nodes
+    # candidates-feature-engineering-apply-avg-jaccard-similarity:
+    #   cpu: 24
+    #   memory: 64Gi
 
-    # # Training nodes can utilize more than one CPU if the algoritm
+    # candidates-feature-engineering-apply-cosine-similarity-text-node:
+    #   cpu: 24
+    #   memory: 64Gi
+   
+    # closest-text-embeddings-candidate-generation-closest-text-embeddings-node:
+    #   cpu: 16
+    #   memory: 32Gi
+
+    # most memory intensive nodes
+    merge-candidate-features-add-label-node:
+      cpu: 8
+      memory: 32Gi
+
+    merge-candidate-features-add-article-features-node:
+      cpu: 8
+      memory: 64Gi
+
+    merge-candidate-features-add-customer-features-node:
+      cpu: 16
+      memory: 128Gi
+
+    merge-candidate-features-add-dict-features-node:
+      cpu: 16
+      memory: 200Gi
+
+    # train-ranking-train-val-split-node:
+    #   cpu: 16
+    #   memory: 128Gi
+
+    # train-ranking-train-single-model-node:
+    #   cpu: 16
+    #   memory: 128Gi
+
+    # train-optuna-ranking-train-val-split-node:
+    #   cpu: 16
+    #   memory: 128Gi
+
+    # train-optuna-ranking-train-optuna-model-node:
+    #   cpu: 16
+    #   memory: 128Gi
+
+    generate-predictions-generate-predictions-node:
+      cpu: 16
+      memory: 256Gi
+
+    # # Training nodes can utilize more than one CPU if the algorithm
     # # supports it
     santander_dgsr_kaggle_gr.train_model_node:
       nvidia.com/gpu: 1
 
-    # Default settings for the nodes
-    __default__:
-      cpu: 2000m
-      memory: 64Gi
 
   # Optional section allowing to generate config files at runtime,
   # useful e.g. when you need to obtain credentials dynamically and store them in credentials.yaml
@@ -82,4 +128,3 @@ run_config:
     request_header_provider_params:
       client_id: 260364966542-721p48q045h4o2hmsmg5dl0gksm7udiu.apps.googleusercontent.com
       service_account: iap-accessor@gid-advanced-analytics-infra.iam.gserviceaccount.com
-

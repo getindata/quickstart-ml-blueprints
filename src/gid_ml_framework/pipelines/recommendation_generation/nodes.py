@@ -145,8 +145,11 @@ def generate_predictions(candidates: pd.DataFrame, models: List[str], k: int = 1
         pd.DataFrame: dataframe with customer_id and prediction (string of items separated by space)
     """
     candidates = candidates.drop(['label'], axis=1)
+    logger.info(f'{len(candidates.columns)=}')
+    logger.info(f'candidates columns: {candidates.columns}')
     # multiple models ensemble
     if len(models)>1: # isinstance(obj, list/str)?
         return _predict_from_multiple_models(candidates, models, k)
     # single model
     return _predict_from_single_model(candidates, models[0], k)
+	
