@@ -7,7 +7,7 @@ import pandas as pd
 
 from gid_ml_framework.helpers.utils import reduce_memory_usage
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def _get_candidate_column_names(candidates: pd.DataFrame) -> List:
@@ -32,11 +32,11 @@ def _get_unique_transactions(transactions: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: filtered transactions
     """
-    log.info(
+    logger.info(
         f"Transactions shape before removing duplicates (repeated purchases): {transactions.shape}"
     )
     transactions = transactions[["customer_id", "article_id"]].drop_duplicates()
-    log.info(f"Transactions shape after removing duplicates: {transactions.shape}")
+    logger.info(f"Transactions shape after removing duplicates: {transactions.shape}")
     return transactions
 
 
@@ -110,7 +110,7 @@ def log_retrieval_recall(
     candidates["all_candidates"] = candidates["all_candidates"].apply(list)
     candidates_cols_list = candidates_cols_list + ["all_candidates"]
     for candidate_col in candidates_cols_list:
-        log.info(f"Calculating recall for {candidate_col}")
+        logger.info(f"Calculating recall for {candidate_col}")
         recall = _get_recall(candidates, val_transactions, candidate_col)
         mlflow.log_metric(f"{candidate_col}_recall", recall)
         # memory optimization

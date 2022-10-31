@@ -7,7 +7,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from pandas_profiling import ProfileReport
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # auto
@@ -19,7 +19,7 @@ def auto_eda(df: pd.DataFrame, name: str) -> None:
         df: dataframe on which to run auto EDA
     """
     minimal = True if df.size > 1_000_000 else False
-    log.info(f"Setting {minimal=} for dataframe: {name}")
+    logger.info(f"Setting {minimal=} for dataframe: {name}")
     profile = ProfileReport(
         df, title=f"Pandas Profiling Report - {name}", minimal=minimal
     )

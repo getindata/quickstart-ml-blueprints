@@ -4,7 +4,7 @@ from typing import List, Tuple
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def _load_model(model_name: str) -> SentenceTransformer:
@@ -16,7 +16,7 @@ def _load_model(model_name: str) -> SentenceTransformer:
     Returns:
         SentenceTransformer: a model
     """
-    log.info(f"Loading sentence transformer model: {model_name}")
+    logger.info(f"Loading sentence transformer model: {model_name}")
     model = SentenceTransformer(model_name)
     return model
 
@@ -35,7 +35,7 @@ def prepare_desciptions_and_labels(
     article_descriptions = articles["detail_desc"].astype("str").to_list()
     article_labels = articles["article_id"].to_list()
     assert len(article_descriptions) == len(article_labels)
-    log.info(f"There are {len(article_labels)} articles for embedding calculation")
+    logger.info(f"There are {len(article_labels)} articles for embedding calculation")
     return article_descriptions, article_labels
 
 
@@ -55,10 +55,10 @@ def generate_embeddings(
     Returns:
         pd.DataFrame: text embeddings
     """
-    log.info(f"First description: {descriptions[0]}, first label: {labels[0]}")
+    logger.info(f"First description: {descriptions[0]}, first label: {labels[0]}")
     model = _load_model(transformer_model)
     embeddings = model.encode(descriptions)
-    log.info(f"Embeddings shape: {embeddings.shape}")
+    logger.info(f"Embeddings shape: {embeddings.shape}")
     text_embeddings = pd.DataFrame(data=embeddings, index=labels)
     text_embeddings.columns = [
         f"text_emb_{i+1}" for i, _ in enumerate(text_embeddings.columns)

@@ -14,7 +14,7 @@ def _concat_dataframes_on_index(
     """Concatenates multiple dataframes on index.
 
     Args:
-        list_of_dfs (List[pd.DataFrame]): dataframes with index_name as column
+        list_of_dfs (List[pd.DataFrame]): dataframes with index_name as column(s)
         index_name (Union[str, List[str]]): column name(s) on which to merge dataframes
 
     Returns:
@@ -25,9 +25,7 @@ def _concat_dataframes_on_index(
     return df_result
 
 
-def _add_suffix_except_col(
-    df: pd.DataFrame, suffix: str, exception_col: str
-) -> pd.DataFrame:
+def _add_suffix_except_col(df: pd.DataFrame, suffix: str, exception_col: str) -> List:
     """Adds suffix to all columns except exception_col.
 
     Args:
@@ -36,10 +34,10 @@ def _add_suffix_except_col(
         exception_col (str): exception_col
 
     Returns:
-        pd.DataFrame: dataframe with changed column names
+        List: list with changed column names
     """
-    df.columns = [col + suffix if col != exception_col else col for col in df.columns]
-    return df
+    df_cols = [col + suffix if col != exception_col else col for col in df.columns]
+    return df_cols
 
 
 # ARTICLE FEATURES
@@ -201,6 +199,7 @@ def _average_purchase_span(transactions: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe with customer_id and avg_purchase_span
     """
+    transactions["t_dat"] = pd.to_datetime(transactions["t_dat"])
     sorted_transactions = transactions.sort_values(
         by=["customer_id", "t_dat"], ascending=[True, False]
     )[["customer_id", "t_dat"]].drop_duplicates()
@@ -262,22 +261,37 @@ def create_customer_features(
     for n_days in n_days_list:
         suffix_str = "_all_manual" if n_days is None else f"_{n_days}_manual"
         df_count_articles = _count_of_article_id_per_customer_id(transactions, n_days)
-        df_count_articles = _add_suffix_except_col(
+        df_count_articles.columns = _add_suffix_except_col(
             df_count_articles, suffix_str, "customer_id"
         )
         dfs_list.append(df_count_articles)
         df_count_pg = _count_of_product_group_name_per_customer_id(
             transactions, articles, n_days
         )
-        df_count_pg = _add_suffix_except_col(df_count_pg, suffix_str, "customer_id")
+        df_count_pg.columns = _add_suffix_except_col(
+            df_count_pg, suffix_str, "customer_id"
+        )
         dfs_list.append(df_count_pg)
 
     # another features
     logger.info("Calculating customer features...")
+    suffix_str = "_manual"
     df_days_since_first = _days_since_first_transactions(transactions)
+    df_days_since_first.columns = _add_suffix_except_col(
+        df_days_since_first, suffix_str, "customer_id"
+    )
     df_days_since_last = _days_since_last_transactions(transactions)
+    df_days_since_last.columns = _add_suffix_except_col(
+        df_days_since_last, suffix_str, "customer_id"
+    )
     df_purchase_span = _average_purchase_span(transactions)
+    df_purchase_span.columns = _add_suffix_except_col(
+        df_purchase_span, suffix_str, "customer_id"
+    )
     df_sales_channel_id = _perc_sales_channel_id(transactions)
+    df_sales_channel_id.columns = _add_suffix_except_col(
+        df_sales_channel_id, suffix_str, "customer_id"
+    )
 
     # concat
     logger.info("Concatenating customer features...")
