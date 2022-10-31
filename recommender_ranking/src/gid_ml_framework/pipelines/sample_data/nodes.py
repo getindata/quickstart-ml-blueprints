@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def filter_out_old_transactions(
@@ -21,10 +21,10 @@ def filter_out_old_transactions(
     Returns:
         pd.DataFrame: latest transactions
     """
-    log.info(f"Transactions' shape before cutoff: {transactions.shape}")
+    logger.info(f"Transactions' shape before cutoff: {transactions.shape}")
     transactions.t_dat = pd.to_datetime(transactions.t_dat)
     transactions = transactions[transactions.t_dat >= cutoff_date]
-    log.info(f"Transactions' shape after cutoff: {transactions.shape}")
+    logger.info(f"Transactions' shape after cutoff: {transactions.shape}")
     return transactions
 
 
@@ -41,12 +41,12 @@ def _copy_images(img_src_dir: Path, img_dst_dir: Path, article_ids: Iterable) ->
         for img_file in img_src_dir.glob("*.jpg")
         if img_file.name.split(".")[0] in article_ids
     ]
-    log.info(f"Number of image files to be copied: {len(img_files)}")
+    logger.info(f"Number of image files to be copied: {len(img_files)}")
     Path.mkdir(img_dst_dir, exist_ok=True)
     for file in img_files:
         dst_file = img_dst_dir / file.name
         shutil.copy(file, dst_file)
-    log.info(
+    logger.info(
         f"There are {sum(1 for _ in img_dst_dir.glob('*.jpg'))} files in the destination folder."
     )
 
@@ -69,10 +69,10 @@ def sample_articles(
     Returns:
         pd.DataFrame: sampled articles
     """
-    log.info(f"Articles' shape before sampling {articles.shape}")
+    logger.info(f"Articles' shape before sampling {articles.shape}")
     # sampling articles dictionary
     articles_sample = articles.sample(frac=sample_size, random_state=321)
-    log.info(f"Articles' shape before sampling {articles_sample.shape}")
+    logger.info(f"Articles' shape before sampling {articles_sample.shape}")
 
     # sampling images
     article_ids = set(articles_sample.article_id.unique())
@@ -111,13 +111,20 @@ def sample_customers(
     Returns:
         pd.DataFrame: sampled customers
     """
-    if np.isclose(sample_size, 1.0):
+    if sample_size > 1.0:
+        logger.error(
+            f"sample_size should be a float in the (0, 1) range. {sample_size=}"
+        )
+        raise ValueError(
+            "sample_size should be a float in the (0, 1) range", sample_size
+        )
+    elif np.isclose(sample_size, 1.0):
         customers_sample = customers
-        log.info(
+        logger.info(
             f"Sample size for customer is {sample_size=}, there will be no sampling!"
         )
         return customers_sample
-    log.info(f"Customers' shape before sampling: {customers.shape}")
+    logger.info(f"Customers' shape before sampling: {customers.shape}")
     customers_trans_cd = _calculate_distinct_transactions(transactions)
     customers = customers.merge(customers_trans_cd, on="customer_id", how="left")
     customers["age"] = customers["age"].fillna(customers["age"].median())
@@ -144,7 +151,7 @@ def sample_customers(
     customers_sample.drop(
         ["no_transactions", "age_bin", "no_transactions_bin"], axis=1, inplace=True
     )
-    log.info(f"Customers' shape after sampling: {customers_sample.shape}")
+    logger.info(f"Customers' shape after sampling: {customers_sample.shape}")
     return customers_sample
 
 
@@ -163,12 +170,12 @@ def sample_transactions(
     Returns:
         pd.DataFrame: sampled transactions
     """
-    log.info(f"Transactions' shape before sampling: {transactions.shape}")
+    logger.info(f"Transactions' shape before sampling: {transactions.shape}")
     unique_customer_id_set = set(customers_sample["customer_id"].unique())
     unique_article_ids_set = set(articles_sample["article_id"].unique())
     transactions_sample = transactions[
         (transactions["customer_id"].isin(unique_customer_id_set))
         & (transactions["article_id"].isin(unique_article_ids_set))
     ]
-    log.info(f"Transactions' shape after sampling: {transactions_sample.shape}")
+    logger.info(f"Transactions' shape after sampling: {transactions_sample.shape}")
     return transactions_sample

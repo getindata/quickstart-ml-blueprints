@@ -10,24 +10,49 @@ logger = logging.getLogger(__name__)
 
 
 def filter_last_n_rows_per_customer(
-    transactions: pd.DataFrame, last_n_rows: int
+    transactions: pd.DataFrame, last_n_rows: int, date_column: str
 ) -> pd.DataFrame:
     """Filter transactions to latest n rows for each customer.
 
     Args:
         transactions (pd.DataFrame): transactions
         last_n_rows (int): number of latest rows for each customer
+        date_column (str): name of a column with date
 
     Returns:
         pd.DataFrame: filtered transactions
     """
-    transactions["t_dat"] = pd.to_datetime(transactions["t_dat"])
+    transactions.loc[:, date_column] = pd.to_datetime(transactions.loc[:, date_column])
     sorted_transactions = transactions.sort_values(by="t_dat", ascending=False)
     latest_transactions = sorted_transactions.groupby(["customer_id"]).head(last_n_rows)
     return latest_transactions
 
 
 # CANDIDATES UNPACKING
+def _assing_multiple_strategies(long_candidates: pd.DataFrame) -> pd.DataFrame:
+    """If there are multiple candidates from more than one strategy, then duplicates are removed and
+    the strategy name is replaced by 'multiple_strategies' flag.
+
+    Args:
+        long_candidates (pd.DataFrame): long candidates with (possibly) same items from different strategies
+
+    Returns:
+        long_candidates (pd.DataFrame): long candidates without duplicates
+    """
+    long_candidates["count_strategy_name"] = long_candidates.groupby(
+        ["customer_id", "article_id"]
+    )["strategy_name"].transform("count")
+    long_candidates["strategy_name"] = np.where(
+        long_candidates["count_strategy_name"] > 1,
+        "multiple_strategies",
+        long_candidates["strategy_name"],
+    )
+    long_candidates = long_candidates.drop(
+        ["count_strategy_name"], axis=1
+    ).drop_duplicates()
+    return long_candidates
+
+
 def unpack_candidates(
     candidates_df: pd.DataFrame, drop_random_strategies: bool = False
 ) -> pd.DataFrame:
@@ -64,7 +89,7 @@ def unpack_candidates(
     if drop_random_strategies:
         long_candidates = (
             long_candidates.sample(frac=1)
-            .groupby(["customer_id", "id_article"])
+            .groupby(["customer_id", "article_id"])
             .head(1)
             .reset_index()
         )
@@ -72,17 +97,7 @@ def unpack_candidates(
             f"Long candidates after dropping (random) multiple candidates: {long_candidates.shape}"
         )
         return long_candidates
-    long_candidates["count_strategy_name"] = long_candidates.groupby(
-        ["customer_id", "article_id"]
-    )["strategy_name"].transform("count")
-    long_candidates["strategy_name"] = np.where(
-        long_candidates["count_strategy_name"] > 1,
-        "multiple_strategies",
-        long_candidates["strategy_name"],
-    )
-    long_candidates = long_candidates.drop(
-        ["count_strategy_name"], axis=1
-    ).drop_duplicates()
+    long_candidates = _assing_multiple_strategies(long_candidates)
     logger.info(
         f"Long candidates after dropping (not random) multiple candidates: {long_candidates.shape}"
     )
@@ -90,6 +105,47 @@ def unpack_candidates(
 
 
 # JACCARD SIMILARITY
+def create_set_of_attributes(
+    articles: pd.DataFrame, attribute_cols: List
+) -> pd.DataFrame:
+    """Creates a set of attributes column from attribute_cols list.
+
+    Args:
+        articles (pd.DataFrame): articles
+        attribute_cols (List): list of attributes
+
+    Returns:
+        pd.DataFrame: dataframe with article_id index and set_of_attributes column
+    """
+    cat_articles = articles[attribute_cols]
+    articles_attributes = articles[["article_id"]].copy()
+    articles_attributes["set_of_attributes"] = cat_articles.apply(set, axis=1)
+    articles_attributes.set_index(["article_id"], inplace=True)
+    return articles_attributes
+
+
+def create_list_of_previously_bought_articles(
+    transactions: pd.DataFrame,
+) -> pd.DataFrame:
+    """Creates a dataframe with customer_id and list of previously bought articles.
+
+    Args:
+        transactions (pd.DataFrame): transactions
+
+    Returns:
+        pd.DataFrame: dataframe with customer_id and list_of_articles column
+    """
+    customer_list_of_articles = (
+        transactions[["customer_id", "article_id"]]
+        .drop_duplicates()
+        .groupby(["customer_id"])["article_id"]
+        .apply(list)
+        .reset_index(name="list_of_articles")
+        .set_index("customer_id")
+    )
+    return customer_list_of_articles
+
+
 def _jaccard_similarity(x: Set, y: Set) -> float:
     """Returns the Jaccard similarity between two sets.
 
@@ -148,47 +204,6 @@ def _calculate_avg_jaccard_similarity(
         )
         jaccard_similarity_list.append(jaccard_similarity)
     return sum(jaccard_similarity_list) / len(jaccard_similarity_list)
-
-
-def create_set_of_attributes(
-    articles: pd.DataFrame, attribute_cols: List
-) -> pd.DataFrame:
-    """Creates a set of attributes column from attribute_cols list.
-
-    Args:
-        articles (pd.DataFrame): articles
-        attribute_cols (List): list of attributes
-
-    Returns:
-        pd.DataFrame: dataframe with article_id index and set_of_attributes column
-    """
-    cat_articles = articles[attribute_cols]
-    articles_attributes = articles[["article_id"]].copy()
-    articles_attributes["set_of_attributes"] = cat_articles.apply(set, axis=1)
-    articles_attributes.set_index(["article_id"], inplace=True)
-    return articles_attributes
-
-
-def create_list_of_previously_bought_articles(
-    transactions: pd.DataFrame,
-) -> pd.DataFrame:
-    """Creates a dataframe with customer_id and list of previously bought articles.
-
-    Args:
-        transactions (pd.DataFrame): transactions
-
-    Returns:
-        pd.DataFrame: dataframe with customer_id and list_of_articles column
-    """
-    customer_list_of_articles = (
-        transactions[["customer_id", "article_id"]]
-        .drop_duplicates()
-        .groupby(["customer_id"])["article_id"]
-        .apply(list)
-        .reset_index(name="list_of_articles")
-        .set_index("customer_id")
-    )
-    return customer_list_of_articles
 
 
 def apply_avg_jaccard_similarity(

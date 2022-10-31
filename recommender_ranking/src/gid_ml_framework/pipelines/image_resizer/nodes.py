@@ -30,7 +30,7 @@ def process_images(
     return data
 
 
-def _resize_image(img: np.ndarray, size: List[int], method: str) -> np.ndarray:
+def _resize_image(img: np.ndarray, size: List[int], method: str) -> Image.Image:
     pillow_image = Image.fromarray(img)
     resample = resampling_methods.get(method)
     resized_image = pillow_image.resize(size, resample=resample)

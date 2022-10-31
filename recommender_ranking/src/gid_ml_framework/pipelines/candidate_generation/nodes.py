@@ -79,19 +79,21 @@ def assign_global_articles(
     all_customers = customers[["customer_id"]].copy()
     logger.info(f"Number of all customers: {len(all_customers)}")
     all_customers.loc[:, "global_articles"] = [
-        list(articles) for i in all_customers.index
+        list(articles) for _ in all_customers.index
     ]
     logger.info(f"{all_customers.shape=}")
     return all_customers
 
 
 # SEGMENT ARTICLES
-def segment_by_customer_age(customers: pd.DataFrame, n_bins: int) -> pd.DataFrame:
+def segment_by_customer_age(
+    customers: pd.DataFrame, n_bins: Union[int, List[float]]
+) -> pd.DataFrame:
     """Creates customer segments based on age.
 
     Args:
         customers (pd.DataFrame): customers
-        n_bins (int): number of segments
+        n_bins (Union[int, List[float]]): number of segments, or list of quantiles between 0 and 1
 
     Returns:
         pd.DataFrame: dataframe with: customer_id and segment_bin (age segment)

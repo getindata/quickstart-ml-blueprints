@@ -1,0 +1,213 @@
+import pandas as pd
+import pytest
+
+# @pytest.fixture
+# def transactions_sample():
+#     return pd.read_csv('data/02_intermediate/transactions_sample.csv')
+
+# @pytest.fixture
+# def customers_sample():
+#     return pd.read_csv('data/02_intermediate/customers_sample.csv')
+
+# @pytest.fixture
+# def articles_sample():
+#     return pd.read_csv('data/02_intermediate/articles_sample.csv')
+
+
+@pytest.fixture
+def transactions_dummy_df():
+    transactions_dict = {
+        "t_dat": {
+            0: "2020-04-07",
+            1: "2020-05-15",
+            2: "2020-05-30",
+            3: "2020-06-15",
+            4: "2020-06-22",
+        },
+        "customer_id": {
+            0: "e3ba555e7badd22f1b6986496012e6f6a70df4ea91c46f1ce7e9d22896bd690d",
+            1: "a1f312a88cdfbcc98a2230e6d7de67d139084f6732a8109c10fc2ddc6ef115c6",
+            2: "b54237c07bc17527c9d23a283e1db97293b9c89330e291e695bc549cf931758c",
+            3: "14dbda0713d6c231e7850e5d703d2fd0b5ae75f7db3e149e00870982fd7b615c",
+            4: "9b235b222ea974e81eacd0731f763b11408035f8b90a816ad473bc2b47fd9414",
+        },
+        "article_id": {
+            0: "0816423002",
+            1: "0773720001",
+            2: "0872820001",
+            3: "0599580038",
+            4: "0490176004",
+        },
+        "price": {
+            0: 0.02540678,
+            1: 0.13557628,
+            2: 0.02540678,
+            3: 0.016932203,
+            4: 0.015237289,
+        },
+        "sales_channel_id": {0: 2, 1: 2, 2: 2, 3: 2, 4: 2},
+    }
+    df = pd.DataFrame(transactions_dict)
+    return df
+
+
+@pytest.fixture
+def customers_dummy_df():
+    customers_dict = {
+        "customer_id": {
+            0: "4f27ee129d18e029fd4e53dc040a8351d0ad0ba9f8609800c99a3f66dccbd288",
+            1: "fde30200bff6e8621b68c9136663691d23dc049d2a0ffae6a1c0d2c941b3238d",
+            2: "9d33cdd4ab134c6b45e5063f3fd399ded676b969f0f98f6cb3e70a64c0cad60c",
+            3: "403e75c605fc32e86e66da31ee71b674b2af452664693878776d8aa08c871fda",
+            4: "32a194426d0995d12d2dccd3de8bdb3059d605b52a1a28ad19a9e824a6b4ee44",
+            5: "1238084e9dbb38394a146dbb549e09a9a187d1c2f72db4aae89590a734912593",
+            6: "de0cba53268ffb1659a76eb0d6376e2745aff1147ed552ff0014783ffc949e82",
+            7: "d12bff2d68eb78d53fb02d726b03970e6a4a7c2cbcd583a7d11ce1db6fb8f684",
+            8: "f5da23b35dce1818b88489d18bb358aefbca08f73e9bba38cb2c8c0ff74d0b88",
+            9: "2ea9658e8a3bb782fff81edbfa5712b0847a0853d925a8f54b122a9ce805785b",
+            10: "0fb91f5977b93d4a5166e923269684de3c1004dd1574477b75864dbd1121f01a",
+            11: "da7bf7ca8bbe6f7526374d97efee769ff97c9402d9e813de41877028a0e5d444",
+            12: "2ca61b623da6493437e7f2563677d0d79c6102f0fba0727873f8596a16694943",
+            13: "944ccf126f3934816c7d722afcb2a7e085422a05d40b0293468e3d87e2c88a39",
+            14: "205cde0462b433d12ec1eeec3f8ed3b7148d321ea33a202dbe24ec2dc8d9e56f",
+            15: "8e43f1671cef0c6621d9629f7f60d920db8b397e7173e107521d648cc89a1dfa",
+            16: "585e97b98c586149255bc3fdc0e400d1490a2790c2fa971b14f424c92a3e589f",
+            17: "b4f559482b44779a27f691f033453788c62533da7f08352b70e987354c81ed90",
+            18: "7ea9f0e14bc0f84bc2537068dc8cfc39dd76c3218707f173575901b33d2cda5d",
+            19: "5262673943d97e2b8b95fe5858a3bd5f88a35f56ce8e603ea45d3e7cfa2ae6cc",
+        },
+        "FN": {
+            0: pd.NA,
+            1: 1.0,
+            2: pd.NA,
+            3: pd.NA,
+            4: pd.NA,
+            5: 1.0,
+            6: 1.0,
+            7: pd.NA,
+            8: pd.NA,
+            9: pd.NA,
+            10: pd.NA,
+            11: pd.NA,
+            12: pd.NA,
+            13: 1.0,
+            14: 1.0,
+            15: 1.0,
+            16: 1.0,
+            17: 1.0,
+            18: pd.NA,
+            19: pd.NA,
+        },
+        "Active": {
+            0: pd.NA,
+            1: 1.0,
+            2: pd.NA,
+            3: pd.NA,
+            4: pd.NA,
+            5: 1.0,
+            6: 1.0,
+            7: pd.NA,
+            8: pd.NA,
+            9: pd.NA,
+            10: pd.NA,
+            11: pd.NA,
+            12: pd.NA,
+            13: 1.0,
+            14: 1.0,
+            15: 1.0,
+            16: 1.0,
+            17: 1.0,
+            18: pd.NA,
+            19: pd.NA,
+        },
+        "club_member_status": {
+            0: "ACTIVE",
+            1: "ACTIVE",
+            2: "ACTIVE",
+            3: "ACTIVE",
+            4: "ACTIVE",
+            5: "ACTIVE",
+            6: "ACTIVE",
+            7: "ACTIVE",
+            8: "ACTIVE",
+            9: "ACTIVE",
+            10: "ACTIVE",
+            11: "ACTIVE",
+            12: "PRE-CREATE",
+            13: "ACTIVE",
+            14: "ACTIVE",
+            15: "ACTIVE",
+            16: "ACTIVE",
+            17: "ACTIVE",
+            18: "ACTIVE",
+            19: "ACTIVE",
+        },
+        "fashion_news_frequency": {
+            0: "NONE",
+            1: "Regularly",
+            2: "NONE",
+            3: "NONE",
+            4: "NONE",
+            5: "Regularly",
+            6: "Regularly",
+            7: "NONE",
+            8: "NONE",
+            9: "NONE",
+            10: "NONE",
+            11: "NONE",
+            12: "NONE",
+            13: "Regularly",
+            14: "Regularly",
+            15: "Regularly",
+            16: "Regularly",
+            17: "Regularly",
+            18: "NONE",
+            19: "NONE",
+        },
+        "age": {
+            0: 18.0,
+            1: 49.0,
+            2: 25.0,
+            3: 49.0,
+            4: 31.0,
+            5: 19.0,
+            6: 31.0,
+            7: 33.0,
+            8: 50.0,
+            9: 24.0,
+            10: 24.0,
+            11: 62.0,
+            12: 21.0,
+            13: 25.0,
+            14: 23.0,
+            15: 41.0,
+            16: 63.0,
+            17: 52.0,
+            18: 44.0,
+            19: 28.0,
+        },
+        "postal_code": {
+            0: "59b8d867a8676ddfadf509f576c10d9bed7915f60b2468f92330c1195d968b3d",
+            1: "7b8def2277caa43f45db3b4cb379a052a8718c8efb27aaa05db53f67e010bf86",
+            2: "cc64e84a17983f615fd08f42366a5a3edbe84b8f89d8fc2bb6564139931f6ed4",
+            3: "6b78d182f7d19e16bd9ee89c5c7a8b5ef3bd4dc9e1c9647e736242a6da07ab7f",
+            4: "9872cd371152925ee382e74cbe2d183693c5e1ea4d972ef35284de531e2096c5",
+            5: "bcd9a536f8e4297e0ac37bb9464f98a34aa274fd8773b08209fb6d08c8edb53c",
+            6: "53c77bdf0b6078e835f01d44ff34caef3716259c6aaa1efc2605b078d8404398",
+            7: "d677dfd4b88966305d5cbb5d46eb55df663d1f12878976d80398f9aa6f761e57",
+            8: "a9299d9225f9f2aa010c15b87b9f3efc90b4f7ff9f1475dbce36f99e5867fdb2",
+            9: "9de2604ff965e452b512e7dc7c9f644021bf8058b6133b331885152a805f5637",
+            10: "479564f5eabb6984dc08aca76f9d54fe77b5ec94714aeb36d8b473ca894012d5",
+            11: "e30614e3974dd4e72f53926de092b100bbd6ebe659fb3e81fbe00d4a1a92a7d3",
+            12: "492cfeaa8afd61b5d9557f5cfa2dcc938a2e70ff3874873e311da168859bff27",
+            13: "0198d84ef67e11618cf14c0f476383d2718ceaf2bb9c3fe591cb705660fdb88c",
+            14: "64310834606e75130797244a221a85f91db770755194fa00c9b6eb95ce0694b7",
+            15: "340da87dfd9002c667ed7b70f37da8b4727b37daaadd37eca76eea624902dca8",
+            16: "af74a36a6beed603b1e60a072fce87058ec3e0d7999b4a887ecb910e3e61cf87",
+            17: "fb068d75287f01941d82bfbe89353db2510025126975942f4ab530dd65771dfa",
+            18: "05cb780fae15ce15786eabadc72ed59d01907b0dec269a397b1f2c4873b8cdcc",
+            19: "5c69c6820ea9489a172b456c29e447a92343e69f561f7cf2c99d75596e55ce40",
+        },
+    }
+    df = pd.DataFrame(customers_dict)
+    return df

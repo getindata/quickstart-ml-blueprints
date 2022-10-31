@@ -25,11 +25,22 @@ def _remove_correlated_features(
     Returns:
         pd.DataFrame: dataframe without correlated features
     """
+    if corr_threshold <= 0 or corr_threshold > 1:
+        logger.error("Correlation threshold should be a float value between (0, 1>")
+        raise ValueError("Correlation threshold should be a float value between (0, 1>")
     # corr for numerical cols
     corr_matrix = df.corr().abs()
+    if corr_matrix.empty:
+        logger.error(
+            "DataFrame contains only non-numeric data, cannot compute correlations"
+        )
+        raise ValueError(
+            "DataFrame contains only non-numeric data, cannot compute correlations"
+        )
+    # fills diagonal with zeros
     np.fill_diagonal(corr_matrix.values, 0)
     # iteration
-    col_list = df.columns.to_list()
+    col_list = corr_matrix.columns.to_list()
     correlated_columns = set()
     non_correlated_columns = set()
     for col in col_list:
@@ -69,7 +80,7 @@ def feature_selection(
     """
     if not feature_selection:
         logger.info(
-            f"feature_selection is {feature_selection} -> not applying any feature selection functions to a dataframe"
+            f"feature_selection is {feature_selection}, not applying any feature selection functions to a dataframe"
         )
         return set(df.columns)
     initial_cols = set(df.columns)

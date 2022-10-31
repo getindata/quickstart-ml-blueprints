@@ -21,9 +21,16 @@ def train_val_split(
     Returns:
         pd.DataFrame: tuple of training and validation dataframes respectively
     """
-    df[date_column] = pd.to_datetime(df[date_column])
+    try:
+        df.loc[:, date_column] = pd.to_datetime(df.loc[:, date_column])
+    except KeyError:
+        logger.error("Given date_column does not exist in df")
+        raise
+    except ValueError:
+        logger.error("Given date_column is not convertible to datetime")
+        raise
     logger.info(f"Dataframe size before splitting: {df.shape}")
-    max_date = df[date_column].max()
+    max_date = df.loc[:, date_column].max()
     logger.info(f"Dataframe min date: {df[date_column].min()}, max date: {max_date}")
     end_train_date = max_date - pd.Timedelta(weeks=no_val_weeks)
     start_train_date = end_train_date - pd.Timedelta(weeks=no_train_weeks)

@@ -4,6 +4,7 @@ from typing import Dict, List, Tuple
 import lightgbm as lgb
 import mlflow
 import mlflow.lightgbm
+import numpy as np
 import optuna
 import pandas as pd
 from optuna.integration.mlflow import MLflowCallback
@@ -14,7 +15,7 @@ from gid_ml_framework.helpers.metrics import map_at_k
 logger = logging.getLogger(__name__)
 
 
-def _prepare_groups_for_ranking(candidates: pd.DataFrame) -> pd.DataFrame:
+def _prepare_groups_for_ranking(candidates: pd.DataFrame) -> np.array:
     """Prepares 'group' for LightGBM dataset. For learning to rank tasks, it is required.
     https://lightgbm.readthedocs.io/en/latest/Parameters.html#query-data
 
@@ -22,7 +23,7 @@ def _prepare_groups_for_ranking(candidates: pd.DataFrame) -> pd.DataFrame:
         candidates (pd.DataFrame): candidates
 
     Returns:
-        pd.DataFrame: groups
+        np.array: groups
     """
     candidates_group = candidates[["customer_id", "article_id"]]
     candidates_group = candidates_group.groupby(["customer_id"]).size().values
