@@ -1,0 +1,124 @@
+# Configuration used to run the pipeline
+project_id: gid-ml-framework
+region: europe-west4
+run_config:
+  # Name of the image to run as the pipeline steps
+  image: europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-hm-data/gid-ml-framework:latest
+
+  # Pull policy to be used for the steps. Use Always if you push the images
+  # on the same tag, or Never if you use only local images
+  image_pull_policy: Always
+
+  # Location of Vertex AI GCS root
+  root: gid-ml-framework-hm-data/temp
+
+  # Prefix of Vertex AI pipeline run
+  experiment_name: gid-ml-framework-hm-data
+
+  # Name of the scheduled run, templated with the schedule parameters
+  scheduled_run_name: gid-ml-framework-hm-data
+
+  run_name: gid-ml-framework-hm-data-${run_id}
+
+  # Optional service account to run vertex AI Pipeline with
+  # service_account: iap-accessor@gid-advanced-analytics-infra.iam.gserviceaccount.com
+
+  # Optional pipeline description
+  # description: "Very Important Pipeline"
+
+  # How long to keep underlying Argo workflow (together with pods and data
+  # volume after pipeline finishes) [in seconds]. Default: 1 week
+  ttl: 604800
+
+  # Optional network configuration
+  # network:
+
+    # Name of the vpc to use for running Vertex Pipeline
+    # vpc: my-vpc
+
+    # Hosts aliases to be placed in /etc/hosts when pipeline is executed
+    # host_aliases:
+    #  - ip: 127.0.0.1
+    #    hostnames:
+    #     - me.local
+
+  # What Kedro pipeline should be run as the last step regardless of the
+  # pipeline status. Used to send notifications or raise the alerts
+  # on_exit_pipeline: notify_via_slack
+
+  # Optional section allowing adjustment of the resources, reservations and limits
+  # for the nodes. When not provided they're set to 500m cpu and 1024Mi memory.
+  # If you don't want to specify pipeline resources set both to None in __default__.
+  resources:
+    # Default settings for the nodes
+    __default__:
+      cpu: 1
+      memory: 1Gi
+
+    # # most compute intensive nodes
+    # candidates-feature-engineering-apply-avg-jaccard-similarity:
+    #   cpu: 24
+    #   memory: 64Gi
+
+    # candidates-feature-engineering-apply-cosine-similarity-text-node:
+    #   cpu: 24
+    #   memory: 64Gi
+   
+    # closest-text-embeddings-candidate-generation-closest-text-embeddings-node:
+    #   cpu: 16
+    #   memory: 32Gi
+
+    # most memory intensive nodes
+    merge-candidate-features-add-label-node:
+      cpu: 8
+      memory: 32Gi
+
+    merge-candidate-features-add-article-features-node:
+      cpu: 8
+      memory: 64Gi
+
+    merge-candidate-features-add-customer-features-node:
+      cpu: 16
+      memory: 128Gi
+
+    merge-candidate-features-add-dict-features-node:
+      cpu: 16
+      memory: 200Gi
+
+    # train-ranking-train-val-split-node:
+    #   cpu: 16
+    #   memory: 128Gi
+
+    # train-ranking-train-single-model-node:
+    #   cpu: 16
+    #   memory: 128Gi
+
+    # train-optuna-ranking-train-val-split-node:
+    #   cpu: 16
+    #   memory: 128Gi
+
+    # train-optuna-ranking-train-optuna-model-node:
+    #   cpu: 16
+    #   memory: 128Gi
+
+    generate-predictions-generate-predictions-node:
+      cpu: 16
+      memory: 256Gi
+
+  # Optional section allowing to generate config files at runtime,
+  # useful e.g. when you need to obtain credentials dynamically and store them in credentials.yaml
+  # but the credentials need to be refreshed per-node
+  # (which in case of Vertex AI would be a separate container / machine)
+  # Example:
+  # dynamic_config_providers:
+  #   - cls: kedro_vertexai.auth.gcp.MLFlowGoogleIAMCredentialsProvider
+  #     params:
+  #       client_id: 260364966542-721p48q045h4o2hmsmg5dl0gksm7udiu.apps.googleusercontent.com
+  #       service_account: iap-accessor@gid-advanced-analytics-infra.iam.gserviceaccount.com
+  dynamic_config_providers: []
+
+  # MLflow IAM authorization
+  mlflow:
+    request_header_provider_params:
+      client_id: 260364966542-721p48q045h4o2hmsmg5dl0gksm7udiu.apps.googleusercontent.com
+      service_account: iap-accessor@gid-advanced-analytics-infra.iam.gserviceaccount.com

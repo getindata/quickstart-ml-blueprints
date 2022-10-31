@@ -1,0 +1,79 @@
+[tool.kedro]
+package_name = "gid_ml_framework"
+project_name = "GetInData ML Framework"
+project_version = "0.18.2"
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+known_third_party = "kedro"
+
+[tool.pytest.ini_options]
+addopts = """
+--cov-report term-missing \
+--cov src/gid_ml_framework -ra"""
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
+
+[tool.poetry]
+name = "gid-ml-framework"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "3.8.12"
+kedro = {version = "0.18.2", extras = ["pandas.ExcelDataSet", "pandas.ParquetDataSet", "pandas.CSVDataSet"]}
+kedro-mlflow = "0.11.2"
+kedro-telemetry = "0.2.1"
+matplotlib = "3.5.2"
+openpyxl = "^3.0.6"
+scikit-learn = "~=1.0"
+pytorch-lightning = "1.6.5"
+Pillow = "^9.2.0"
+pyarrow = "^6.0.1"
+pip = "^22.1.2"
+sentence-transformers = "^2.2.2"
+featuretools = "^1.12.1"
+lightgbm = "^3.3.2"
+kedro-vertexai = "0.7.0"
+kedro-docker = "0.3.0"
+google-cloud-aiplatform = "1.15.0"
+optuna = "^3.0.0"
+torch = "1.12.1"
+torchaudio = "0.12.1"
+torchvision = "0.13.1"
+conda-lock = "^1.1.1"
+pathy = "^0.6.2"
+jupyter = "^1.0.0"
+
+[tool.poetry.dev-dependencies]
+black = "21.5b1"
+flake8 = "^3.7.9"
+ipython = "^7.31.1"
+isort = "~=5.0"
+jupyter = "~=1.0"
+jupyter-client = ">=5.1,<7.0"
+jupyterlab = "~=3.0"
+kedro-viz = "5.0.1"
+nbstripout = "~=0.4"
+pandas-profiling = "^3.2.0"
+pytest = "~=6.2"
+pytest-cov = "~=3.0"
+pytest-mock = "^1.7.1"
+scikit-learn = "~=1.0"
+pre-commit = "^2.20.0"
+poethepoet = "^0.16.1"
+
+[tool.poe.tasks]
+force-torch = "python -m pip install --upgrade torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
