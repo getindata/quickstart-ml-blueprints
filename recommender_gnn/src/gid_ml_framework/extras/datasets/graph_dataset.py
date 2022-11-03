@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from kedro.io import AbstractDataSet
 from kedro.io.core import get_protocol_and_path
@@ -38,7 +38,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
             save_args: Additional arguments to kedro AbstractDataSet saving function
             load_args: Additional arguments to kedro AbstractDataSet loading function
         """
-        self._dir = Pathy(dir) if dir[0:5] == "gs://" else Path(dir)
+        self._dir = _create_path_obj(dir)
         protocol, _ = get_protocol_and_path(dir)
         self._protocol = protocol
 
@@ -57,23 +57,18 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
 
     def _save(self, data: List) -> None:
         file_extension = self._save_args.get("file_extension")
-
         save_path = self._dir
-        if save_path.exists():
-            logger.warning("Directory already exists, it may be not empty!")
-        else:
-            logger.info(f"Creating new directory: {save_path}")
-            save_path.mkdir(parents=True, exist_ok=True)
         if data:
             for row in data:
                 if row:
                     user, item_number, graph, graph_dict = row
                     save_dir = os.path.join(save_path, str(user))
+                    save_dir_object = _create_path_obj(save_dir)
+                    _create_parent_dirs(save_dir_object)
                     file_name = "_".join([str(user), str(item_number)])
                     save_filepath = os.path.join(
                         save_dir, f"{file_name}.{file_extension}"
                     )
-                    _create_parent_dir(save_filepath)
                     logger.info(f"Saving graph here: {save_filepath}")
                     save_graphs_python(save_filepath, graph, graph_dict)
 
@@ -82,6 +77,14 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
         return dict(filepath=self._dir, protocol=self._protocol)
 
 
-def _create_parent_dir(path: str) -> None:
-    path_object = Pathy(path) if path[0:5] == "gs://" else Path(path)
-    path_object.parent.mkdir(parents=True, exist_ok=True)
+def _create_path_obj(path: str) -> Union[Pathy, Path]:
+    path_obj = Pathy(path) if path[0:5] == "gs://" else Path(path)
+    return path_obj
+
+
+def _create_parent_dirs(path: str) -> None:
+    if path.exists():
+        logger.warning("Directory already exists, it may be not empty!")
+    else:
+        logger.info(f"Creating new directory: {path}")
+        path.mkdir(parents=True, exist_ok=True)

@@ -12,12 +12,14 @@ import numpy as np
 import pandas as pd
 import torch
 from dgl import DGLHeteroGraph
+from google.cloud import storage
 from torch.utils.data import Dataset
 
 
 def load_graphs_python(graph_dir: str) -> List:
     """Load heterpgraphs from a given path using only Python functions instead of dgl C implementation"""
-    data = pickle_loader(graph_dir)
+    with open(graph_dir, "rb") as f:
+        data = pickle.load(f)
     return data
 
 
@@ -34,8 +36,13 @@ def save_graphs_python(
         [type(g) == DGLHeteroGraph for g in graph]
     ), "Invalid DGLHeteroGraph in graph argument"
     gdata_list = [[g, graph_dict[i]] for i, g in enumerate(graph)]
-    with open(save_filepath, "wb") as file:
-        pickle.dump(gdata_list, file, protocol=-1)
+    path_object = Path(save_filepath)
+    path_parts = path_object.parts
+    if path_parts[0] == "gs:":
+        save_to_bucket(path_parts, gdata_list)
+    else:
+        with open(save_filepath, "wb") as file:
+            pickle.dump(gdata_list, file, protocol=-1)
 
 
 class SubGraphsDataset(Dataset):
@@ -56,10 +63,15 @@ class SubGraphsDataset(Dataset):
         return self.size
 
 
-def pickle_loader(path: str) -> Any:
-    with open(path, "rb") as f:
-        pickle_object = pickle.load(f)
-    return pickle_object
+def save_to_bucket(path_parts: List[str], gdata_list: List) -> None:
+    """Save graph files as pickle to Google Cloud Storage bucket"""
+    storage_client = storage.Client()
+    bucket_name = path_parts[1]
+    bucket = storage_client.bucket(bucket_name)
+    blob_name = Path(*path_parts[2:])
+    blob = bucket.blob(blob_name)
+    pickle_out = pickle.dumps(gdata_list, protocol=-1)
+    blob.upload_from_string(pickle_out)
 
 
 def select(all_items: List, user_items: List) -> np.array:
