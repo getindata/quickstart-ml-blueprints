@@ -1,4 +1,4 @@
-name: gid_ml_framework
+name: gnns
 channels:
   - pytorch
   - dglteam

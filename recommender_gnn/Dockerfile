@@ -33,27 +33,24 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$PATH:${HOME}/.local/bin"
 RUN poetry config virtualenvs.create false
 
-# conda and poetry setup
-COPY environment.yml virtual-packages.yml ./
-RUN conda create -n temp -c conda-forge mamba conda-lock poetry='1.*' python='3.8.12' && conda clean -afy
-SHELL ["conda", "run", "-n", "temp", "/bin/bash", "-c"]
-RUN conda-lock -k explicit --conda mamba
-SHELL ["/bin/bash", "-c"]
-RUN conda env remove -n temp
-
 # requirements, we can consider using conda-pack tool with multi-stage builds for smaller image size
+SHELL ["/bin/bash", "-c"]
+COPY environment.yml virtual-packages.yml ./
 COPY conda-linux-64.lock ./
 RUN conda create --name gnns --file conda-linux-64.lock && conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
     && find /opt/conda/ -follow -type f -name '*.js.map' -delete
-SHELL ["conda", "run", "-n", "gnns", "/bin/bash", "-c"]
 COPY pyproject.toml poetry.lock ./
+SHELL ["conda", "run", "-n", "gnns", "/bin/bash", "-c"]
 RUN poetry install && rm -rf ${HOME}/.cache/pypoetry
 
+ENV PATH /opt/conda/envs/gnns/bin:$PATH
+ENV CONDA_DEFAULT_ENV gnns
+
 COPY . .
-    
-ENV PATH /opt/conda/envs/gid_ml_framework/bin:$PATH
-ENV CONDA_DEFAULT_ENV gid_ml_framework
+
+ENV PATH /opt/conda/envs/gnns/bin:$PATH
+ENV CONDA_DEFAULT_ENV gnns
 
 CMD ["kedro", "run", "-p", "santander_e2e"]
