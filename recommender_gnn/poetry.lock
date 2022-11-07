@@ -469,7 +469,7 @@ pkginfo = ">=1.4"
 pydantic = ">=1.8.1"
 pyyaml = ">=5.1"
 requests = ">=2.18"
-ruamel-yaml = "*"
+"ruamel.yaml" = "*"
 tomli = {version = "*", markers = "python_version < \"3.11\""}
 tomlkit = ">=0.7.0"
 toolz = ">=0.12.0,<1.0.0"
@@ -1654,8 +1654,8 @@ requests = "*"
 
 [package.extras]
 docs = ["autodoc-traits", "docutils (<0.19)", "jinja2 (<3.1.0)", "mistune (<1)", "myst-parser", "pydata-sphinx-theme", "sphinx", "sphinx-copybutton", "sphinxcontrib-openapi"]
-openapi = ["openapi-core (>=0.14.2)", "ruamel-yaml"]
-test = ["codecov", "ipykernel", "jupyter-server[test]", "openapi-core (>=0.14.2,<0.15.0)", "openapi-spec-validator (<0.5)", "pytest (>=7.0)", "pytest-console-scripts", "pytest-cov", "ruamel-yaml", "strict-rfc3339"]
+openapi = ["openapi-core (>=0.14.2)", "ruamel.yaml"]
+test = ["codecov", "ipykernel", "jupyter-server[test]", "openapi-core (>=0.14.2,<0.15.0)", "openapi-spec-validator (<0.5)", "pytest (>=7.0)", "pytest-console-scripts", "pytest-cov", "ruamel.yaml", "strict-rfc3339"]
 
 [[package]]
 name = "jupyterlab-widgets"

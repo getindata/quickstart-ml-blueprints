@@ -3,7 +3,7 @@ project_id: gid-ml-framework
 region: europe-west4
 run_config:
   # Name of the image to run as the pipeline steps
-  image: europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework:latest
+  image: europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/recommender_gnn:latest
 
   # Pull policy to be used for the steps. Use Always if you push the images
   # on the same tag, or Never if you use only local images
@@ -35,12 +35,19 @@ run_config:
     # Default settings for the nodes
     __default__:
       cpu: 1
-      memory: 1Gi
+      memory: 16Gi
 
     # # Training nodes can utilize more than one CPU if the algorithm
     # # supports it
-    santander_dgsr_kaggle_gr.train_model_node:
+    graph-recommendation-train-model-node:
       nvidia.com/gpu: 1
+      cpu: 8
+      memory: 32Gi
+
+    graph-recommendation-modeling-preprocess-node:
+      cpu: 8
+      memory: 32Gi
+
 
 
   # Optional section allowing to generate config files at runtime,

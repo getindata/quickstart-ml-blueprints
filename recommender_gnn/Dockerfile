@@ -32,14 +32,12 @@ ENV POETRY_VERSION=1.2.0
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$PATH:${HOME}/.local/bin"
 RUN poetry config virtualenvs.create false
-COPY pyproject.toml poetry.lock ./
 
 # conda and poetry setup
 COPY environment.yml virtual-packages.yml ./
 RUN conda create -n temp -c conda-forge mamba conda-lock poetry='1.*' python='3.8.12' && conda clean -afy
 SHELL ["conda", "run", "-n", "temp", "/bin/bash", "-c"]
 RUN conda-lock -k explicit --conda mamba
-RUN poetry add --lock torch=1.12.1 torchaudio=0.12.1 torchvision=0.13.1 conda-lock
 SHELL ["/bin/bash", "-c"]
 RUN conda env remove -n temp
 
@@ -50,7 +48,7 @@ RUN conda create --name gnns --file conda-linux-64.lock && conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
     && find /opt/conda/ -follow -type f -name '*.js.map' -delete
 SHELL ["conda", "run", "-n", "gnns", "/bin/bash", "-c"]
-RUN poetry lock
+COPY pyproject.toml poetry.lock ./
 RUN poetry install && rm -rf ${HOME}/.cache/pypoetry
 
 COPY . .

@@ -1,21 +1,25 @@
 build:
 	@ echo "building docker image"
-	kedro docker build --docker-args '--platform=linux/amd64 --network=host'
-
-push-tag:
-	@ echo "tagging & pushing docker image"
-	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
-	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
-
-push:
-	@ echo "pushing docker image to gcp"
-	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework:latest
+	kedro docker build --docker-args '--network=host'
 
 tag:
 	@ echo "tagging docker image"
-	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework
+	docker tag recommender_gnn:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/recommender_gnn
 
-generate_token:
+push:
+	@ echo "pushing docker image to gcp"
+	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/recommender_gnn:latest
+
+tag-push:
+	@ echo "tagging & pushing docker image"
+	docker tag recommender_gnn:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/recommender_gnn
+	docker push europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/recommender_gnn:latest
+
+run:
+	@ echo "run pipeline"
+	kedro vertexai -e cloud run-once -p santander_dgsr_kaggle_grm
+
+generate-token:
 	@ echo "generating identity token"
 	gcloud auth print-identity-token \
     --impersonate-service-account="iap-accessor@gid-advanced-analytics-infra.iam.gserviceaccount.com" \
