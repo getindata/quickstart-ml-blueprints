@@ -43,7 +43,7 @@ jupyter = "^1.0.0"
 torch = "1.12.1"
 torchaudio = "0.12.1"
 torchvision = "0.13.1"
-conda-lock = "^1.2.1"
+setuptools = "^63.1.0"
 
 [tool.poetry.dev-dependencies]
 black = "21.5b1"

@@ -32,9 +32,9 @@ ENV POETRY_VERSION=1.2.0
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$PATH:${HOME}/.local/bin"
 RUN poetry config virtualenvs.create false
+RUN pip install pip==22.1.2 setuptools==63.1.0
 
 # requirements, we can consider using conda-pack tool with multi-stage builds for smaller image size
-SHELL ["/bin/bash", "-c"]
 COPY environment.yml virtual-packages.yml ./
 COPY conda-linux-64.lock ./
 RUN conda create --name gnns --file conda-linux-64.lock && conda clean -afy \
