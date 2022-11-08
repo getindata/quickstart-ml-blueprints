@@ -9,6 +9,7 @@ from pathy import Pathy
 
 from recommender_gnn.extras.graph_utils.dgsr_utils import (
     SubGraphsDataset,
+    create_graphs_list,
     load_graphs_python,
     save_graphs_python,
 )
@@ -39,6 +40,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
             load_args: Additional arguments to kedro AbstractDataSet loading function
         """
         self._dir = _create_path_obj(dir)
+        _create_parent_dirs(self._dir)
         protocol, _ = get_protocol_and_path(dir)
         self._protocol = protocol
 
@@ -57,20 +59,17 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
 
     def _save(self, data: List) -> None:
         file_extension = self._save_args.get("file_extension")
-        save_path = self._dir
+        graphs_collection = {}
         if data:
             for row in data:
                 if row:
                     user, item_number, graph, graph_dict = row
-                    save_dir = os.path.join(save_path, str(user))
-                    save_dir_object = _create_path_obj(save_dir)
-                    _create_parent_dirs(save_dir_object)
-                    file_name = "_".join([str(user), str(item_number)])
-                    save_filepath = os.path.join(
-                        save_dir, f"{file_name}.{file_extension}"
-                    )
-                    logger.info(f"Saving graph here: {save_filepath}")
-                    save_graphs_python(save_filepath, graph, graph_dict)
+                    graph_id = "_".join([str(user), str(item_number)])
+                    graphs_list = create_graphs_list(graph, graph_dict)
+                    graphs_collection[graph_id] = graphs_list
+        save_filepath = os.path.join(self._dir, f"graphs.{file_extension}")
+        logger.info(f"Saving graphs here: {self._dir}")
+        save_graphs_python(save_filepath, graphs_collection)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""

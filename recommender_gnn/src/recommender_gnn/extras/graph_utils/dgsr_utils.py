@@ -5,7 +5,7 @@ import os
 import pickle
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import dgl
 import numpy as np
@@ -23,10 +23,20 @@ def load_graphs_python(graph_dir: str) -> List:
     return data
 
 
-def save_graphs_python(
-    save_filepath: str, graph: dgl.DGLGraph, graph_dict: Dict
-) -> None:
+def save_graphs_python(save_filepath: str, graphs_dict: Dict[str, List]) -> None:
     """Save heterographs into file using only Python functions instead of dgl C implementation"""
+    path_object = Path(save_filepath)
+    path_parts = path_object.parts
+    if path_parts[0] == "gs:":
+        save_to_bucket(path_parts, graphs_dict)
+    else:
+        with open(save_filepath, "wb") as file:
+            pickle.dump(graphs_dict, file, protocol=-1)
+
+
+def create_graphs_list(
+    graph: dgl.DGLGraph, graph_dict: Dict
+) -> List[Union[dgl.DGLGraph, Dict]]:
     if graph_dict is None:
         graph_dict = {}
     if isinstance(graph, DGLHeteroGraph):
@@ -36,13 +46,7 @@ def save_graphs_python(
         [type(g) == DGLHeteroGraph for g in graph]
     ), "Invalid DGLHeteroGraph in graph argument"
     gdata_list = [[g, graph_dict[i]] for i, g in enumerate(graph)]
-    path_object = Path(save_filepath)
-    path_parts = path_object.parts
-    if path_parts[0] == "gs:":
-        save_to_bucket(path_parts, gdata_list)
-    else:
-        with open(save_filepath, "wb") as file:
-            pickle.dump(gdata_list, file, protocol=-1)
+    return gdata_list
 
 
 class SubGraphsDataset(Dataset):
@@ -50,14 +54,15 @@ class SubGraphsDataset(Dataset):
 
     def __init__(self, root_dir, loader):
         self.root = root_dir
-        self.loader = loader
-        self.dir_list = load_data(root_dir)
-        self.size = len(self.dir_list)
+        graphs_collection_path = os.path.join(root_dir, "graphs.bin")
+        self.graphs_collection = loader(graphs_collection_path)
+        self.keys = list(self.graphs_collection.keys())
+        self.size = len(self.keys)
 
     def __getitem__(self, index):
-        dir_ = self.dir_list[index]
-        data = self.loader(dir_)
-        return data, dir_
+        key = self.keys[index]
+        data = self.graphs_collection.get(key, None)
+        return data, key
 
     def __len__(self):
         return self.size
