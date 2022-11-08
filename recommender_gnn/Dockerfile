@@ -28,10 +28,11 @@ RUN conda update -y conda
 ENV CONDA_ALWAYS_YES="true"
 
 # poetry install
-ENV POETRY_VERSION=1.2.0
+ENV POETRY_VERSION=1.2.1
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$PATH:${HOME}/.local/bin"
 RUN poetry config virtualenvs.create false
+COPY pyproject.toml poetry.lock ./
 RUN pip install pip==22.1.2 setuptools==63.1.0
 
 # requirements, we can consider using conda-pack tool with multi-stage builds for smaller image size
@@ -41,12 +42,8 @@ RUN conda create --name gnns --file conda-linux-64.lock && conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
     && find /opt/conda/ -follow -type f -name '*.js.map' -delete
-COPY pyproject.toml poetry.lock ./
 SHELL ["conda", "run", "-n", "gnns", "/bin/bash", "-c"]
 RUN poetry install && rm -rf ${HOME}/.cache/pypoetry
-
-ENV PATH /opt/conda/envs/gnns/bin:$PATH
-ENV CONDA_DEFAULT_ENV gnns
 
 COPY . .
 
