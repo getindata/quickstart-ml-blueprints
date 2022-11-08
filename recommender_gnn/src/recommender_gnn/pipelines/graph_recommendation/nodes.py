@@ -11,13 +11,13 @@ from mlflow import MlflowClient
 from pytorch_lightning.utilities.seed import seed_everything
 from torch.utils.data import DataLoader
 
-from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
-from gid_ml_framework.extras.graph_utils.dgsr_utils import (
+from recommender_gnn.extras.datasets.chunks_dataset import _concat_chunks
+from recommender_gnn.extras.graph_utils.dgsr_utils import (
     SubGraphsDataset,
     collate,
     collate_test,
 )
-from gid_ml_framework.gnn_models.recommendation.dgsr import DGSR
+from recommender_gnn.gnn_models.recommendation.dgsr import DGSR
 
 pd.options.mode.chained_assignment = None
 logger = logging.getLogger(__name__)

@@ -15,7 +15,7 @@ from kedro.framework.context import KedroContext
 
 @pytest.fixture
 def project_context():
-    return KedroContext(package_name="gid_ml_framework", project_path=Path.cwd())
+    return KedroContext(package_name="recommender_gnn", project_path=Path.cwd())
 
 
 # The tests below are here for the demonstration purpose
@@ -23,4 +23,4 @@ def project_context():
 # functionality
 class TestProjectContext:
     def test_package_name(self, project_context):
-        assert project_context.package_name == "gid_ml_framework"
+        assert project_context.package_name == "recommender_gnn"

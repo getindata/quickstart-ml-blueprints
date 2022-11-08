@@ -4,7 +4,7 @@ from typing import Iterator, Tuple
 
 import pandas as pd
 
-from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
+from recommender_gnn.extras.datasets.chunks_dataset import _concat_chunks
 
 pd.options.mode.chained_assignment = None
 log = logging.getLogger(__name__)

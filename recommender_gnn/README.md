@@ -46,7 +46,7 @@ You may also specify a full path to your Python version
 
 To initialise a pre-populated directory do the following:
 ```
-cd gid-ml-framework
+cd recommender-gnn
 poetry init
 ```
 
@@ -89,8 +89,8 @@ conda env remove -n temp
 Create new conda environment and install poetry dependencies:
 
 ```
-conda create --name gid_ml_framework --file conda-linux-64.lock && conda clean -afy
-conda activate gid_ml_framework
+conda create --name recommender_gnn --file conda-linux-64.lock && conda clean -afy
+conda activate recommender_gnn
 poetry install
 ```
 

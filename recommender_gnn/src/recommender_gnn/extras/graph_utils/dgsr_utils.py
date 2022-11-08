@@ -69,7 +69,7 @@ def save_to_bucket(path_parts: List[str], gdata_list: List) -> None:
     bucket_name = path_parts[1]
     bucket = storage_client.bucket(bucket_name)
     blob_name = Path(*path_parts[2:])
-    blob = bucket.blob(blob_name)
+    blob = bucket.blob(str(blob_name))
     pickle_out = pickle.dumps(gdata_list, protocol=-1)
     blob.upload_from_string(pickle_out)
 

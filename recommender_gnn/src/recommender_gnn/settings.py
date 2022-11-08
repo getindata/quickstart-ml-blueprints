@@ -4,7 +4,7 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 
 # flake8: noqa
 # # Instantiated project hooks.
-# from gid_ml_framework.hooks import ProjectHooks
+# from recommender_gnn.hooks import ProjectHooks
 # HOOKS = (ProjectHooks(), )
 
 DISABLE_HOOKS_FOR_PLUGINS = ("kedro-mlflow",)

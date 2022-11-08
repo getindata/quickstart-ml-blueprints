@@ -123,19 +123,19 @@ hm_dgsr_train_val_test_negative_transactions_samples:
     low_memory: False
 
 hm_dgsr_train_val_test_train_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
   dir: data/05_model_input/hm/hm_dgsr_train_val_test_train_graphs
   load_args:
     file_extension: bin
 
 hm_dgsr_train_val_test_val_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
   dir: data/05_model_input/hm/hm_dgsr_train_val_test_val_graphs
   load_args:
     file_extension: bin
 
 hm_dgsr_train_val_test_test_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
   dir: data/05_model_input/hm/hm_dgsr_train_val_test_test_graphs
   load_args:
     file_extension: bin
@@ -156,7 +156,7 @@ hm_dgsr_only_train_negative_transactions_samples:
     low_memory: False
 
 hm_dgsr_only_train_train_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
   dir: data/05_model_input/hm/hm_dgsr_only_train_train_graphs
   load_args:
     file_extension: bin

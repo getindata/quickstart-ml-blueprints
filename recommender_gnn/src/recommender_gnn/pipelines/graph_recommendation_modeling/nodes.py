@@ -9,8 +9,8 @@ import torch
 from dgl.sampling import select_topk
 from joblib import Parallel, delayed
 
-from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
-from gid_ml_framework.extras.graph_utils.dgsr_utils import user_neg
+from recommender_gnn.extras.datasets.chunks_dataset import _concat_chunks
+from recommender_gnn.extras.graph_utils.dgsr_utils import user_neg
 
 pd.options.mode.chained_assignment = None
 logger = logging.getLogger(__name__)

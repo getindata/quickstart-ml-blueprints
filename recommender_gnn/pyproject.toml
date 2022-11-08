@@ -1,5 +1,5 @@
 [tool.kedro]
-package_name = "gid_ml_framework"
+package_name = "recommender_gnn"
 project_name = "GetInData ML Framework"
 project_version = "0.18.2"
 
@@ -14,7 +14,7 @@ known_third_party = "kedro"
 [tool.pytest.ini_options]
 addopts = """
 --cov-report term-missing \
---cov src/gid_ml_framework -ra"""
+--cov src/recommender_gnn -ra"""
 
 [tool.coverage.report]
 fail_under = 0
@@ -22,7 +22,7 @@ show_missing = true
 exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
 
 [tool.poetry]
-name = "gid-ml-framework"
+name = "recommender-gnn"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]

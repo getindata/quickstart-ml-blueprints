@@ -3,14 +3,12 @@ from typing import Dict
 
 from kedro.pipeline import Pipeline
 
-from gid_ml_framework.pipelines import graph_recommendation as gr
-from gid_ml_framework.pipelines import graph_recommendation_modeling as grm
-from gid_ml_framework.pipelines import (
-    graph_recommendation_preprocessing as grp,
-)
-from gid_ml_framework.pipelines import kaggle_submission as ks
-from gid_ml_framework.pipelines import santander_preprocessing as sp
-from gid_ml_framework.pipelines import santander_to_act as sta
+from recommender_gnn.pipelines import graph_recommendation as gr
+from recommender_gnn.pipelines import graph_recommendation_modeling as grm
+from recommender_gnn.pipelines import graph_recommendation_preprocessing as grp
+from recommender_gnn.pipelines import kaggle_submission as ks
+from recommender_gnn.pipelines import santander_preprocessing as sp
+from recommender_gnn.pipelines import santander_to_act as sta
 
 
 def register_pipelines() -> Dict[str, Pipeline]:

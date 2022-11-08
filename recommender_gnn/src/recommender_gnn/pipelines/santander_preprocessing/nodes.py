@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from gid_ml_framework.extras.datasets.chunks_dataset import _concat_chunks
+from recommender_gnn.extras.datasets.chunks_dataset import _concat_chunks
 
 pd.options.mode.chained_assignment = None
 logger = logging.getLogger(__name__)

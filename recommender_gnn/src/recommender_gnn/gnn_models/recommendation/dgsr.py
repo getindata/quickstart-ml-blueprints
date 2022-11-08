@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from gid_ml_framework.extras.graph_utils.dgsr_utils import (
+from recommender_gnn.extras.graph_utils.dgsr_utils import (
     eval_metric,
     graph_item,
     graph_user,

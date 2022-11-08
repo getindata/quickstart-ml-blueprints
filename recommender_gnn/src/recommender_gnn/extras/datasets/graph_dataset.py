@@ -7,7 +7,7 @@ from kedro.io import AbstractDataSet
 from kedro.io.core import get_protocol_and_path
 from pathy import Pathy
 
-from gid_ml_framework.extras.graph_utils.dgsr_utils import (
+from recommender_gnn.extras.graph_utils.dgsr_utils import (
     SubGraphsDataset,
     load_graphs_python,
     save_graphs_python,

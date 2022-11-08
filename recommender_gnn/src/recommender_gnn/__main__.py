@@ -1,5 +1,5 @@
 """GetInData ML Framework file for ensuring the package is executable
-as `gid-ml-framework` and `python -m gid_ml_framework`
+as `recommender-gnn` and `python -m recommender_gnn`
 """
 import importlib
 from pathlib import Path

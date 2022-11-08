@@ -336,28 +336,28 @@ santander_dgsr_kaggle_grm_negative_transactions_samples:
   layer: primary
 
 santander_dgsr_kaggle_grm_train_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
   dir: gs://gid-ml-framework-data/05_model_input/santander/santander_dgsr_kaggle_grm_train_graphs
   layer: model_input
   save_args:
     file_extension: bin
 
 santander_dgsr_kaggle_grm_val_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
   dir: gs://gid-ml-framework-data/05_model_input/santander/santander_dgsr_kaggle_grm_val_graphs
   layer: model_input
   save_args:
     file_extension: bin
 
 santander_dgsr_kaggle_grm_test_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
   dir: gs://gid-ml-framework-data/05_model_input/santander/santander_dgsr_kaggle_grm_test_graphs
   layer: model_input
   save_args:
     file_extension: bin
 
 santander_dgsr_kaggle_grm_predict_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
   dir: gs://gid-ml-framework-data/05_model_input/santander/santander_dgsr_kaggle_grm_predict_graphs
   layer: model_input
   save_args:
