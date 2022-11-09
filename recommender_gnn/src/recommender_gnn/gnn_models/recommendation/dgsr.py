@@ -8,8 +8,7 @@ import torch.optim as optim
 
 from recommender_gnn.extras.graph_utils.dgsr_utils import (
     eval_metric,
-    graph_item,
-    graph_user,
+    generate_embedding,
 )
 
 
@@ -99,9 +98,13 @@ class DGSR(pl.LightningModule):
         if self.layer_num > 0:
             for conv in self.layers:
                 feat_dict = conv(g, feat_dict)
-                user_layer.append(graph_user(g, user_index, feat_dict["user"]))
+                user_layer.append(
+                    generate_embedding(g, user_index, feat_dict["user"]), "user"
+                )
             if self.last_item:
-                item_embed = graph_item(g, last_item_index, feat_dict["item"])
+                item_embed = generate_embedding(
+                    g, last_item_index, feat_dict["item"], "item"
+                )
                 user_layer.append(item_embed)
         unified_embedding = self.unified_map(torch.cat(user_layer, -1))
         score = torch.matmul(

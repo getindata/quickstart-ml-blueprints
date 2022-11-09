@@ -5,7 +5,7 @@ import os
 import pickle
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import dgl
 import numpy as np
@@ -13,22 +13,26 @@ import pandas as pd
 import torch
 from dgl import DGLHeteroGraph
 from google.cloud import storage
+from google.cloud.storage import Blob
 from torch.utils.data import Dataset
 
 
-def load_graphs_python(graph_dir: str) -> List:
+def load_graphs_python(load_filepath: str) -> Dict[str, List]:
     """Load heterpgraphs from a given path using only Python functions instead of dgl C implementation"""
-    with open(graph_dir, "rb") as f:
-        data = pickle.load(f)
+    path_parts = split_path(load_filepath)
+    if path_parts[0] == "gs:":
+        load_graphs_from_bucket(path_parts)
+    else:
+        with open(load_filepath, "rb") as f:
+            data = pickle.load(f)
     return data
 
 
 def save_graphs_python(save_filepath: str, graphs_dict: Dict[str, List]) -> None:
     """Save heterographs into file using only Python functions instead of dgl C implementation"""
-    path_object = Path(save_filepath)
-    path_parts = path_object.parts
+    path_parts = split_path(save_filepath)
     if path_parts[0] == "gs:":
-        save_to_bucket(path_parts, graphs_dict)
+        save_graphs_to_bucket(path_parts, graphs_dict)
     else:
         with open(save_filepath, "wb") as file:
             pickle.dump(graphs_dict, file, protocol=-1)
@@ -68,15 +72,35 @@ class SubGraphsDataset(Dataset):
         return self.size
 
 
-def save_to_bucket(path_parts: List[str], gdata_list: List) -> None:
-    """Save graph files as pickle to Google Cloud Storage bucket"""
+def split_path(file_path: str) -> List[str]:
+    path_object = Path(file_path)
+    path_parts = path_object.parts
+    return path_parts
+
+
+def connect_to_gcs_blob(path_parts: List[str]) -> Blob:
+    """Connects to target file in gcs and returns its blob object"""
     storage_client = storage.Client()
     bucket_name = path_parts[1]
     bucket = storage_client.bucket(bucket_name)
     blob_name = Path(*path_parts[2:])
     blob = bucket.blob(str(blob_name))
+    return blob
+
+
+def save_graphs_to_bucket(path_parts: List[str], gdata_list: List) -> None:
+    """Save graph files as pickle to Google Cloud Storage bucket"""
+    blob = connect_to_gcs_blob(path_parts)
     pickle_out = pickle.dumps(gdata_list, protocol=-1)
     blob.upload_from_string(pickle_out)
+
+
+def load_graphs_from_bucket(path_parts: List[str]) -> Dict[str, List]:
+    """Load graph files as pickle from Google Cloud Storage bucket"""
+    blob = connect_to_gcs_blob(path_parts)
+    pickle_in = blob.download_as_string()
+    graphs_dict = pickle.loads(pickle_in)
+    return graphs_dict
 
 
 def select(all_items: List, user_items: List) -> np.array:
@@ -144,44 +168,15 @@ def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame, item_num: int):
     )
 
 
-def load_data(data_path: str) -> List:
-    """Generate list of all files in a dir"""
-    data_dir = []
-    dir_list = os.listdir(data_path)
-    dir_list.sort()
-    for filename in dir_list:
-        for fil in os.listdir(os.path.join(data_path, filename)):
-            data_dir.append(os.path.join(os.path.join(data_path, filename), fil))
-    return data_dir
-
-
-def trans_to_cuda(variable: Any) -> Any:
-    if torch.cuda.is_available():
-        return variable.cuda()
-    else:
-        return variable
-
-
-def graph_user(
-    bg: dgl.DGLGraph, user_index: int, user_embedding: torch.tensor
+def generate_embedding(
+    batch_graph: dgl.DGLGraph, index: int, embedding: torch.tensor, type: str
 ) -> torch.tensor:
-    """Generates new user embedding after single forward pass"""
-    b_user_size = bg.batch_num_nodes("user")
-    tmp = torch.roll(torch.cumsum(b_user_size, 0), 1)
-    tmp[0] = 0
-    new_user_index = tmp + user_index
-    return user_embedding[new_user_index]
-
-
-def graph_item(
-    bg: dgl.DGLGraph, last_index: int, item_embedding: torch.tensor
-) -> torch.tensor:
-    """Generates new item embedding after single forward pass"""
-    b_item_size = bg.batch_num_nodes("item")
-    tmp = torch.roll(torch.cumsum(b_item_size, 0), 1)
-    tmp[0] = 0
-    new_item_index = tmp + last_index
-    return item_embedding[new_item_index]
+    """Generates new type (item/user) of embedding after single forward pass"""
+    batch_size = batch_graph.batch_num_nodes("type")
+    rolled_batch = torch.roll(torch.cumsum(batch_size, 0), 1)
+    rolled_batch[0] = 0
+    new_index = rolled_batch + index
+    return embedding[new_index]
 
 
 def eval_metric(all_top: List) -> Tuple[float]:
@@ -217,12 +212,6 @@ def eval_metric(all_top: List) -> Tuple[float]:
         np.mean(ndgg10),
         np.mean(ndgg20),
     )
-
-
-def mkdir_if_not_exist(file_name: str) -> None:
-    dir_name = os.path.dirname(file_name)
-    if not os.path.isdir(dir_name):
-        os.makedirs(dir_name)
 
 
 class Logger(object):

@@ -17,7 +17,7 @@ tag-push:
 
 run:
 	@ echo "run pipeline"
-	kedro vertexai -e cloud run-once -p santander_dgsr_kaggle_grm
+	kedro vertexai -e cloud run-once -p santander_dgsr_kaggle_gr
 
 generate-token:
 	@ echo "generating identity token"
