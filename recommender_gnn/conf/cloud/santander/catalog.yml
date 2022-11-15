@@ -389,3 +389,10 @@ santander_submission:
   load_args:
     chunksize: 1000000
     low_memory: False
+
+test_gpu_pickle:
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  layer: model
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: gs://gid-ml-framework-data/06_models/test_gpu.pkl
