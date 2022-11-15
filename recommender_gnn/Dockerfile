@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=nvidia/cuda:11.7.0-cudnn8-devel-ubuntu22.04
+ARG BASE_IMAGE=nvidia/cuda:11.3.0-runtime-ubuntu20.04
 
 FROM $BASE_IMAGE
 
@@ -50,4 +50,4 @@ COPY . .
 ENV PATH /opt/conda/envs/gnns/bin:$PATH
 ENV CONDA_DEFAULT_ENV gnns
 
-CMD ["kedro", "run", "-p", "santander_e2e"]
+CMD ["kedro", "run", "-p", "tg"]
