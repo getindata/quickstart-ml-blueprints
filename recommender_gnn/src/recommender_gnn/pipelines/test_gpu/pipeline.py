@@ -16,6 +16,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=None,
                 outputs="test_gpu_pickle",
                 name="test_gpu_node",
+                tags=["test_tag", "test_tag_2"],
             ),
         ]
     )

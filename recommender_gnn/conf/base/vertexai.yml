@@ -37,16 +37,28 @@ run_config:
       cpu: 1
       memory: 16Gi
 
+    test-gpu-node:
+      gpu: 1
+      cpu: 7.91
+      memory: 26Gi
+
+    test-tag:
+      gpu: 1
+
     # # Training nodes can utilize more than one CPU if the algorithm
     # # supports it
-    graph-recommendation-train-model-node:
-      nvidia.com/gpu: 1
-      cpu: 8
-      memory: 32Gi
+    santander-dgsr-kaggle-gr-train-model-node:
+      gpu: 1
+      cpu: 7.91
+      memory: 26Gi
 
     graph-recommendation-modeling-preprocess-node:
       cpu: 8
       memory: 32Gi
+    
+  node_selectors:
+    test-tag-2:
+      gke_accelerator: NVIDIA_TESLA_T4
 
 
 
