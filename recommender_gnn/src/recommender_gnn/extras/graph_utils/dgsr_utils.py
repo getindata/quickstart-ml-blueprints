@@ -21,11 +21,11 @@ def load_graphs_python(load_filepath: str) -> Dict[str, List]:
     """Load heterpgraphs from a given path using only Python functions instead of dgl C implementation"""
     path_parts = split_path(load_filepath)
     if path_parts[0] == "gs:":
-        load_graphs_from_bucket(path_parts)
+        graphs_dict = load_graphs_from_bucket(path_parts)
     else:
         with open(load_filepath, "rb") as f:
-            data = pickle.load(f)
-    return data
+            graphs_dict = pickle.load(f)
+    return graphs_dict
 
 
 def save_graphs_python(save_filepath: str, graphs_dict: Dict[str, List]) -> None:
