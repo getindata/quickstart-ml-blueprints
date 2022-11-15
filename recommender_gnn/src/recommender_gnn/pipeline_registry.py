@@ -9,6 +9,7 @@ from recommender_gnn.pipelines import graph_recommendation_preprocessing as grp
 from recommender_gnn.pipelines import kaggle_submission as ks
 from recommender_gnn.pipelines import santander_preprocessing as sp
 from recommender_gnn.pipelines import santander_to_act as sta
+from recommender_gnn.pipelines import test_gpu as tg
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -35,6 +36,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
     )
     santander_kaggle_submission = ks.create_pipeline(dataset="santander")
 
+    test_gpu_cuda = tg.create_pipeline()
+
     return {
         "__default__": santander_preprocessing_pipeline,
         "sp": santander_preprocessing_pipeline,
@@ -57,4 +60,5 @@ def register_pipelines() -> Dict[str, Pipeline]:
             + graph_recommendation_santander_dgsr_kaggle_pipeline
             + santander_kaggle_submission
         ),
+        "tg": test_gpu_cuda,
     }
