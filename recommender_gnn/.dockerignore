@@ -25,6 +25,9 @@ results
 !references/.gitkeep
 !results/.gitkeep
 
+# Vertexai custom jobs
+config.yaml
+
 # CUSTOM
 mlruns
 venv

@@ -32,3 +32,4 @@ out/
 .python-version
 
 
+recommender_gnn/pipeline.json
