@@ -99,7 +99,7 @@ class DGSR(pl.LightningModule):
             for conv in self.layers:
                 feat_dict = conv(g, feat_dict)
                 user_layer.append(
-                    generate_embedding(g, user_index, feat_dict["user"]), "user"
+                    generate_embedding(g, user_index, feat_dict["user"], "user"),
                 )
             if self.last_item:
                 item_embed = generate_embedding(

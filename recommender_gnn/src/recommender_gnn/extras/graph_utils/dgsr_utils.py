@@ -169,10 +169,10 @@ def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame, item_num: int):
 
 
 def generate_embedding(
-    batch_graph: dgl.DGLGraph, index: int, embedding: torch.tensor, type: str
+    batch_graph: dgl.DGLGraph, index: int, embedding: torch.tensor, node_type: str
 ) -> torch.tensor:
     """Generates new type (item/user) of embedding after single forward pass"""
-    batch_size = batch_graph.batch_num_nodes("type")
+    batch_size = batch_graph.batch_num_nodes(node_type)
     rolled_batch = torch.roll(torch.cumsum(batch_size, 0), 1)
     rolled_batch[0] = 0
     new_index = rolled_batch + index
