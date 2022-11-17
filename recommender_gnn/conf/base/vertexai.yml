@@ -35,32 +35,20 @@ run_config:
     # Default settings for the nodes
     __default__:
       cpu: 1
-      memory: 16Gi
+      memory: 10Gi
 
-    test-gpu-node:
+    gpu_tag:
       gpu: 1
-      cpu: 7.91
-      memory: 26Gi
-
-    test-tag:
-      gpu: 1
-
-    # # Training nodes can utilize more than one CPU if the algorithm
-    # # supports it
-    santander-dgsr-kaggle-gr-train-model-node:
-      gpu: 1
-      cpu: 7.91
-      memory: 26Gi
-
-    graph-recommendation-modeling-preprocess-node:
       cpu: 8
-      memory: 32Gi
+      memory: 60Gi
+
+    preprocessing_tag:
+      cpu: 8
+      memory: 60Gi
     
   node_selectors:
-    test-tag-2:
-      gke_accelerator: NVIDIA_TESLA_T4
-
-
+    gpu_tag:
+      cloud.google.com/gke-accelerator: NVIDIA_TESLA_T4
 
   # Optional section allowing to generate config files at runtime,
   # useful e.g. when you need to obtain credentials dynamically and store them in credentials.yaml

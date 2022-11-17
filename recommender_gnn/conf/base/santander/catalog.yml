@@ -425,8 +425,6 @@ santander_submission:
     low_memory: False
 
 test_gpu_pickle:
-  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  type: pickle.PickleDataSet
+  filepath: gs://gid-ml-framework-data/06_models/test_gpu.pkl
   layer: model
-  data_set:
-    type: pickle.PickleDataSet
-    filepath: data/06_models/test_gpu.pkl
