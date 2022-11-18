@@ -17,7 +17,7 @@ tag-push:
 
 run-vertex:
 	@ echo "run pipeline"
-	kedro vertexai -e cloud run-once -p tg
+	kedro vertexai -e cloud run-once -p santander_dgsr_kaggle_gr
 
 run:
 	@ echo "run docker image"

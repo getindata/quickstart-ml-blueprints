@@ -398,11 +398,9 @@ santander_dgsr_kaggle_grm_predict_graphs:
     file_extension: bin
 
 santander_dgsr_kaggle_gr_model:
-  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  type: pickle.PickleDataSet
+  filepath: data/06_models/santander/santander_dgsr_kaggle_trained_model.pkl
   layer: model
-  data_set:
-    type: pickle.PickleDataSet
-    filepath: data/06_models/santander/santander_dgsr_kaggle_trained_model.pkl
 
 santander_dgsr_kaggle_gr_predictions:
   type: pandas.CSVDataSet

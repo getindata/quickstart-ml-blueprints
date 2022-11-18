@@ -16,6 +16,7 @@ def create_pipeline(dataset_namespace: str, **kwargs) -> Pipeline:
                 ],
                 outputs="transactions_graph",
                 name="concat_train_val_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=map_users_and_items,

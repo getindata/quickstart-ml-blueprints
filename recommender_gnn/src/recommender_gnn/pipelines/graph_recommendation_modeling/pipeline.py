@@ -42,14 +42,14 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
                     "predict_graphs",
                 ],
                 name="preprocess_node",
-                tags=["preprocess"],
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=sample_negatives_dgsr,
                 inputs="transactions_mapped",
                 outputs="negative_transactions_samples",
                 name="sample_negatives_node",
-                tags=["preprocess"],
+                tags=["preprocessing_tag"],
             ),
         ]
     )

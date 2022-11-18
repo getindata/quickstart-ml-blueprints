@@ -23,36 +23,42 @@ def create_pipeline(**kwargs) -> Pipeline:
                 ],
                 outputs="santander_sample",
                 name="sample_santander_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=filter_santander,
                 inputs="santander_sample",
                 outputs="santander_filtered",
                 name="filter_santander_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=clean_santander,
                 inputs="santander_filtered",
                 outputs="santander_cleaned",
                 name="clean_santander_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=split_santander,
                 inputs="santander_cleaned",
                 outputs=["santander_pre_train", "santander_pre_val"],
                 name="split_santander_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=impute_santander,
                 inputs=["santander_pre_train", "params:impute.test"],
                 outputs="santander_train",
                 name="impute_train_santander_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=impute_santander,
                 inputs=["santander_pre_val", "params:impute.test"],
                 outputs="santander_val",
                 name="impute_val_santander_node",
+                tags=["preprocessing_tag"],
             ),
         ]
     )
@@ -69,24 +75,28 @@ def create_pipeline(**kwargs) -> Pipeline:
                 ],
                 outputs="santander_sample",
                 name="sample_santander_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=filter_santander,
                 inputs="santander_sample",
                 outputs="santander_filtered",
                 name="filter_santander_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=clean_santander,
                 inputs="santander_filtered",
                 outputs="santander_cleaned",
                 name="clean_santander_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=impute_santander,
                 inputs=["santander_cleaned", "params:impute.test"],
                 outputs="santander_test",
                 name="impute_test_santander_node",
+                tags=["preprocessing_tag"],
             ),
         ]
     )

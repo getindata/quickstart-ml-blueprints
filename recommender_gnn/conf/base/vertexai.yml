@@ -34,17 +34,20 @@ run_config:
   resources:
     # Default settings for the nodes
     __default__:
-      cpu: 1
-      memory: 10Gi
+      cpu: 8
+      memory: 30Gi
 
     gpu_tag:
       gpu: 1
       cpu: 8
-      memory: 60Gi
+      memory: 30Gi
 
     preprocessing_tag:
-      cpu: 8
       memory: 60Gi
+
+    test-gpu-node:
+      cpu: 2
+      memory: 14Gi
     
   node_selectors:
     gpu_tag:

@@ -17,6 +17,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs="santander_train",
                 outputs="santander_articles",
                 name="santander_to_articles_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=santander_to_customers,
@@ -27,12 +28,14 @@ def create_pipeline(**kwargs) -> Pipeline:
                 ],
                 outputs="santander_customers",
                 name="santander_to_customers_node",
+                tags=["preprocessing_tag"],
             ),
             node(
                 func=santander_to_transactions,
                 inputs=["santander_train", "santander_val"],
                 outputs=["santander_transactions_train", "santander_transactions_val"],
                 name="santander_to_transactions_node",
+                tags=["preprocessing_tag"],
             ),
         ]
     )

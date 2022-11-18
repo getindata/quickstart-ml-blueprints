@@ -179,6 +179,7 @@ def train_model(
         accelerator="auto",
         enable_checkpointing=False,
         callbacks=early_stop_callback,
+        logger=False,
     )
 
     mlflow.pytorch.autolog(log_models=save_model)
@@ -186,7 +187,7 @@ def train_model(
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
     else:
         trainer.fit(model, train_dataloaders=train_loader)
-    _log_auto_logged_info(mlflow.active_run())
+    # _log_auto_logged_info(mlflow.active_run())
     return model
 
 
@@ -207,7 +208,7 @@ def get_predictions(
     Returns:
         pd.DataFrame: dataframe with sorted predictions for each user
     """
-    trainer = pl.Trainer(devices=1, accelerator="auto")
+    trainer = pl.Trainer(devices=1, accelerator="auto", logger=False)
     predict_dataloader, _, _ = _get_loaders(
         predict_set, None, None, None, train_params, None
     )
