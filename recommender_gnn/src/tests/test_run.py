@@ -20,7 +20,7 @@ def project_context():
 
 # The tests below are here for the demonstration purpose
 # and should be replaced with the ones testing the project
-# functionality
-class TestProjectContext:
-    def test_package_name(self, project_context):
-        assert project_context.package_name == "recommender_gnn"
+# # functionality
+# class TestProjectContext:
+#     def test_package_name(self, project_context):
+#         assert project_context.package_name == "recommender_gnn"
