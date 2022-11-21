@@ -2,7 +2,7 @@
 Auxiliary functions for Kedro in version < 0.18 for loading pandas dataframes
 in chunks.
 """
-from typing import Iterator
+from typing import Iterator, Union
 
 import pandas as pd
 from kedro.io.core import get_filepath_str
@@ -21,7 +21,7 @@ def _load(self) -> pd.DataFrame:
     return pd.read_csv(load_path, **self._load_args)
 
 
-def _concat_chunks(chunks: Iterator[pd.DataFrame]) -> pd.DataFrame:
+def _concat_chunks(chunks: Union[Iterator[pd.DataFrame], pd.DataFrame]) -> pd.DataFrame:
     """Auxiliary function for concatenating chunks into dataframe
 
     Args:
@@ -30,7 +30,10 @@ def _concat_chunks(chunks: Iterator[pd.DataFrame]) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe
     """
-    df = pd.DataFrame()
-    for chunk in chunks:
-        df = pd.concat([df, chunk], ignore_index=True)
+    if isinstance(chunks, pd.DataFrame):
+        df = chunks
+    else:
+        df = pd.DataFrame()
+        for chunk in chunks:
+            df = pd.concat([df, chunk], ignore_index=True)
     return df

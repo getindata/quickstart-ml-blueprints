@@ -31,14 +31,14 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
                 ],
                 outputs="model",
                 name="train_model_node",
-                tags=["gpu_tag", "preprocessing_tag"],
+                tags=["gpu_tag"],
             ),
             node(
                 func=get_predictions,
                 inputs=["prediction_graphs", "model", "params:training.train_params"],
                 outputs="predictions",
                 name="get_predictions_node",
-                tags=["gpu_tag", "preprocessing_tag"],
+                tags=["gpu_tag"],
             ),
         ]
     )

@@ -27,24 +27,27 @@ def _stratify(df: pd.DataFrame, customers_limit: float) -> List:
     Returns:
         List: stratified sample of customers
     """
-    # Stratification based on last month column values
-    last_month = df.loc[:, "fecha_dato"].max()
-    df = df.loc[df["fecha_dato"] == last_month, :]
+    customer_col = "ncodpers"
     age_col = "age"
     relation_col = "tiprel_1mes"
     income_col = "renta"
+    # Stratification based on last possible date column values
+    df = (
+        df.sort_values(by="fecha_dato")
+        .reset_index(drop=True)
+        .drop_duplicates(customer_col, keep="last")
+    )
     strat_cols = [age_col, relation_col, income_col]
-    df = df.loc[:, strat_cols + ["ncodpers"]]
+    df = df.loc[:, strat_cols + [customer_col]]
     # Age to bins
+    df.loc[df[age_col] == " NA", age_col] = None
     df[age_col].fillna(df[age_col].median(), inplace=True)
     df.loc[:, age_col] = df.loc[:, age_col].astype(int)
-    df.loc[:, age_col] = pd.qcut(df[age_col], q=3, labels=["1", "2", "3"]).astype(
-        "category"
-    )
+    df.loc[:, age_col] = pd.qcut(df[age_col], q=3, duplicates="drop").astype("category")
     # Renta to bins
     df.loc[:, income_col] = pd.to_numeric(df.loc[:, income_col], errors="coerce")
     df.loc[df[income_col].isnull(), income_col] = df.renta.median()
-    df.loc[:, income_col] = pd.qcut(df[income_col], q=3, labels=["1", "2", "3"]).astype(
+    df.loc[:, income_col] = pd.qcut(df[income_col], q=3, duplicates="drop").astype(
         "category"
     )
     # Tiprel_1mes imputing
@@ -54,7 +57,7 @@ def _stratify(df: pd.DataFrame, customers_limit: float) -> List:
 
     sample_frac = float(customers_limit) / float(df.shape[0])
     _, customers_sample = train_test_split(
-        df, test_size=sample_frac, stratify=df.loc[:, strat_cols]
+        df, test_size=sample_frac, stratify=df.loc[:, ["age"]]
     )
     customers_sample.drop(strat_cols, axis=1, inplace=True)
     customers_list = np.unique(customers_sample.values.tolist())
@@ -81,10 +84,11 @@ def sample_santander(
     """
     santander_df = _concat_chunks(santander)
     logger.info(f"Santander df shape before sampling: {santander_df.shape}")
-    last_possible_date = "2016-05-28"
+    last_possible_date = pd.to_datetime("2016-05-28")
     santander_df.loc[:, "fecha_dato"] = pd.to_datetime(
         santander_df.loc[:, "fecha_dato"]
     )
+    cutoff_date = pd.to_datetime(cutoff_date)
     # Cut off data based on given date
     if cutoff_date < last_possible_date:
         santander_df = santander_df[santander_df["fecha_dato"] <= cutoff_date]
@@ -93,6 +97,8 @@ def sample_santander(
     else:
         unique_ids = pd.Series(santander_df["ncodpers"].unique())
         customers_limit = int(len(unique_ids) * sample_customer_frac)
+        if not customers_limit:
+            return pd.DataFrame({})
         if stratify:
             unique_ids = _stratify(santander_df, customers_limit)
         else:
