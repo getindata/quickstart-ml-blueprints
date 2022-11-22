@@ -1,7 +1,11 @@
 santander_ks:
   new_item_column: added_products
   new_user_column: ncodpers
+  original_user_column: customer_id
+  filter_by_test_users: True
 
 hm_ks:
   new_item_column: prediction
   new_user_column: customer_id
+  original_user_column: customer_id
+  filter_by_test_users: False
