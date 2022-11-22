@@ -175,7 +175,7 @@ def split_santander(santander_sample: Iterator[pd.DataFrame]) -> Tuple:
     return (train_df, val_df)
 
 
-def _median_gross(df: pd.DataFrame, income_column: str) -> pd.DataFrame:
+def _impute_income_median(df: pd.DataFrame, income_column: str) -> pd.DataFrame:
     """Auxiliary function which calculates median gross income for data
     imputing
 
@@ -231,7 +231,7 @@ def _impute_income(df: pd.DataFrame, income_column: str) -> pd.DataFrame:
     # Transforming string to NA in income column
     df.loc[:, income_column] = pd.to_numeric(df.loc[:, income_column], errors="coerce")
     # Imputing missing gross income values with median of province
-    df = df.groupby("nomprov").apply(lambda x: _median_gross(x, income_column))
+    df = df.groupby("nomprov").apply(lambda x: _impute_income_median(x, income_column))
     # If any rows still null (province has all null) replace by overall median
     df.loc[df[income_column].isnull(), income_column] = df.loc[
         :, income_column
@@ -306,8 +306,10 @@ def _impute_customer_relation(
     P - (former customer), R - (Potential)
     """
     # Imputing customer relation with overall mode - active client
-    df.loc[df["tiprel_1mes"].isnull(), "tiprel_1mes"] = "A"
-    df.loc[:, "tiprel_1mes"] = df["tiprel_1mes"].astype("category")
+    df.loc[df[customer_relation_column].isnull(), customer_relation_column] = "A"
+    df.loc[:, customer_relation_column] = df[customer_relation_column].astype(
+        "category"
+    )
     return df
 
 

@@ -4,6 +4,8 @@ import pytest
 from dateutil.parser._parser import ParserError
 
 from recommender_gnn.pipelines.santander_preprocessing.nodes import (
+    _impute_age,
+    _impute_income,
     _stratify,
     clean_santander,
     filter_santander,
@@ -95,6 +97,23 @@ def test_clean_santander(santander_dummy_df):
     assert not any(cleanded_df["nomprov"] == "CORU\xc3\x91A, A")
 
 
-def test_split_santander(santander_dummy_df):
-    train_df, test_df = split_santander(santander_dummy_df)
-    assert train_df.shape[1] == test_df.shape[1] == santander_dummy_df.shape[1]
+class TestSplitSantander:
+    def test_same_shape(self, santander_dummy_df):
+        train_df, test_df = split_santander(santander_dummy_df)
+        assert train_df.shape[1] == test_df.shape[1] == santander_dummy_df.shape[1]
+
+    def test_same_columns(self, santander_dummy_df):
+        train_df, _ = split_santander(santander_dummy_df)
+        assert set(train_df.columns) == set(santander_dummy_df.columns)
+
+
+@pytest.mark.parametrize(
+    "column_name, impute_function",
+    [
+        ("renta", _impute_income),
+        ("age", _impute_age),
+    ],
+)
+def test_imputing(column_name, impute_function, santander_dummy_df):
+    imputed_df = impute_function(santander_dummy_df, column_name)
+    assert not imputed_df.loc[:, column_name].isnull().values.any()
