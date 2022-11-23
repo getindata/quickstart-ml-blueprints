@@ -34,7 +34,7 @@ def santander_to_articles(santander: Iterator[pd.DataFrame]) -> pd.DataFrame:
 def santander_to_customers(
     santander_train: Iterator[pd.DataFrame],
     santander_val: Iterator[pd.DataFrame],
-    merge_type: str,
+    merge_type: str = None,
 ) -> pd.DataFrame:
     """From Santander train/val/test dataset extract customers data
 
@@ -105,8 +105,8 @@ def _identify_newly_added(
     val_df = _concat_chunks(input_val_df)
     train_len = len(train_df)
     df = pd.concat([train_df, val_df])
-    r = re.compile("ind_+.*ult.*")
-    feature_cols = list(filter(r.match, df.columns))
+    articles_pattern = re.compile("ind_+.*ult.*")
+    feature_cols = list(filter(articles_pattern.match, df.columns))
     df = df.sort_values(["ncodpers", "fecha_dato"]).reset_index(drop=True)
     # Apply status change labeling
     diff_cols = df.loc[:, [i for i in feature_cols] + ["ncodpers"]]
@@ -163,8 +163,8 @@ def _newly_added_to_transactions(newly_added: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: transaction dataframe
     """
     # Regex for Santander products names
-    r = re.compile("ind_+.*ult.*")
-    articles_cols = list(filter(r.match, newly_added.columns))
+    articles_pattern = re.compile("ind_+.*ult.*")
+    articles_cols = list(filter(articles_pattern.match, newly_added.columns))
     transactions = pd.DataFrame()
     # Generating transactions for each article
     for col in articles_cols:

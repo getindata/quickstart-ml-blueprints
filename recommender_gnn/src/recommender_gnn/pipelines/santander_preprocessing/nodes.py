@@ -292,8 +292,8 @@ def _impute_products(df: pd.DataFrame) -> pd.DataFrame:
     # and that most of missing values are for new customers
     df.loc[df["ind_nomina_ult1"].isnull(), "ind_nomina_ult1"] = 0
     df.loc[df["ind_nom_pens_ult1"].isnull(), "ind_nom_pens_ult1"] = 0
-    r = re.compile("ind_+.*ult.*")
-    feature_cols = list(filter(r.match, df.columns))
+    products_pattern = re.compile("ind_+.*ult.*")
+    feature_cols = list(filter(products_pattern.match, df.columns))
     for col in feature_cols:
         df.loc[:, col] = df[col].astype(int)
     return df
