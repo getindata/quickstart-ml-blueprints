@@ -240,7 +240,7 @@ def _impute_income(df: pd.DataFrame, income_column: str) -> pd.DataFrame:
     return df
 
 
-def _impute_cutomer_type(df: pd.DataFrame, customer_type_column: str) -> pd.DataFrame:
+def _impute_customer_type(df: pd.DataFrame, customer_type_column: str) -> pd.DataFrame:
     """Imputes column with values for customer type at the beginning of the month;
     1 - (First/Primary customer), 2 - (co-owner ), P - (Potential), 3 - (former primary), 4 - (former co-owner)
     """
@@ -357,7 +357,7 @@ def impute_santander(
     # Missing values for dead customers imputed as Negative - (mode)
     df.loc[df["indfall"].isnull(), "indfall"] = "N"
     df = _impute_customer_relation(df, customer_relation_column="tiprel_1mes")
-    df = _impute_cutomer_type(df, customer_type_column="indrel_1mes")
+    df = _impute_customer_type(df, customer_type_column="indrel_1mes")
     df = _impute_new_category(df)
     df = _convert_int_columns(df)
 

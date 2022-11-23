@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -5,10 +7,18 @@ from dateutil.parser._parser import ParserError
 
 from recommender_gnn.pipelines.santander_preprocessing.nodes import (
     _impute_age,
+    _impute_customer_relation,
+    _impute_customer_type,
     _impute_income,
+    _impute_income_median,
+    _impute_joining_date,
+    _impute_new_category,
+    _impute_products,
+    _impute_seniority,
     _stratify,
     clean_santander,
     filter_santander,
+    impute_santander,
     sample_santander,
     split_santander,
 )
@@ -107,13 +117,50 @@ class TestSplitSantander:
         assert set(train_df.columns) == set(santander_dummy_df.columns)
 
 
-@pytest.mark.parametrize(
-    "column_name, impute_function",
-    [
-        ("renta", _impute_income),
-        ("age", _impute_age),
-    ],
-)
-def test_imputing(column_name, impute_function, santander_dummy_df):
-    imputed_df = impute_function(santander_dummy_df, column_name)
-    assert not imputed_df.loc[:, column_name].isnull().values.any()
+class TestImputing:
+    @pytest.mark.parametrize(
+        "column_name, impute_function",
+        [
+            ("renta", _impute_income),
+            ("age", _impute_age),
+            ("tiprel_1mes", _impute_customer_relation),
+            ("renta", _impute_income_median),
+            ("indrel_1mes", _impute_customer_type),
+            ("fecha_alta", _impute_joining_date),
+            ("antiguedad", _impute_seniority),
+        ],
+    )
+    def test_single_column_imputing(
+        self, column_name, impute_function, santander_dummy_df
+    ):
+        imputed_df = impute_function(santander_dummy_df, column_name)
+        assert not imputed_df.loc[:, column_name].isnull().values.any()
+
+    def test_impute_products(self, santander_dummy_df):
+        r = re.compile("ind_+.*ult.*")
+        products_cols = list(filter(r.match, santander_dummy_df.columns))
+        imputed_df = _impute_products(santander_dummy_df)
+        assert not imputed_df.loc[:, products_cols].isnull().values.any()
+
+    def test_impute_new_category(self, santander_small_dummy_df):
+        missing_column = "conyuemp"
+        not_imputed_copy = santander_small_dummy_df.copy()
+        imputed_df = _impute_new_category(not_imputed_copy)
+        print(
+            santander_small_dummy_df.loc[
+                santander_small_dummy_df.loc[:, missing_column].isnull(), missing_column
+            ]
+        )
+        assert imputed_df.loc[
+            imputed_df.loc[:, missing_column] == "UNKNOWN"
+        ].index.equals(
+            santander_small_dummy_df.loc[
+                santander_small_dummy_df.loc[:, missing_column].isnull(), missing_column
+            ].index
+        )
+
+    def test_impute_santander(self, santander_dummy_df):
+        imputed_df = impute_santander(santander_dummy_df)
+        dropped_columns = ["tipodom", "cod_prov"]
+        imputed_df.drop(dropped_columns, axis=1, inplace=True)
+        assert not imputed_df.isnull().any().sum()
