@@ -20,13 +20,13 @@ def concat_train_val(
     Args:
         train_df (pd.DataFrame): transactions train dataframe
         val_df (pd.DataFrame): transaction val dataframe
+        date_column (str): name of column with transactions dates
 
     Returns:
         pd.DataFrame: concatenated transactions dataframe
     """
-    if not isinstance(train_df, pd.DataFrame):
-        train_df = _concat_chunks(train_df)
-        val_df = _concat_chunks(val_df)
+    train_df = _concat_chunks(train_df)
+    val_df = _concat_chunks(val_df)
     concat_df = pd.concat([train_df, val_df]).reset_index(drop=True)
     concat_df.loc[:, date_column] = pd.to_datetime(concat_df.loc[:, date_column])
     concat_df.loc[:, "time"] = (
@@ -58,8 +58,7 @@ def map_users_and_items(
     Returns:
         Tuple: tuple of dataframes including original dataframe with mapping applied and mappings for users and items
     """
-    if not isinstance(transactions_df, pd.DataFrame):
-        transactions_df = _concat_chunks(transactions_df)
+    transactions_df = _concat_chunks(transactions_df)
     logger.info(f"Transactions dataframe shape: {transactions_df.shape}")
     user_column = "user_id"
     item_column = "item_id"
