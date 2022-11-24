@@ -40,7 +40,7 @@ run_config:
     gpu_tag:
       gpu: 1
       cpu: 8
-      memory: 60Gi
+      memory: 90Gi
 
     preprocessing_tag:
       memory: 60Gi
