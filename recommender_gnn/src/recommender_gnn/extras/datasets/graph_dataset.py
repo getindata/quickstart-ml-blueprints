@@ -83,7 +83,7 @@ def _create_path_obj(path: str) -> Union[Pathy, Path]:
 
 def _create_parent_dirs(path: str) -> None:
     if path.exists():
-        logger.warning("Directory already exists, it may be not empty!")
+        pass
     else:
         logger.info(f"Creating new directory: {path}")
         path.mkdir(parents=True, exist_ok=True)
