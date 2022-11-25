@@ -46,7 +46,7 @@ class TestStratify:
     def test_given_not_enough_classes(
         self, santander_small_dummy_df, customers_limit=1
     ):
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             _stratify(santander_small_dummy_df, customers_limit)
 
 
@@ -137,8 +137,8 @@ class TestImputing:
         assert not imputed_df.loc[:, column_name].isnull().values.any()
 
     def test_impute_products(self, santander_dummy_df):
-        r = re.compile("ind_+.*ult.*")
-        products_cols = list(filter(r.match, santander_dummy_df.columns))
+        products_pattern = re.compile("ind_+.*ult.*")
+        products_cols = list(filter(products_pattern.match, santander_dummy_df.columns))
         imputed_df = _impute_products(santander_dummy_df)
         assert not imputed_df.loc[:, products_cols].isnull().values.any()
 

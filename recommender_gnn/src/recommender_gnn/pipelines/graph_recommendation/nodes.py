@@ -201,7 +201,7 @@ def get_predictions(
     """Generates predictions of recommendation model based on predict set.
 
     Args:
-        predict_set (SubGraphsDataset): subset of data (users) for which we want to generate predictions
+        predict_set (SubGraphsDataset): subset of data (users subgraphs) for which we want to generate predictions
         model (pl.LightningModule): trained pytorch lightning model
         train_params (Dict): model parameters for training and inference process
 
