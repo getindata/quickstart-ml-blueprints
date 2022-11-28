@@ -4,7 +4,7 @@ import pytest
 
 @pytest.fixture
 def santander_dummy_df():
-    path = "src/tests/fixtures/csv/santander_test_sample.csv"
+    path = "src/tests/fixtures/dataframes/santander_test_sample.csv"
     santander_df = pd.read_csv(path)
     return santander_df
 
