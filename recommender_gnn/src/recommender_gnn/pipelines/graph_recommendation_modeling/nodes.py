@@ -1,3 +1,4 @@
+"""Some variables will have names form the original paper script for easier comparison and understanding"""
 import logging
 from typing import Dict, List, Tuple
 from xmlrpc.client import Boolean
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 def _sort_transactions(data: pd.DataFrame, colname: str) -> pd.DataFrame:
     data = data.sort_values(["time"], kind="mergesort")
-    data[colname] = range(len(data))
+    data.loc[:, colname] = range(len(data))
     return data
 
 
@@ -101,8 +102,21 @@ def _get_sub_edges(
     predict_condition: bool,
     start_t: int,
     next_index: int,
-) -> Tuple[dgl.DGLGraph]:
-    """Retrun subsets of edges between users and items based on specified timeframe"""
+) -> Tuple[List]:
+    """Return boolean vectors indicating subsets of edges between users and items based on specified timeframe.
+
+    Args:
+        graph (dgl.DGLGraph): graph object created from whole dataset
+        u_time (List): list of all timestamps for a user in a graph
+        predict_condition (bool): boolean indicating if we are in prediction mode, where we are building subgraphs
+            for a user based on all previous interactions, not excluding the last one for verification purposes
+        start_t (int): starting timestamp for a subgraph
+        next_index (int): index of the next timestamp for a given subgraph
+
+    Returns:
+        Tuple: (sub_u_eid, sub_i_eid) - boolean vectors indicating subsets of edges between users and items for a given
+            timeframe
+    """
     sub_u_eid = (
         _conditional_compare(
             graph.edges["by"].data["time"], u_time[next_index], predict_condition
@@ -110,7 +124,7 @@ def _get_sub_edges(
     ) & (graph.edges["by"].data["time"] >= start_t)
     sub_i_eid = (
         _conditional_compare(
-            graph.edges["by"].data["time"], u_time[next_index], predict_condition
+            graph.edges["pby"].data["time"], u_time[next_index], predict_condition
         )
     ) & (graph.edges["pby"].data["time"] >= start_t)
     return (sub_u_eid, sub_i_eid)
@@ -125,11 +139,23 @@ def _generate_subgraphs(
     seq_item: int,
     seq_len: int,
 ) -> Tuple[dgl.DGLGraph, dgl.DGLGraph, torch.tensor]:
-    """Generates subgraphs from whole data graph for users based on selected transactions timestamps."""
+    """Generates subgraphs for chosen user based on selected transactions timestamps.
+
+    Args:
+        graph (dgl.DGLGraph): graph object created from whole dataset
+        u_time (List): list of all timestamps for a user in a graph
+        start_t (int): starting timestamp for a subgraph
+        user (int): user id
+        item_max_length (int): maximum number of items in a generated subgraph
+        seq_item (int): id of last item in a user interactions sequence considered for building a subgraph, parameter
+            that defines and limits the size of a subgraph
+        seq_len (int): length of a all user interactions sequence
+
+    """
+    next_index = seq_item
     predict_condition = seq_item == (seq_len - 1)
-    next_index = seq_item + 1
-    if predict_condition:
-        next_index = seq_item
+    if not predict_condition:
+        next_index += 1
     sub_u_eid, sub_i_eid = _get_sub_edges(
         graph, u_time, predict_condition, start_t, next_index
     )
@@ -148,49 +174,77 @@ def _iterate_k_hops(
     sub_graph: dgl.DGLGraph,
     user_max_length: int,
     item_max_length: int,
-    his_user: int,
-    current_item: int,
+    user: int,
+    current_items: int,
     graph_i: dgl.DGLGraph,
 ) -> Tuple[List]:
-    """Sample user and item edges from k_hop iteration through graph"""
+    """Generates final subset of edges for a user subgraph by sampling user and item edges from k_hop iteration through
+    previously created subgraph. Thanks to this approach we are limiting the size of a final subgraph and choosing only
+    the most relevant interactions.
+
+    Args:
+        k_hop (int): number of iterations through a subgraph
+        sub_graph (dgl.DGLGraph): full intermediate subgraph for given user
+        user_max_length (int): maximum number of users in a generated final subgraph
+        item_max_length (int): maximum number of items in a generated final subgraph
+        user (int): user id
+        current_items (int): list of items in a subgraph
+        graph_i (dgl.DGLGraph): subgraph of users after applying initial select_topk function
+
+    Returns:
+        Tuple: (edge_i, edge_u) - edges for final subgraph after sampling
+
+    """
     edge_i = [graph_i.edges["by"].data[dgl.NID]]
     edge_u = []
+    temp_users = user
+    temp_items = current_items
     for _ in range(k_hop - 1):
         graph_u = select_topk(
-            sub_graph, user_max_length, weight="time", nodes={"item": current_item}
+            sub_graph, user_max_length, weight="time", nodes={"item": current_items}
         )
-        current_user = np.setdiff1d(
-            torch.unique(graph_u.edges(etype="pby")[0]), his_user
+        current_users = np.setdiff1d(
+            torch.unique(graph_u.edges(etype="pby")[0]), temp_users
         )[-user_max_length:]
         graph_i = select_topk(
-            sub_graph, item_max_length, weight="time", nodes={"user": current_user}
+            sub_graph, item_max_length, weight="time", nodes={"user": current_users}
         )
-        his_user = torch.unique(torch.cat([torch.tensor(current_user), his_user]))
-        diff_item = np.setdiff1d(
-            torch.unique(graph_i.edges(etype="by")[0]), current_item
+        temp_users = torch.unique(torch.cat([torch.tensor(current_users), temp_users]))
+        current_items = np.setdiff1d(
+            torch.unique(graph_i.edges(etype="by")[0]), temp_items
         )
-        current_item = torch.unique(torch.cat([torch.tensor(diff_item), current_item]))
+        temp_items = torch.unique(torch.cat([torch.tensor(current_items), temp_items]))
         edge_i.append(graph_i.edges["by"].data[dgl.NID])
         edge_u.append(graph_u.edges["pby"].data[dgl.NID])
     return (edge_i, edge_u)
 
 
-def _iterate_subgraphs(
+def _sample_final_subgraph(
     sub_graph: dgl.DGLGraph,
     graph_i: dgl.DGLGraph,
     k_hop: int,
     user_max_length: int,
     item_max_length: int,
-    his_user: int,
+    user: int,
 ) -> Tuple:
-    """Iterates through subgraph to sample neighbors and create final graph"""
+    """Iterates through subgraph to sample neighbors and creates final subgraph for a given user.
+
+    Args:
+        sub_graph (dgl.DGLGraph): full intermediate subgraph for given user
+        graph_i (dgl.DGLGraph): subgraph of users after applying initial select_topk function
+        k_hop (int): number of iterations through a subgraph
+        user_max_length (int): maximum number of users in a generated final subgraph
+        item_max_length (int): maximum number of items in a generated final subgraph
+        user (int): user id
+
+    """
     current_item = torch.unique(graph_i.edges(etype="by")[0])
     edge_i, edge_u = _iterate_k_hops(
         k_hop,
         sub_graph,
         user_max_length,
         item_max_length,
-        his_user,
+        user,
         current_item,
         graph_i,
     )
@@ -210,20 +264,31 @@ def _prepare_graph_dict(
     seq_item: int,
     seq_len: int,
 ) -> Dict:
-    """Prepare dictionary object with graph data"""
+    """Prepare dictionary object with graph data.
+
+    Args:
+        fin_graph (dgl.DGLGraph): final subgraph for given user
+        user (int): user id
+        u_seq (List): list of all items for a user in a graph
+        seq_item (int): id of last item in a user interactions sequence considered for building a subgraph, parameter
+            that defines and limits the size of a subgraph
+        seq_len (int): length of a all user interactions sequence
+    """
     # No target/label for predicting unseen data
     if seq_item == (seq_len - 1):
         target = np.int64(0)
     else:
         target = u_seq[seq_item + 1]
     last_item = u_seq[seq_item]
-    u_alias = torch.where(fin_graph.nodes["user"].data["user_id"] == user)[0]
-    last_alias = torch.where(fin_graph.nodes["item"].data["item_id"] == last_item)[0]
+    last_user_alias = torch.where(fin_graph.nodes["user"].data["user_id"] == user)[0]
+    last_item_alias = torch.where(fin_graph.nodes["item"].data["item_id"] == last_item)[
+        0
+    ]
     graph_dict = {
         "user": torch.tensor([user]),
         "target": torch.tensor([target]),
-        "u_alias": u_alias,
-        "last_alias": last_alias,
+        "u_alias": last_user_alias,
+        "last_alias": last_item_alias,
     }
     return graph_dict
 
@@ -237,7 +302,12 @@ def _prepare_user_data(data: pd.DataFrame, user: int) -> Tuple:
 
 
 def _split_subgraphs(all_subgraphs: List, subsets: List[Boolean]) -> Tuple[List]:
-    """Train/val/test split based on order in a transactions sequence"""
+    """Train/val/test split based on order in a transactions sequence. We can generate train, train + val,
+    train + val + test or train + predict subsets. For example, for selected user with 6
+    transactions in case of (train, val, test, predict) we will have: subgraphs of size 6 for predict subset,
+    subgraph of size 5 for test subset, subgraph of size 4 for val subset and subgraphs of size 3 and 2 for train
+    subset.
+    """
     _, _, predict_flag = subsets
     n_subsets = sum(subsets[0:2]) + 1
     train_list, val_list, test_list, predict_list = ([], [], [], [])
@@ -246,9 +316,10 @@ def _split_subgraphs(all_subgraphs: List, subsets: List[Boolean]) -> Tuple[List]
     if n_subsets == 3:
         test_list, all_subgraphs = all_subgraphs[-1:], all_subgraphs[:-1]
     # Strange train/val split but leaving as it was in original implementation
-    if n_subsets > 1:
-        val_list = all_subgraphs[-1:]
-    train_list = all_subgraphs
+    if n_subsets > 1 and all_subgraphs[:-1]:
+        val_list, train_list = all_subgraphs[-1:], all_subgraphs[:-1]
+    else:
+        train_list = all_subgraphs
     return train_list, val_list, test_list, predict_list
 
 
@@ -261,7 +332,9 @@ def _generate_user_subgraphs(
     k_hop: int,
     subsets: List[Boolean],
 ) -> Tuple[List]:
-    """Generates subgraphs of transactions for each users interaction.
+    """Generates subgraphs of transactions for each users interaction. For example if user has 6 transactions it will
+    generate subgraphs of size 6,5,4,3 and 2 for more training examples and split them into train/val/test/predict
+    subsets.
 
     Args:
         user (int): user id from mapped transactions dataframe
@@ -272,10 +345,13 @@ def _generate_user_subgraphs(
         k_hop (int): number of iterations for subgraphs creation
         subsets (List[Boolean]): list of booleans which indicates if we want to generate subgraphs for val, test,
             predict subsets accordingly. Always generating subset for train set. Considered possibilities are train,
-            train + val, train + val + test and all combinations with predict subset.
+            train + val, train + val + test and train + predict subsets. For predicting we are using full sized
+            subgraphs containing all transactions, because we want to use all information and because we do not need
+            true labels for verification.
 
     Returns:
-        Tuple: (train_list, val_list, test_list) - each one contains subgraphs for train/val/test subsets
+        Tuple: (train_list, val_list, test_list, predict_list) - each one contains subgraphs for train/val/test/predict
+        subsets
     """
     predict_flag = subsets[2]
     u_seq, u_time = _prepare_user_data(data, user)
@@ -295,11 +371,16 @@ def _generate_user_subgraphs(
                 start_t = u_time[0]
             else:
                 start_t = u_time[seq_item - item_max_length]
-            graph_i, sub_graph, his_user = _generate_subgraphs(
+            graph_i, sub_graph, current_user = _generate_subgraphs(
                 graph, u_time, start_t, user, item_max_length, seq_item, seq_len
             )
-            fin_graph = _iterate_subgraphs(
-                sub_graph, graph_i, k_hop, user_max_length, item_max_length, his_user
+            fin_graph = _sample_final_subgraph(
+                sub_graph,
+                graph_i,
+                k_hop,
+                user_max_length,
+                item_max_length,
+                current_user,
             )
             graph_dict = _prepare_graph_dict(fin_graph, user, u_seq, seq_item, seq_len)
             all_subgraphs.append([user, seq_item, fin_graph, graph_dict])
@@ -317,9 +398,9 @@ def _generate_model_input(
     k_hop: int,
     subsets: List,
 ):
-    """Wrapper for generating subgraphs for each user"""
+    """Wrapper for generating subgraphs for each user from transactions dataframe."""
     user = data.loc[:, "user_id"].unique()
-    sample_lists = Parallel(n_jobs=10)(
+    user_subset_lists = Parallel(n_jobs=10)(
         delayed(
             lambda u: _generate_user_subgraphs(
                 u,
@@ -333,7 +414,7 @@ def _generate_model_input(
         )(u)
         for u in user
     )
-    return sample_lists
+    return user_subset_lists
 
 
 def _correct_shape(sample_lists: List) -> List:
@@ -352,7 +433,8 @@ def preprocess_dgsr(
     predict_flag: Boolean = False,
 ):
     """Preprocess raw transaction data and graph created from all transaction into user's transactions subgraphs which
-    are final model inputs.
+    are final model inputs. Considered possibilities for generated subsets are train, train + val,
+    train + val + test and train + predict subsets.
 
     Args:
         data (pd.DataFrame): dataframe with mapped transactions
@@ -362,7 +444,9 @@ def preprocess_dgsr(
         k_hop (int): number of iterations for subgraphs creation
         val_flag (Boolean): if we want to generate validation subset
         test_flag (Boolean): if we want to generate test subset
-        predict_flag (Booleand): if we want to generate predict subset
+        predict_flag (Booleand): if we want to generate predict subset For predicting we are using full sized
+            subgraphs containing all transactions, because we want to use all information and because we do not need
+            true labels for verification.
 
     Returns:
         Tuple: (train_list, val_list, test_list, predict_list) - each one contains subgraphs for train/val/test/predict
