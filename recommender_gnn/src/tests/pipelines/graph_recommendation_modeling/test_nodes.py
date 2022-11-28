@@ -2,7 +2,11 @@ import pandas as pd
 import pytest
 
 from recommender_gnn.pipelines.graph_recommendation_modeling.nodes import (
+    _get_sub_edges,
+    _prepare_user_data,
+    _preprocess_transactions,
     generate_graph_dgsr,
+    preprocess_dgsr,
     sample_negatives_dgsr,
 )
 
@@ -38,9 +42,110 @@ class TestSampleNegativesDgsr:
 
 class TestGenerateGraphDgsr:
     user_column = "user_id"
+    user_node_name = "user"
+    item_column = "item_id"
+    item_node_name = "item"
+    time_column = "time"
+
+    @staticmethod
+    def _test_inclusion(node_of_entity, entity_column, mapped_transactions_custom):
+        graph = generate_graph_dgsr(mapped_transactions_custom)
+        graph_entities = set(graph.nodes[node_of_entity].data[entity_column])
+        df_entities = set(mapped_transactions_custom.loc[:, entity_column].unique())
+        assert not graph_entities.intersection(df_entities)
+
+    def test_preprocess_transactions(self, mapped_transactions_custom):
+        preprocessed_trans = _preprocess_transactions(
+            mapped_transactions_custom.iloc[:5, :]
+        )
+        timestamps = set(preprocessed_trans.loc[:, self.time_column])
+        assert timestamps == {
+            1453939200,
+            1453039200,
+            1453032200,
+            1453132201,
+            1453132200,
+        }
 
     def test_users_inclusion(self, mapped_transactions_custom):
+        self._test_inclusion(
+            self.user_node_name, self.user_column, mapped_transactions_custom
+        )
+
+    def test_items_inclusion(self, mapped_transactions_custom):
+        self._test_inclusion(
+            self.item_node_name, self.item_column, mapped_transactions_custom
+        )
+
+    def test_number_edges_equals_number_transactions(self, mapped_transactions_custom):
         graph = generate_graph_dgsr(mapped_transactions_custom)
-        graph_users = set(graph.nodes["user"].data[self.user_column])
-        df_users = set(mapped_transactions_custom.loc[:, self.user_column].unique())
-        assert not graph_users.intersection(df_users)
+        n_edges = graph.number_of_edges() / 2
+        n_transactions = mapped_transactions_custom.shape[0]
+        assert n_edges == n_transactions
+
+
+class TestPreprocessDgsr:
+    item_max_length = 50
+    user_max_length = 50
+    k_hop = 3
+    user = 0
+    user_time = [1453032200, 1453039200, 1453132200, 1453132200, 1453939200]
+    user_seq = [2, 1, 2, 3, 0]
+
+    def test_prepare_user_data(self, mapped_transactions_custom):
+        user_seq, user_time = _prepare_user_data(mapped_transactions_custom, self.user)
+        assert list(user_seq) == self.user_seq
+        assert list(user_time) == self.user_time
+
+    @pytest.mark.parametrize(
+        "predict_condition, start_t, next_index, expected_result",
+        [
+            (True, 1, 3, 9),
+            (False, 1, 3, 8),
+            (True, 0, 4, 17),
+            (False, 0, 4, 16),
+        ],
+    )
+    def test_get_sub_edges(
+        self, graph_custom, predict_condition, start_t, next_index, expected_result
+    ):
+        sub_u_eid, sub_i_eid = _get_sub_edges(
+            graph_custom, self.user_time, predict_condition, start_t, next_index
+        )
+        result = sum(sub_u_eid + sub_i_eid)
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        "val_flag, test_flag, predict_flag, expected_result",
+        [
+            (True, True, False, (4, 4, 4, 0)),
+            (False, False, True, (12, 0, 0, 4)),
+            (True, False, False, (8, 4, 0, 0)),
+            (False, False, False, (12, 0, 0, 0)),
+        ],
+    )
+    def test_preprocess_dgsr(
+        self,
+        mapped_transactions_custom,
+        graph_custom,
+        val_flag,
+        test_flag,
+        predict_flag,
+        expected_result,
+    ):
+        train_list, val_list, test_list, predict_list = preprocess_dgsr(
+            mapped_transactions_custom,
+            graph_custom,
+            self.item_max_length,
+            self.user_max_length,
+            self.k_hop,
+            val_flag,
+            test_flag,
+            predict_flag,
+        )
+        assert (
+            len(train_list),
+            len(val_list),
+            len(test_list),
+            len(predict_list),
+        ) == expected_result

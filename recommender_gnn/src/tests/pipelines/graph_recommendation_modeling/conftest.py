@@ -105,7 +105,7 @@ def create_graph_custom():
     transactions_custom = mapped_transactions_custom()
     graph_custom = generate_graph_dgsr(transactions_custom)
     with open(graph_path, "wb") as f:
-        pickle.dump(graph_custom, f)
+        pickle.dump(graph_custom, f, protocol=-1)
 
 
 @pytest.fixture
