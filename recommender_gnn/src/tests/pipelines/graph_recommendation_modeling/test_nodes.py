@@ -90,7 +90,7 @@ class TestPreprocessDgsr:
     k_hop = 3
     user = 0
     user_time = [1453032200, 1453039200, 1453132200, 1453132200, 1453939200]
-    user_seq = [2, 1, 2, 3, 0]
+    user_seq = [2, 1, 8, 3, 0]
 
     def test_prepare_user_data(self, mapped_transactions_custom):
         user_seq, user_time = _prepare_user_data(mapped_transactions_custom, self.user)
