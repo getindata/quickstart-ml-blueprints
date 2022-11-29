@@ -56,12 +56,15 @@ def create_graphs_list(
 class SubGraphsDataset(Dataset):
     """Torch dataset for subgraphs objects"""
 
-    def __init__(self, root_dir, loader):
+    def __init__(self, root_dir, loader, extension="bin"):
         self.root = root_dir
-        graphs_collection_path = os.path.join(root_dir, "graphs.bin")
+        graphs_collection_path = os.path.join(root_dir, f"graphs.{extension}")
         self.graphs_collection = loader(graphs_collection_path)
         self.keys = list(self.graphs_collection.keys())
         self.size = len(self.keys)
+
+    def get_graphs_collection(self):
+        return self.graphs_collection
 
     def __getitem__(self, index):
         key = self.keys[index]

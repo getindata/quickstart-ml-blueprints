@@ -41,15 +41,18 @@ def _get_data_stats(
 
 
 def _get_loaders(
-    train_set: Union[SubGraphsDataset, None],
-    val_set: Union[SubGraphsDataset, None],
-    test_set: Union[SubGraphsDataset, None],
-    negative_samples: pd.DataFrame,
-    train_params: Dict,
-    data_stats: Tuple[int],
+    train_set: Union[SubGraphsDataset, None] = None,
+    val_set: Union[SubGraphsDataset, None] = None,
+    test_set: Union[SubGraphsDataset, None] = None,
+    negative_samples: pd.DataFrame = None,
+    train_params: Dict = None,
+    data_stats: Tuple[int] = None,
 ) -> Tuple[DataLoader, None]:
     """Creates torch DataLoader from chosen datasets. Collates negative samples with test and val sets."""
-    batch_size = train_params.get("batch_size")
+    if train_params:
+        batch_size = train_params.get("batch_size")
+    else:
+        batch_size = 1
     if data_stats:
         _, item_num = data_stats
     train_loader, val_loader, test_loader = (None, None, None)
@@ -138,6 +141,7 @@ def train_model(
     train_params: Dict,
     save_model: bool = False,
     seed: int = 321,
+    log_mlflow: bool = False,
 ) -> pl.LightningModule:
     """Trains a GNN recommendation model, logs the model and metrics to MLflow.
 
@@ -187,7 +191,8 @@ def train_model(
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
     else:
         trainer.fit(model, train_dataloaders=train_loader)
-    # _log_auto_logged_info(mlflow.active_run())
+    if log_mlflow:
+        _log_auto_logged_info(mlflow.active_run())
     return model
 
 
