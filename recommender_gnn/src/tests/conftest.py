@@ -140,3 +140,32 @@ def create_subgraphs_lists_custom():
     subsets = [train_list, val_list, test_list, predict_list]
     subnames = ["train", "val", "test", "predict"]
     return subsets, subnames
+
+
+def get_subset_subgraphs_path(subset: str) -> str:
+    subgraph_path = f"src/tests/fixtures/graphs/{subset}_subgraphs"
+    return subgraph_path
+
+
+@pytest.fixture
+def train_subgraphs_path():
+    subgraphs = get_subset_subgraphs_path("train")
+    return subgraphs
+
+
+@pytest.fixture
+def val_subgraphs_path():
+    subgraphs = get_subset_subgraphs_path("val")
+    return subgraphs
+
+
+@pytest.fixture
+def test_subgraphs_path():
+    subgraphs = get_subset_subgraphs_path("test")
+    return subgraphs
+
+
+@pytest.fixture
+def predict_subgraphs_path():
+    subgraphs = get_subset_subgraphs_path("predict")
+    return subgraphs

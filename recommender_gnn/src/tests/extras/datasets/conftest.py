@@ -1,37 +1,9 @@
 import pickle
 
+import pandas as pd
 import pytest
 
 from tests.conftest import create_subgraphs_lists_custom
-
-
-def get_subset_subgraphs_path(subset: str) -> str:
-    subgraph_path = f"src/tests/fixtures/graphs/{subset}_subgraphs"
-    return subgraph_path
-
-
-@pytest.fixture
-def train_subgraphs_path():
-    subgraphs = get_subset_subgraphs_path("train")
-    return subgraphs
-
-
-@pytest.fixture
-def val_subgraphs_path():
-    subgraphs = get_subset_subgraphs_path("val")
-    return subgraphs
-
-
-@pytest.fixture
-def test_subgraphs_path():
-    subgraphs = get_subset_subgraphs_path("test")
-    return subgraphs
-
-
-@pytest.fixture
-def predict_subgraphs_path():
-    subgraphs = get_subset_subgraphs_path("predict")
-    return subgraphs
 
 
 def create_subgraphs_lists_pickles_custom():
@@ -74,3 +46,10 @@ def test_subgraphs_list():
 def predict_subgraphs_list():
     subgraphs_list = read_subgraphs_list("predict")
     return subgraphs_list
+
+
+@pytest.fixture(params=[1, 100, 150])
+def custom_chunks(request):
+    n = request.param
+    chunks = [pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6]}) for _ in range(n)]
+    return chunks
