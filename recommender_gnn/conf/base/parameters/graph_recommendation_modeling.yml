@@ -11,8 +11,8 @@ santander_dgsr_kaggle_grm:
     item_max_length: 50
     user_max_length: 50
     k_hop: 3
-    val_flag: False
-    test_flag: False
+    val_flag: True
+    test_flag: True
     predict_flag: True
 
 hm_dgsr_train_val_test_grm:

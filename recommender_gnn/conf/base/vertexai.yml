@@ -32,7 +32,6 @@ run_config:
   # for the nodes. When not provided they're set to 500m cpu and 1024Mi memory.
   # If you don't want to specify pipeline resources set both to None in __default__.
   resources:
-    # Default settings for the nodes
     __default__:
       cpu: 8
       memory: 30Gi
