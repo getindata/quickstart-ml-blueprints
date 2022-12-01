@@ -118,7 +118,9 @@ def user_neg(data: pd.DataFrame, item_num: int) -> pd.DataFrame:
     return data
 
 
-def neg_generate(user: List, data_neg: pd.DataFrame, item_num: int) -> np.array:
+def generate_negative_samples(
+    user: List, data_neg: pd.DataFrame, item_num: int
+) -> np.array:
     """Sample items from all negative samples"""
     neg_num = 100
     max_users = 50
@@ -167,7 +169,7 @@ def collate_test(data: pd.DataFrame, user_neg: pd.DataFrame, item_num: int):
         dgl.batch(graph),
         torch.tensor(label).long(),
         torch.tensor(last_item).long(),
-        torch.Tensor(neg_generate(user, user_neg, item_num)).long(),
+        torch.Tensor(generate_negative_samples(user, user_neg, item_num)).long(),
     )
 
 
@@ -183,7 +185,7 @@ def generate_embedding(
 
 
 def eval_metric(all_top: List) -> Tuple[float]:
-    """Calculates evaluation metrics based on scores"""
+    """Calculates evaluation metrics (recall@x and ndgg@x) based on scores"""
     recall5, recall10, recall20, ndgg5, ndgg10, ndgg20 = ([], [], [], [], [], [])
     for index in range(len(all_top)):
         prediction = (-all_top[index]).argsort(1).argsort(1)

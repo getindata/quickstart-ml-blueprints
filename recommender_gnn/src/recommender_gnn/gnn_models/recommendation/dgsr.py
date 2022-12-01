@@ -133,31 +133,20 @@ class DGSR(pl.LightningModule):
         loss = self.loss_func(score, label)
         top.append(score_neg.detach().cpu().numpy())
         _, recall10, _, _, ndgg10, _ = eval_metric(top)
-        self.log(
-            f"{step_name}_loss",
-            loss,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )
-        self.log(
-            f"{step_name}_recall10",
-            recall10,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )
-        self.log(
-            f"{step_name}_ndgg10",
-            ndgg10,
-            on_step=True,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )
+        self._log_metric(step_name, "loss", loss)
+        self._log_metric(step_name, "recall10", recall10)
+        self._log_metric(step_name, "ndgg10", ndgg10)
         return loss
+
+    def _log_metric(self, step_name: str, metric_name: str, metric_value: float):
+        self.log(
+            f"{step_name}_{metric_name}",
+            metric_value,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
 
     def validation_step(self, batch: Any, batch_idx: int) -> torch.tensor:
         loss = self._eval_step_template(batch, "val")
@@ -183,6 +172,7 @@ class DGSR(pl.LightningModule):
                 nn.init.xavier_normal_(weight, gain=gain)
 
 
+# Not refactored
 class DGSRLayers(nn.Module):
     def __init__(
         self,

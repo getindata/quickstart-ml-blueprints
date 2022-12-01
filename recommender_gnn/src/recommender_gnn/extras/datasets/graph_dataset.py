@@ -52,13 +52,14 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
         if save_args is not None:
             self._save_args.update(save_args)
 
+        self.file_extension = self._save_args.get("file_extension")
+
     def _load(self) -> SubGraphsDataset:
         load_path = self._dir
-        dataset = SubGraphsDataset(load_path, load_graphs_python)
+        dataset = SubGraphsDataset(load_path, load_graphs_python, self.file_extension)
         return dataset
 
     def _save(self, data: List) -> None:
-        file_extension = self._save_args.get("file_extension")
         graphs_collection = {}
         if data:
             for row in data:
@@ -67,7 +68,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
                     graph_id = "_".join([str(user), str(item_number)])
                     graphs_list = create_graphs_list(graph, graph_dict)
                     graphs_collection[graph_id] = graphs_list
-        save_filepath = os.path.join(self._dir, f"graphs.{file_extension}")
+        save_filepath = os.path.join(self._dir, f"graphs.{self.file_extension}")
         logger.info(f"Saving graphs here: {self._dir}")
         save_graphs_python(save_filepath, graphs_collection)
 

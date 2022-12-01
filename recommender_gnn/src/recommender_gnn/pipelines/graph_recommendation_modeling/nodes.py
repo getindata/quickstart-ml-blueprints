@@ -43,8 +43,8 @@ def _preprocess_transactions(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _construct_graph(user: List, item: List, time: List) -> dgl.DGLGraph:
-    """Constructs heterogeneous bidirectional graph object with interactions between users and items with information
-    about timestamps.
+    """Constructs heterogeneous bidirectional graph object with interactions
+    between users and items with information about timestamps.
     """
     graph_data = {
         ("item", "by", "user"): (torch.tensor(item), torch.tensor(user)),
