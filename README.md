@@ -1,5 +1,8 @@
 # GetInData ML Framework
 
+Example how to create a new project (use case) locally on MacOS:  
+[Creating a new use case](#new-use-case)
+
 ## Overview
 
 Machine learning framework for solving standard analytical problems. Includes data storage, exploratory data analysis, feature engineering, modeling, monitoring etc.
@@ -195,3 +198,70 @@ To automatically strip out all output cell contents before committing to `git`, 
 ## Package your Kedro project
 
 [Further information about building project documentation and packaging your project](https://kedro.readthedocs.io/en/stable/03_tutorial/05_package_a_project.html)
+
+---
+
+# Creating a new use case <a name="new-use-case"></a>
+
+Locally on MacOS:
+
+1. Install homebrew:
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+export PATH=/opt/homebrew/bin:$PATH
+export PATH=/opt/homebrew/sbin:$PATH
+```
+
+2. Install pyenv:
+```
+brew install pyenv
+```
+
+3. Set up shell environment for pyenv (zsh example):
+```
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+```
+
+4. Install Python 3.8.12
+```
+pyenv install 3.8.12
+```
+
+5. Install Poetry
+```
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+6. Install kedro to create new kedro project (using conda)
+```
+conda create --name kedro python=3.8.12 -y
+conda activate kedro
+pip install kedro==0.18.3
+```
+
+7. Create new kedro project
+```
+kedro new
+conda deactivate
+cd <project_name>
+```
+
+8. Change settings to include virtual envs in the project:
+```
+poetry config virtualenvs.in-project true --local
+poetry config virtualenvs.create true --local
+poetry config virtualenvs.in-project true
+```
+
+9. Initialize Poetry in existing project:
+```
+poetry init
+```
+
+10. Specify Python version for Poetry:
+```
+poetry env use poetry env use /Users/<username>/.pyenv/versions/3.8.12/bin/python3
+```
