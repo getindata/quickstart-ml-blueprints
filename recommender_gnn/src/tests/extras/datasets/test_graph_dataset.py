@@ -1,0 +1,59 @@
+from pathlib import Path
+
+import pytest
+from pytest_lazyfixture import lazy_fixture
+
+from recommender_gnn.extras.datasets.graph_dataset import DGSRSubGraphsDataSet
+from recommender_gnn.extras.graph_utils.dgsr_utils import SubGraphsDataset
+
+
+class TestDGSRSubGraphsDataSet:
+    save_args = {"file_extension": "pkl"}
+
+    @pytest.mark.parametrize(
+        "dir",
+        [
+            (lazy_fixture("train_subgraphs_path")),
+            (lazy_fixture("val_subgraphs_path")),
+            (lazy_fixture("test_subgraphs_path")),
+            (lazy_fixture("predict_subgraphs_path")),
+        ],
+    )
+    def test_load_should_return_sub_graphs_dataset(self, dir):
+        dataset = DGSRSubGraphsDataSet(dir, self.save_args)
+        dataset_loaded = dataset._load()
+        assert isinstance(dataset_loaded, SubGraphsDataset)
+
+    @pytest.mark.parametrize(
+        "dir, expected_size",
+        [
+            (lazy_fixture("train_subgraphs_path"), 12),
+            (lazy_fixture("val_subgraphs_path"), 4),
+            (lazy_fixture("test_subgraphs_path"), 4),
+            (lazy_fixture("predict_subgraphs_path"), 4),
+        ],
+    )
+    def test_load_correct_dataset_size(self, dir, expected_size):
+        dataset = DGSRSubGraphsDataSet(dir, self.save_args)
+        dataset_loaded = dataset._load()
+        assert len(dataset_loaded) == expected_size
+
+    def test_load_given_wrong_dir_should_raise_exception(self):
+        with pytest.raises(FileNotFoundError):
+            dataset = DGSRSubGraphsDataSet("wrong_dir", self.save_args)
+            dataset._load()
+
+    @pytest.mark.parametrize(
+        "test_list",
+        [
+            (lazy_fixture("train_subgraphs_list")),
+            (lazy_fixture("val_subgraphs_list")),
+            (lazy_fixture("test_subgraphs_list")),
+            (lazy_fixture("predict_subgraphs_list")),
+        ],
+    )
+    def test_save_should_write_to_directory(self, tmp_path, test_list):
+        tmp_path = str(tmp_path)
+        dataset = DGSRSubGraphsDataSet(tmp_path, self.save_args)
+        dataset._save(test_list)
+        assert len(list(Path(tmp_path).iterdir())) == 1

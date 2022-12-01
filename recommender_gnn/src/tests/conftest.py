@@ -5,11 +5,11 @@ import pytest
 
 from recommender_gnn.pipelines.graph_recommendation_modeling.nodes import (
     generate_graph_dgsr,
+    preprocess_dgsr,
 )
 
 
-@pytest.fixture
-def mapped_transactions_custom():
+def create_mapped_transactions_custom():
     transactions_dict = {
         "user_id": {
             "0": 0,
@@ -85,6 +85,11 @@ def mapped_transactions_custom():
     return transactions_df
 
 
+@pytest.fixture
+def mapped_transactions_custom():
+    return create_mapped_transactions_custom()
+
+
 def create_graph_custom():
     """Example function for creating a custom graph for testing purposes. Only for fixtures reconstruction purposes."""
     graph_path = "src/tests/fixtures/graphs/graph_custom.pkl"
@@ -94,9 +99,44 @@ def create_graph_custom():
         pickle.dump(graph_custom, f, protocol=-1)
 
 
-@pytest.fixture
-def graph_custom():
+def load_graph_custom():
     graph_path = "src/tests/fixtures/graphs/graph_custom.pkl"
     with open(graph_path, "rb") as f:
         graph = pickle.load(f)
     return graph
+
+
+@pytest.fixture
+def graph_custom():
+    graph = load_graph_custom()
+    return graph
+
+
+def create_subgraphs_lists_custom():
+    """Example function for creating a custom train/val/test/predict subgraphs lists for testing purposes. Only
+    for fixtures reconstruction purposes."""
+    transactions_custom = create_mapped_transactions_custom()
+    full_graph_custom = load_graph_custom()
+    _, val_list, test_list, _ = preprocess_dgsr(
+        transactions_custom,
+        full_graph_custom,
+        50,
+        50,
+        3,
+        True,
+        True,
+        False,
+    )
+    train_list, _, _, predict_list = preprocess_dgsr(
+        transactions_custom,
+        full_graph_custom,
+        50,
+        50,
+        3,
+        False,
+        False,
+        True,
+    )
+    subsets = [train_list, val_list, test_list, predict_list]
+    subnames = ["train", "val", "test", "predict"]
+    return subsets, subnames

@@ -7,39 +7,18 @@ from recommender_gnn.extras.graph_utils.dgsr_utils import (
     load_graphs_python,
 )
 from recommender_gnn.pipelines.graph_recommendation_modeling.nodes import (
-    preprocess_dgsr,
     sample_negatives_dgsr,
 )
-from tests.conftest import graph_custom, mapped_transactions_custom
+from tests.conftest import (
+    create_subgraphs_lists_custom,
+    mapped_transactions_custom,
+)
 
 
-def create_subgraphs_custom():
+def create_subgraphs_datasets_custom():
     """Example function for creating a custom train/val/test/predict subgraphs for testing purposes. Only for fixtures
     reconstruction purposes."""
-    transactions_custom = mapped_transactions_custom()
-    full_graph_custom = graph_custom()
-    _, val_list, test_list, _ = preprocess_dgsr(
-        transactions_custom,
-        full_graph_custom,
-        50,
-        50,
-        3,
-        True,
-        True,
-        False,
-    )
-    train_list, _, _, predict_list = preprocess_dgsr(
-        transactions_custom,
-        full_graph_custom,
-        50,
-        50,
-        3,
-        False,
-        False,
-        True,
-    )
-    subsets = [train_list, val_list, test_list, predict_list]
-    subnames = ["train", "val", "test", "predict"]
+    subsets, subnames = create_subgraphs_lists_custom()
     for subname, subset in zip(subnames, subsets):
         save_args = {"file_extension": "pkl"}
         subset_dataset = DGSRSubGraphsDataSet(
