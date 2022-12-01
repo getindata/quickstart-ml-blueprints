@@ -38,9 +38,10 @@ class TestDGSRSubGraphsDataSet:
         dataset_loaded = dataset._load()
         assert len(dataset_loaded) == expected_size
 
-    def test_load_given_wrong_dir_should_raise_exception(self):
+    def test_load_given_wrong_dir_should_raise_exception(self, tmp_path):
+        wrong_dir = str(tmp_path)
         with pytest.raises(FileNotFoundError):
-            dataset = DGSRSubGraphsDataSet("wrong_dir", self.save_args)
+            dataset = DGSRSubGraphsDataSet(wrong_dir, self.save_args)
             dataset._load()
 
     @pytest.mark.parametrize(
