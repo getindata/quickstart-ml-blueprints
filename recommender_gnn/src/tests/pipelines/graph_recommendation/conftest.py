@@ -10,8 +10,8 @@ from recommender_gnn.pipelines.graph_recommendation_modeling.nodes import (
     sample_negatives_dgsr,
 )
 from tests.conftest import (
+    create_mapped_transactions_custom,
     create_subgraphs_lists_custom,
-    mapped_transactions_custom,
 )
 
 
@@ -30,7 +30,7 @@ def create_subgraphs_datasets_custom():
 def create_negatives_custom():
     """Example function for creating dataframe with negative samples for testing purposes. Only for fixtures
     reconstruction purposes."""
-    transactions_custom = mapped_transactions_custom()
+    transactions_custom = create_mapped_transactions_custom()
     negatives = sample_negatives_dgsr(transactions_custom)
     negatives.to_csv("src/tests/fixtures/dataframes/negatives.csv", index=False)
 

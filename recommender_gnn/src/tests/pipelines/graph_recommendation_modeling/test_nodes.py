@@ -15,12 +15,12 @@ class TestSampleNegativesDgsr:
     user_column = "user_id"
     item_column = "item_id"
 
-    def test_given_empty_df(self):
+    def test_given_empty_df_should_raise_exception(self):
         empty_df = pd.DataFrame({})
         with pytest.raises(KeyError):
             sample_negatives_dgsr(empty_df)
 
-    def test_structure(self, mapped_transactions):
+    def test_shape_and_values(self, mapped_transactions):
         negatives = sample_negatives_dgsr(mapped_transactions)
         unique_users = mapped_transactions.loc[:, self.user_column].unique()
         assert negatives.shape[0] == len(unique_users)
@@ -48,13 +48,17 @@ class TestGenerateGraphDgsr:
     time_column = "time"
 
     @staticmethod
-    def _test_inclusion(node_of_entity, entity_column, mapped_transactions_custom):
+    def _test_inclusion_of_transaction_entities_in_graph(
+        node_of_entity, entity_column, mapped_transactions_custom
+    ):
         graph = generate_graph_dgsr(mapped_transactions_custom)
         graph_entities = set(graph.nodes[node_of_entity].data[entity_column])
         df_entities = set(mapped_transactions_custom.loc[:, entity_column].unique())
         assert not graph_entities.intersection(df_entities)
 
-    def test_preprocess_transactions(self, mapped_transactions_custom):
+    def test_preprocess_transactions_should_return_expected_timestamps(
+        self, mapped_transactions_custom
+    ):
         preprocessed_trans = _preprocess_transactions(
             mapped_transactions_custom.iloc[:5, :]
         )
@@ -67,17 +71,23 @@ class TestGenerateGraphDgsr:
             1453132200,
         }
 
-    def test_users_inclusion(self, mapped_transactions_custom):
-        self._test_inclusion(
+    def test_users_inclusion_of_transaction_users_in_graph(
+        self, mapped_transactions_custom
+    ):
+        self._test_inclusion_of_transaction_entities_in_graph(
             self.user_node_name, self.user_column, mapped_transactions_custom
         )
 
-    def test_items_inclusion(self, mapped_transactions_custom):
-        self._test_inclusion(
+    def test_items_inclusion_of_transaction_items_in_graph(
+        self, mapped_transactions_custom
+    ):
+        self._test_inclusion_of_transaction_entities_in_graph(
             self.item_node_name, self.item_column, mapped_transactions_custom
         )
 
-    def test_number_edges_equals_number_transactions(self, mapped_transactions_custom):
+    def test_number_edges_in_graphs_equals_number_transactions(
+        self, mapped_transactions_custom
+    ):
         graph = generate_graph_dgsr(mapped_transactions_custom)
         n_edges = graph.number_of_edges() / 2
         n_transactions = mapped_transactions_custom.shape[0]

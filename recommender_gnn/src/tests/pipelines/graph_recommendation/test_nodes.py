@@ -11,12 +11,14 @@ from recommender_gnn.pipelines.graph_recommendation.nodes import (
 
 
 class TestGetDataStats:
-    def test_get_data_stats(self, mapped_transactions_custom, train_subgraphs):
+    def test_get_data_stats_should_return_expected_values(
+        self, mapped_transactions_custom, train_subgraphs
+    ):
         data_stats = _get_data_stats(mapped_transactions_custom, train_subgraphs)
         assert data_stats == (5, 9)
 
     @staticmethod
-    def _check_entity_type_count_should_be_lower_than_overall_size(
+    def _check_entity_type_sample_count_should_not_be_greater_than_overall_count(
         mapped_transactions_custom, subset, entity_type
     ):
         data_stats = _get_data_stats(mapped_transactions_custom, subset)
@@ -40,10 +42,10 @@ class TestGetDataStats:
             (lazy_fixture("predict_subgraphs")),
         ],
     )
-    def test_get_data_stats_check_users_count_should_be_lower_than_overall_size(
+    def _check_user_sample_count_should_not_be_greater_than_overall_count(
         self, mapped_transactions_custom, subset
     ):
-        self._check_entity_type_count_should_be_lower_than_overall_size(
+        self._check_entity_type_sample_count_should_not_be_greater_than_overall_count(
             mapped_transactions_custom, subset, "user"
         )
 
@@ -56,10 +58,10 @@ class TestGetDataStats:
             (lazy_fixture("predict_subgraphs")),
         ],
     )
-    def test_get_data_stats_check_items_count_should_be_lower_than_overall_size(
+    def _check_item_sample_count_should_not_be_greater_than_overall_count(
         self, mapped_transactions_custom, subset
     ):
-        self._check_entity_type_count_should_be_lower_than_overall_size(
+        self._check_entity_type_sample_count_should_not_be_greater_than_overall_count(
             mapped_transactions_custom, subset, "item"
         )
 
@@ -116,7 +118,7 @@ class TestGetLoaders:
         assert len(validation_loader) == expected_size
 
 
-def test_get_model(model_params_custom, train_params_custom):
+def test_get_model_should_return_dgsr_model(model_params_custom, train_params_custom):
     device = "cpu"
     data_stats = (5, 9)
     model = _get_model(device, model_params_custom, train_params_custom, data_stats)

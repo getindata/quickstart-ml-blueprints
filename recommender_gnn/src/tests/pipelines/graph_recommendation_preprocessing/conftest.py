@@ -3,21 +3,21 @@ import pytest
 
 
 @pytest.fixture
-def santander_train_transactions():
-    path = "src/tests/fixtures/dataframes/santander_train_transactions.csv"
-    santander_train_df = pd.read_csv(path)
-    return santander_train_df
+def bank_train_transactions():
+    path = "src/tests/fixtures/dataframes/bank_train_transactions.csv"
+    bank_train_df = pd.read_csv(path)
+    return bank_train_df
 
 
 @pytest.fixture
-def santander_val_transactions():
-    path = "src/tests/fixtures/dataframes/santander_val_transactions.csv"
-    santander_val_df = pd.read_csv(path)
-    return santander_val_df
+def bank_val_transactions():
+    path = "src/tests/fixtures/dataframes/bank_val_transactions.csv"
+    bank_val_df = pd.read_csv(path)
+    return bank_val_df
 
 
 @pytest.fixture
-def santander_concat_transactions():
-    path = "src/tests/fixtures/dataframes/santander_concat_transactions.csv"
-    santander_concat_df = pd.read_csv(path)
-    return santander_concat_df
+def bank_concat_transactions():
+    path = "src/tests/fixtures/dataframes/bank_concat_transactions.csv"
+    bank_concat_df = pd.read_csv(path)
+    return bank_concat_df

@@ -3,15 +3,15 @@ import pytest
 
 
 @pytest.fixture
-def santander_dummy_df():
-    path = "src/tests/fixtures/dataframes/santander_test_sample.csv"
-    santander_df = pd.read_csv(path)
-    return santander_df
+def bank_dummy_df():
+    path = "src/tests/fixtures/dataframes/bank_test_sample.csv"
+    bank_df = pd.read_csv(path)
+    return bank_df
 
 
 @pytest.fixture
-def santander_small_dummy_df():
-    santander_dict = {
+def bank_small_dummy_df():
+    bank_dict = {
         "fecha_dato": {
             "0": "2015-01-28",
             "1": "2015-01-28",
@@ -103,5 +103,5 @@ def santander_small_dummy_df():
         "ind_nom_pens_ult1": {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0},
         "ind_recibo_ult1": {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0},
     }
-    santander_df = pd.DataFrame(santander_dict)
-    return santander_df
+    bank_df = pd.DataFrame(bank_dict)
+    return bank_df

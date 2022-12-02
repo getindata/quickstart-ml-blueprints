@@ -14,17 +14,19 @@ from recommender_gnn.pipelines.santander_to_act.nodes import (
     "subset_df",
     [lazy_fixture("preprocessed_train_df"), lazy_fixture("preprocessed_val_df")],
 )
-def test_santander_to_articles(subset_df):
+def test_bank_to_articles_should_return_valid_unique_articles(subset_df):
     articles = santander_to_articles(subset_df)
     article_id_column = "article_id"
     assert articles.shape == (24, 1)
     assert articles.loc[:, article_id_column].is_unique
 
 
-class TestSantanderToCustomers:
+class TestBankToCustomers:
     customer_id_column = "customer_id"
 
-    def test_given_merge_type_last(self, preprocessed_train_df, preprocessed_val_df):
+    def test_given_merge_type_last_should_return_valid_unique_customers(
+        self, preprocessed_train_df, preprocessed_val_df
+    ):
         merge_type = "last"
         customers = santander_to_customers(
             preprocessed_train_df, preprocessed_val_df, merge_type
@@ -32,7 +34,9 @@ class TestSantanderToCustomers:
         assert customers.shape == (2224, 46)
         assert customers.loc[:, self.customer_id_column].is_unique
 
-    def test_given_no_merge_type(self, preprocessed_train_df, preprocessed_val_df):
+    def test_given_no_merge_type_should_return_valid_unique_customers(
+        self, preprocessed_train_df, preprocessed_val_df
+    ):
         customers = santander_to_customers(preprocessed_train_df, preprocessed_val_df)
         assert customers.shape == (2224, 1)
         assert customers.loc[:, self.customer_id_column].is_unique
@@ -78,7 +82,9 @@ class TestIdentifyNewlyAdded:
         ),
     ],
 )
-def test_santander_to_transaction(train_df, val_df, expected_result):
+def test_bank_to_transaction_should_return_df_of_expected_shape(
+    train_df, val_df, expected_result
+):
     transactions_train, transactions_val = santander_to_transactions(train_df, val_df)
     transactions = pd.concat([transactions_train, transactions_val])
     assert transactions.shape == expected_result

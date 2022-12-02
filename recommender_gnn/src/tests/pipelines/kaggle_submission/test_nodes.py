@@ -15,13 +15,15 @@ class TestGenerateSubmission:
         item_columns = sorted(item_columns, key=int)
         return item_columns
 
-    def test_borda_sort(self, small_predictions_custom):
+    def test_borda_sort_should_return_expected_ranking_consensus(
+        self, small_predictions_custom
+    ):
         item_columns = self.get_item_columns(small_predictions_custom)
         rankings = small_predictions_custom.loc[:, item_columns].values.tolist()
         result = _borda_sort(rankings)
         assert result == [1, 0, 2, 3]
 
-    def test_impute_missing_predictions(
+    def test_impute_missing_predictions_return_df_of_expected_shape(
         self, small_predictions_custom, small_users_custom
     ):
         item_columns = self.get_item_columns(small_predictions_custom)
