@@ -2,7 +2,6 @@ import logging
 import re
 from datetime import datetime
 from typing import Iterator, List, Tuple, Union
-from xmlrpc.client import Boolean
 
 import numpy as np
 import pandas as pd
@@ -68,7 +67,7 @@ def sample_santander(
     santander: Iterator[pd.DataFrame],
     sample_customer_frac: float = 0.1,
     cutoff_date: Union[str, datetime] = "2016-05-28",
-    stratify: Boolean = False,
+    stratify: bool = False,
 ) -> pd.DataFrame:
     """Sample Santader data based on customer sample size and cutoff date.
 
@@ -91,21 +90,23 @@ def sample_santander(
     cutoff_date = pd.to_datetime(cutoff_date)
     # Cut off data based on given date
     if cutoff_date < last_possible_date:
-        santander_df = santander_df[santander_df["fecha_dato"] <= cutoff_date]
+        santander_df = santander_df[santander_df.loc[:, "fecha_dato"] <= cutoff_date]
     if np.isclose(sample_customer_frac, 1.0):
         santander_sample = santander_df
     else:
-        unique_ids = pd.Series(santander_df["ncodpers"].unique())
+        unique_ids = pd.Series(santander_df.loc[:, "ncodpers"].unique())
         customers_limit = int(len(unique_ids) * sample_customer_frac)
         if not customers_limit:
             return pd.DataFrame({})
         if stratify:
             unique_ids = _stratify(santander_df, customers_limit)
         else:
-            unique_ids = pd.Series(santander_df["ncodpers"].unique())
+            unique_ids = pd.Series(santander_df.loc[:, "ncodpers"].unique())
             customers_limit = int(len(unique_ids) * sample_customer_frac)
             unique_ids = unique_ids.sample(n=customers_limit)
-        santander_sample = santander_df[santander_df["ncodpers"].isin(unique_ids)]
+        santander_sample = santander_df.loc[
+            santander_df.loc[:, "ncodpers"].isin(unique_ids)
+        ]
     logger.info(f"Santander df shape after sampling: {santander_sample.shape}")
     return santander_sample
 
@@ -322,7 +323,7 @@ def _convert_int_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def impute_santander(
-    santander_df: Iterator[pd.DataFrame], test: Boolean = False
+    santander_df: Iterator[pd.DataFrame], test: bool = False
 ) -> pd.DataFrame:
     """Impute missing values in splitted Santander dataframe based on
     information from tested Kaggle submissions.

@@ -7,6 +7,7 @@ from recommender_gnn.pipelines import graph_recommendation as gr
 from recommender_gnn.pipelines import graph_recommendation_modeling as grm
 from recommender_gnn.pipelines import graph_recommendation_preprocessing as grp
 from recommender_gnn.pipelines import kaggle_submission as ks
+from recommender_gnn.pipelines import otto_preprocessing as op
 from recommender_gnn.pipelines import santander_preprocessing as sp
 from recommender_gnn.pipelines import santander_to_act as sta
 from recommender_gnn.pipelines import test_gpu as tg
@@ -20,6 +21,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
 
     """
     santander_preprocessing_pipeline = sp.create_pipeline()
+    otto_preprocessing_train = op.create_pipeline("train")
+    otto_preprocessing_test = op.create_pipeline("test")
     santander_to_act_piepline = sta.create_pipeline()
     graph_recommendation_preprocessing_santander_pipeline = grp.create_pipeline(
         dataset_namespace="santander"
@@ -41,6 +44,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
     return {
         "__default__": santander_preprocessing_pipeline,
         "sp": santander_preprocessing_pipeline,
+        "op_train": otto_preprocessing_train,
+        "op_test": otto_preprocessing_test,
         "sta": santander_to_act_piepline,
         "santander_grp": graph_recommendation_preprocessing_santander_pipeline,
         # "hm_grp": graph_recommendation_preprocessing_hm_pipeline,

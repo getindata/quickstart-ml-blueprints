@@ -1,0 +1,9 @@
+otto_preprocessing_train:
+  sample:
+    sessions_frac: 0.1
+    stratify: True
+
+otto_preprocessing_test:
+  sample:
+    sessions_frac: 1
+    stratify: False

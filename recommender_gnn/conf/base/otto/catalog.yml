@@ -1,0 +1,40 @@
+_save_load_args: &save_load_args
+  save_args:
+    index: False
+  load_args:
+    engine: pyarrow
+
+
+otto_train_parquet:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/otto/train.parquet
+  layer: intermediate
+  <<: *save_load_args
+
+otto_test_parquet:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/otto/test.parquet
+  layer: intermediate
+  <<: *save_load_args
+
+id_to_type_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/02_intermediate/otto/id2type.parquet
+  layer: model
+
+type_to_id_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/02_intermediate/otto/type2id.parquet
+  layer: model
+
+otto_train_sample:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/otto/train_sample.parquet
+  layer: intermediate
+  <<: *save_load_args
+
+otto_test_sample:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/otto/test_sample.parquet
+  layer: intermediate
+  <<: *save_load_args

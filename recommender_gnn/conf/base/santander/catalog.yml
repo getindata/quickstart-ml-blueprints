@@ -424,5 +424,5 @@ santander_submission:
 
 test_gpu_pickle:
   type: pickle.PickleDataSet
-  filepath: gs://gid-ml-framework-data/06_models/test_gpu.pkl
+  filepath: data/06_models/test_gpu.pkl
   layer: model
