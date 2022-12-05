@@ -205,6 +205,13 @@ To automatically strip out all output cell contents before committing to `git`, 
 
 Locally on MacOS:
 
+0. Clone ML Framework Repo and create a branch for new use case:
+```
+git clone git@gitlab.com:getindata/aa-labs/coe/gid-ml-framework.git
+git checkout -b <branch-name>
+git push origin <branch-name> 
+```
+
 1. Install homebrew:
 
 ```
@@ -213,55 +220,88 @@ export PATH=/opt/homebrew/bin:$PATH
 export PATH=/opt/homebrew/sbin:$PATH
 ```
 
-2. Install pyenv:
+2. Ensure that you have proper build environment for your OS:
+```
+brew install openssl readline sqlite3 xz zlib tcl-tk
+```
+
+3. Install pyenv:
 ```
 brew install pyenv
 ```
 
-3. Set up shell environment for pyenv (zsh example):
+4. Set up shell environment for pyenv (zsh example):
 ```
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
 echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
 echo 'eval "$(pyenv init -)"' >> ~/.zshrc
 ```
 
-4. Install Python 3.8.12
-```
-pyenv install 3.8.12
-```
-
-5. Install Poetry
-```
-curl -sSL https://install.python-poetry.org | python3 -
-```
-
-6. Install kedro to create new kedro project (using conda)
+5. Install kedro to create new kedro project (using conda):
 ```
 conda create --name kedro python=3.8.12 -y
 conda activate kedro
 pip install kedro==0.18.3
 ```
 
-7. Create new kedro project
+6. Create new kedro project:
 ```
-kedro new
+kedro new  # give <project_name>
 conda deactivate
 cd <project_name>
 ```
 
-8. Change settings to include virtual envs in the project:
+7. Install Python 3.8.12 and set as global version:
+```
+pyenv install 3.8.12
+pyenv global 3.8.12
+```
+
+8. Install Poetry:
+```
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+9. Change settings to include virtual envs in the project:
 ```
 poetry config virtualenvs.in-project true --local
 poetry config virtualenvs.create true --local
 poetry config virtualenvs.in-project true
 ```
 
-9. Initialize Poetry in existing project:
+10. Initialize Poetry in existing project (make sure you are inside kedro project):
 ```
 poetry init
 ```
 
-10. Specify Python version for Poetry:
+11. Specify Python version for Poetry:
 ```
-poetry env use poetry env use /Users/<username>/.pyenv/versions/3.8.12/bin/python3
+# Change <username> or entire pyenv path
+poetry env use /Users/<username>/.pyenv/versions/3.8.12/bin/python3
+```
+
+12. Install pre-commit:
+```
+brew install pre-commit
+pre-commit install
+```
+
+13. Add kedro to Poetry env:
+```
+poetry add kedro==0.18.3
+```
+
+14. Add JupyterLab to Poetry env ad dev dependency:
+```
+poetry add -D jupyterlab
+```
+
+15. Activate Poetry env shell inside project directory to avoid using `poetry run`:
+```
+poetry shell
+```
+
+16. Run JupyterLab with Kedro:
+```
+kedro jupyter lab
 ```
