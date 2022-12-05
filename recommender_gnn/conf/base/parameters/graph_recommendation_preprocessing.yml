@@ -1,7 +1,12 @@
-santander:
-  concat:
-    date_column: 'date'
+graph_recommendation_preprocessing_santander:
+  train_subset: True 
+  val_subset: True
 
-hm:
-  concat:
-    date_column: 't_dat'
+graph_recommendation_preprocessing_hm:
+  train_subset: True 
+  val_subset: True
+
+graph_recommendation_preprocessing_otto:
+  train_subset: False
+  val_subset: True
+  original_date_column: "timestamp"
