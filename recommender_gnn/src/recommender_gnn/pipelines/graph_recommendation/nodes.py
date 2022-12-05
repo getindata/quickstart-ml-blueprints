@@ -63,7 +63,7 @@ def _get_loaders(
             collate_fn=collate,
             shuffle=True,
             pin_memory=True,
-            num_workers=12,
+            num_workers=1,
         )
     if test_set:
         test_loader = DataLoader(
@@ -71,7 +71,7 @@ def _get_loaders(
             batch_size=batch_size,
             collate_fn=lambda x: collate_test(x, negative_samples, item_num),
             pin_memory=True,
-            num_workers=12,
+            num_workers=1,
         )
     if val_set:
         val_loader = DataLoader(
@@ -79,7 +79,7 @@ def _get_loaders(
             batch_size=batch_size,
             collate_fn=lambda x: collate_test(x, negative_samples, item_num),
             pin_memory=True,
-            num_workers=12,
+            num_workers=1,
         )
     return train_loader, val_loader, test_loader
 

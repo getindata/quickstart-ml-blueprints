@@ -4,8 +4,8 @@ import pytest
 
 from recommender_gnn.pipelines.graph_recommendation_preprocessing.nodes import (
     _create_mapping,
-    concat_train_val,
     map_users_and_items,
+    preprocess_transactions,
 )
 
 
@@ -18,17 +18,17 @@ class TestConcatTrainVal:
     ):
         wrong_column = "no_date_column"
         with pytest.raises(KeyError):
-            concat_train_val(
+            preprocess_transactions(
                 bank_train_transactions, bank_val_transactions, wrong_column
             )
 
     def test_given_empty_dataframes_should_raise_exception(self):
         empty_df = pd.DataFrame({})
         with pytest.raises(KeyError):
-            concat_train_val(empty_df, empty_df, self.date_column)
+            preprocess_transactions(empty_df, empty_df, self.date_column)
 
     def test_output_shape(self, bank_train_transactions, bank_val_transactions):
-        df = concat_train_val(
+        df = preprocess_transactions(
             bank_train_transactions, bank_val_transactions, self.date_column
         )
         expected_shape = (
@@ -38,7 +38,7 @@ class TestConcatTrainVal:
         assert df.shape == expected_shape
 
     def test_output_columns(self, bank_train_transactions, bank_val_transactions):
-        df = concat_train_val(
+        df = preprocess_transactions(
             bank_train_transactions, bank_val_transactions, self.date_column
         )
         assert set(df.columns) == self.column_names

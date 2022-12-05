@@ -4,7 +4,9 @@ from kedro.pipeline.modular_pipeline import pipeline
 from .nodes import get_predictions, train_model
 
 
-def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeline:
+def create_pipeline(
+    dataset: str, model: str, comments: str = None, **kwargs
+) -> Pipeline:
     """Creates pipeline for graph recommendation models training
 
     Args:
@@ -12,8 +14,11 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
         model (str): name of gnn model to use
         comments (str): i.e. indication of which subsets we want to create (only_train, train_val, train_val_test)
     """
-    namespace = "_".join([dataset, model, comments, "gr"])
-    graph_modelling_namespace = "_".join([dataset, model, comments, "grm"])
+    namespace_list = [x for x in [dataset, model, comments] if x is not None]
+    namespace = "_".join(namespace_list)
+    gr_namespace = f"graph_recommendation_{namespace}"
+    grm_namespace = f"graph_recommendation_modelling_{namespace}"
+    grp_namespace = f"graph_recommendation_preprocessing_{dataset}"
 
     pipeline_template = pipeline(
         [
@@ -46,18 +51,18 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
     main_pipeline = pipeline(
         pipe=pipeline_template,
         inputs={
-            "transactions_mapped": f"{dataset}_transactions_mapped",
-            "negative_transactions_samples": f"{graph_modelling_namespace}_negative_transactions_samples",
-            "train_graphs": f"{graph_modelling_namespace}_train_graphs",
-            "val_graphs": f"{graph_modelling_namespace}_val_graphs",
-            # "test_graphs": f"{graph_modelling_namespace}_test_graphs",
-            "prediction_graphs": f"{graph_modelling_namespace}_predict_graphs",
+            "transactions_mapped": f"{grp_namespace}_transactions_mapped",
+            "negative_transactions_samples": f"{grm_namespace}_negative_transactions_samples",
+            "train_graphs": f"{grm_namespace}_train_graphs",
+            "val_graphs": f"{grm_namespace}_val_graphs",
+            # "test_graphs": f"{grm_namespace}_test_graphs",
+            "prediction_graphs": f"{grm_namespace}_predict_graphs",
         },
         outputs={
-            "model": f"{namespace}_model",
-            "predictions": f"{namespace}_predictions",
+            "model": f"{gr_namespace}_model",
+            "predictions": f"{gr_namespace}_predictions",
         },
-        namespace=namespace,
+        namespace=gr_namespace,
     )
 
     return main_pipeline

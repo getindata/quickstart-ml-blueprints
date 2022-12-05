@@ -16,7 +16,7 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
             node(
                 func=sample,
                 inputs=[
-                    "input_df",
+                    "input_otto_df",
                     "params:sample.sessions_frac",
                 ],
                 outputs="otto_sample",
@@ -28,10 +28,10 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
     main_pipeline = pipeline(
         pipe=pipeline_template,
         inputs={
-            "input_df": f"otto_{subset}_parquet",
+            "input_otto_df": f"otto_{subset}_parquet",
         },
         outputs={
-            "otto_sample": f"otto_{subset}_sample",
+            "otto_sample": f"otto_{subset}_preprocessed",
         },
         namespace=namespace,
     )

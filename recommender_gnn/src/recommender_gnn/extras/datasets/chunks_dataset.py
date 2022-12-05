@@ -21,7 +21,9 @@ def _load(self) -> pd.DataFrame:
     return pd.read_csv(load_path, **self._load_args)
 
 
-def _concat_chunks(chunks: Union[Iterator[pd.DataFrame], pd.DataFrame]) -> pd.DataFrame:
+def _concat_chunks(
+    chunks: Union[Iterator[pd.DataFrame], pd.DataFrame, None] = None
+) -> Union[pd.DataFrame, None]:
     """Auxiliary function for concatenating chunks into dataframe
 
     Args:
@@ -32,8 +34,11 @@ def _concat_chunks(chunks: Union[Iterator[pd.DataFrame], pd.DataFrame]) -> pd.Da
     """
     if isinstance(chunks, pd.DataFrame):
         df = chunks
-    else:
+        return df
+    elif isinstance(chunks[0], pd.DataFrame):
         df = pd.DataFrame()
         for chunk in chunks:
             df = pd.concat([df, chunk], ignore_index=True)
-    return df
+        return df
+    else:
+        return None
