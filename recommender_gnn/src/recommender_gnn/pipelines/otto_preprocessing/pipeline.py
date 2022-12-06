@@ -18,6 +18,7 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                 inputs=[
                     "input_otto_df",
                     "params:sample.sessions_frac",
+                    "params:sample.stratify",
                 ],
                 outputs="otto_sample",
                 name=f"sample_otto_{subset}_node",

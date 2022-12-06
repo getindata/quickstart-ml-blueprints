@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 def _stratify(
     input_otto_df: pd.DataFrame,
     sessions_frac: float,
-    session_column: str,
-    timestamp_column: str,
-    event_type_column: str,
+    session_column: str = "session",
+    timestamp_column: str = "ts",
+    event_type_column: str = "type",
 ) -> List:
     """Stratify input dataframe based on length of sessions, their timestamps and
     event types (clicks, purchases, additions to cart)
@@ -28,12 +28,12 @@ def _stratify(
     Returns:
         List: stratified sample of sessions
     """
-    stratify_columns = ["length", "mean_timestamp", "event_type"]
-    length_column, mean_timestamp_column, event_type_column = stratify_columns
-    grouped_df = input_otto_df.groupby(session_column).agg(
+    stratify_columns = ["length", "mean_timestamp", "event_unique"]
+    length_column, mean_timestamp_column, event_unique_column = stratify_columns
+    grouped_df = input_otto_df.groupby(session_column, as_index=False).agg(
         length=(session_column, "count"),
         mean_timestamp=(timestamp_column, "mean"),
-        event_type=(event_type_column, "nunique"),
+        event_unique=(event_type_column, "nunique"),
     )
 
     grouped_df.loc[:, length_column] = pd.qcut(
@@ -42,8 +42,8 @@ def _stratify(
     grouped_df.loc[:, mean_timestamp_column] = pd.qcut(
         grouped_df.loc[:, mean_timestamp_column], q=5, duplicates="drop"
     ).astype("category")
-    grouped_df.loc[:, event_type_column] = pd.qcut(
-        grouped_df.loc[:, event_type_column], q=3, duplicates="drop"
+    grouped_df.loc[:, event_unique_column] = pd.qcut(
+        grouped_df.loc[:, event_unique_column], q=3, duplicates="drop"
     ).astype("category")
 
     _, sampled_df = train_test_split(

@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 def preprocess_transactions(
     train_df: Union[Iterator[pd.DataFrame], pd.DataFrame],
     val_df: Union[Iterator[pd.DataFrame], pd.DataFrame],
-    train_subset: bool,
-    val_subset: bool,
+    train_subset: bool = True,
+    val_subset: bool = True,
     original_date_column: str = "date",
     original_item_column: str = "article_id",
     original_user_column: str = "customer_id",
