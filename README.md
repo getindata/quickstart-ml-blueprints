@@ -203,7 +203,7 @@ To automatically strip out all output cell contents before committing to `git`, 
 
 # Creating a new use case <a name="new-use-case"></a>
 
-Locally on MacOS:
+Locally on MacOS with `zsh`:
 
 0. Clone ML Framework Repo and create a branch for new use case:
 ```
@@ -216,13 +216,23 @@ git push origin <branch-name>
 
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-export PATH=/opt/homebrew/bin:$PATH
-export PATH=/opt/homebrew/sbin:$PATH
+```
+
+Add paths to PATH permanently by adding to `./zshrc`:
+
+```
+echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="/opt/homebrew/sbin:$PATH"' >> ~/.zshrc
 ```
 
 2. Ensure that you have proper build environment for your OS:
 ```
 brew install openssl readline sqlite3 xz zlib tcl-tk
+```
+
+3. To avoid them accidentally linking against a Pyenv-provided Python"
+```
+alias brew='env PATH="${PATH//$(pyenv root)\/shims:/}" brew'
 ```
 
 3. Install pyenv:
@@ -261,6 +271,13 @@ pyenv global 3.8.12
 ```
 curl -sSL https://install.python-poetry.org | python3 -
 ```
+
+Add path to PATH permanently by adding to `./zshrc`:
+
+```
+echo 'export "PATH=$HOME/.local/bin:$PATH"' >> ~/.zshrc
+```
+
 
 9. Change settings to include virtual envs in the project:
 ```
@@ -305,3 +322,7 @@ poetry shell
 ```
 kedro jupyter lab
 ```
+
+17. For VSCode:  
+
+Change `terminal.integrated.cwd` setting to your use case
