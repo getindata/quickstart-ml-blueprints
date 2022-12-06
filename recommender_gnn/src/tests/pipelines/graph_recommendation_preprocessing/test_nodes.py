@@ -13,15 +13,6 @@ class TestConcatTrainVal:
     date_column = "date"
     column_names = {"item_id", "user_id", "time"}
 
-    def test_given_wrong_date_column_should_raise_exception(
-        self, bank_train_transactions, bank_val_transactions
-    ):
-        wrong_column = "no_date_column"
-        with pytest.raises(KeyError):
-            preprocess_transactions(
-                bank_train_transactions, bank_val_transactions, wrong_column
-            )
-
     def test_given_empty_dataframes_should_raise_exception(self):
         empty_df = pd.DataFrame({})
         with pytest.raises(KeyError):
