@@ -125,7 +125,6 @@ graph_recommendation_otto_dgsr_model:
   type: pickle.PickleDataSet
   filepath: data/06_models/otto/graph_recommendation_otto_dgsr_model.pkl
   layer: model
-  backend: dill
 
 graph_recommendation_otto_dgsr_predictions:
   type: pandas.CSVDataSet

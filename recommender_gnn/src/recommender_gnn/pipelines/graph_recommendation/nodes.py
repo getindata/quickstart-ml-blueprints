@@ -1,4 +1,5 @@
 import logging
+from functools import partial
 from operator import itemgetter
 from typing import Dict, Tuple, Union
 
@@ -69,7 +70,7 @@ def _get_loaders(
         test_loader = DataLoader(
             dataset=test_set,
             batch_size=batch_size,
-            collate_fn=lambda x: collate_test(x, negative_samples, item_num),
+            collate_fn=partial(collate_test, negative_samples, item_num),
             pin_memory=True,
             num_workers=1,
         )
@@ -77,7 +78,7 @@ def _get_loaders(
         val_loader = DataLoader(
             dataset=val_set,
             batch_size=batch_size,
-            collate_fn=lambda x: collate_test(x, negative_samples, item_num),
+            collate_fn=partial(collate_test, negative_samples, item_num),
             pin_memory=True,
             num_workers=1,
         )
