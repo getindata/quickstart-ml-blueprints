@@ -1,7 +1,7 @@
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from .nodes import get_predictions, train_model
+from .nodes import get_predictions, test_model, train_model
 
 
 def create_pipeline(
@@ -34,8 +34,21 @@ def create_pipeline(
                     "params:save_model",
                     "params:seed",
                 ],
-                outputs="model",
+                outputs=["model", "data_stats"],
                 name="train_model_node",
+                tags=["gpu_tag"],
+            ),
+            node(
+                func=test_model,
+                inputs=[
+                    "test_graphs",
+                    "model",
+                    "negative_transactions_samples",
+                    "params:training.train_params",
+                    "data_stats",
+                ],
+                outputs=None,
+                name="test_model_node",
                 tags=["gpu_tag"],
             ),
             node(
@@ -55,11 +68,12 @@ def create_pipeline(
             "negative_transactions_samples": f"{grm_namespace}_negative_transactions_samples",
             "train_graphs": f"{grm_namespace}_train_graphs",
             "val_graphs": f"{grm_namespace}_val_graphs",
-            # "test_graphs": f"{grm_namespace}_test_graphs",
+            "test_graphs": f"{grm_namespace}_test_graphs",
             "prediction_graphs": f"{grm_namespace}_predict_graphs",
         },
         outputs={
             "model": f"{gr_namespace}_model",
+            "data_stats": f"{gr_namespace}_data_stats",
             "predictions": f"{gr_namespace}_predictions",
         },
         namespace=gr_namespace,

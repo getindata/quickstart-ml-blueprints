@@ -51,7 +51,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
         model="dgsr",
         comments="kaggle",
     )
-    graph_recommendation_santander_dgsr_pipeline = gr.create_pipeline(
+    graph_recommendation_otto_dgsr_pipeline = gr.create_pipeline(
         dataset="otto",
         model="dgsr",
     )
@@ -75,7 +75,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "santander_dgsr_kaggle_grm": graph_recommendation_modeling_santander_dgsr_kaggle_pipeline,
         "otto_dgsr_grm": graph_recommendation_modeling_otto_dgsr_pipeline,
         "santander_dgsr_kaggle_gr": graph_recommendation_santander_dgsr_kaggle_pipeline,
-        "otto_dgsr_gr": graph_recommendation_santander_dgsr_pipeline,
+        "otto_dgsr_gr": graph_recommendation_otto_dgsr_pipeline,
         "santander_ks": santander_kaggle_submission,
         # "hm_dgsr_kaggle_grm": graph_recommendation_modeling_hm_dgsr_kaggle_pipeline,
         # "hm_dgsr_kaggle_gr": graph_recommendation_hm_dgsr_kaggle_pipeline,

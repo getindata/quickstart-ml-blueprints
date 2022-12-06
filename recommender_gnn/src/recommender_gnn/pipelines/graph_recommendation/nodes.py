@@ -1,7 +1,7 @@
 import logging
 from functools import partial
 from operator import itemgetter
-from typing import Dict, Tuple, Union
+from typing import Dict, Optional, Tuple
 
 import mlflow.pytorch
 import pandas as pd
@@ -42,12 +42,12 @@ def _get_data_stats(
 
 
 def _get_loaders(
-    train_set: Union[SubGraphsDataset, None] = None,
-    val_set: Union[SubGraphsDataset, None] = None,
-    test_set: Union[SubGraphsDataset, None] = None,
-    negative_samples: pd.DataFrame = None,
-    train_params: Dict = None,
-    data_stats: Tuple[int] = None,
+    train_set: Optional[SubGraphsDataset] = None,
+    val_set: Optional[SubGraphsDataset] = None,
+    test_set: Optional[SubGraphsDataset] = None,
+    negative_samples: Optional[pd.DataFrame] = None,
+    train_params: Optional[Dict] = None,
+    data_stats: Optional[Tuple[int]] = None,
 ) -> Tuple[DataLoader, None]:
     """Creates torch DataLoader from chosen datasets. Collates negative samples with test and val sets."""
     if train_params:
@@ -66,17 +66,17 @@ def _get_loaders(
             pin_memory=True,
             num_workers=1,
         )
-    if test_set:
-        test_loader = DataLoader(
-            dataset=test_set,
+    if val_set:
+        val_loader = DataLoader(
+            dataset=val_set,
             batch_size=batch_size,
             collate_fn=partial(collate_test, negative_samples, item_num),
             pin_memory=True,
             num_workers=1,
         )
-    if val_set:
-        val_loader = DataLoader(
-            dataset=val_set,
+    if test_set:
+        test_loader = DataLoader(
+            dataset=test_set,
             batch_size=batch_size,
             collate_fn=partial(collate_test, negative_samples, item_num),
             pin_memory=True,
@@ -194,11 +194,24 @@ def train_model(
         trainer.fit(model, train_dataloaders=train_loader)
     if log_mlflow:
         _log_auto_logged_info(mlflow.active_run())
-    return model
+    return model, data_stats
 
 
-def test_model():
-    pass
+def test_model(
+    test_set: SubGraphsDataset,
+    model: pl.LightningModule,
+    negative_samples: pd.DataFrame,
+    train_params: Dict,
+    data_stats: Tuple[int],
+) -> None:
+    trainer = pl.Trainer(devices=1, accelerator="auto", logger=False)
+    _, _, test_dataloader = _get_loaders(
+        test_set=test_set,
+        negative_samples=negative_samples,
+        train_params=train_params,
+        data_stats=data_stats,
+    )
+    trainer.test(model, dataloaders=test_dataloader)
 
 
 def get_predictions(

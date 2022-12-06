@@ -136,12 +136,7 @@ graph_recommendation_otto_dgsr_predictions:
     chunksize: 1000000
     low_memory: False
 
-# otto_submission:
-#   type: pandas.CSVDataSet
-#   filepath: data/07_model_output/otto/otto_submission.csv
-#   layer: model_output
-#   save_args:
-#     index: False
-#   load_args:
-#     chunksize: 1000000
-#     low_memory: False
+graph_recommendation_otto_data_stats:
+  type: pickle.PickleDataSet
+  filepath: data/07_model_output/otto/graph_recommendation_otto_data_stats.pkl
+  layer: model_output
