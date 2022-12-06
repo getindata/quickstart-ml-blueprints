@@ -1,3 +1,9 @@
+kaggle_submission_otto_dgsr:
+  new_item_column: aid
+  new_user_column: session
+  original_user_column: customer_id
+  filter_by_test_users: False
+
 santander_ks:
   new_item_column: added_products
   new_user_column: ncodpers

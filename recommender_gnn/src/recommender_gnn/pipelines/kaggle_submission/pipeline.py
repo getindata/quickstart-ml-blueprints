@@ -3,14 +3,23 @@ from kedro.pipeline import Pipeline, node, pipeline
 from .nodes import generate_submission
 
 
-def create_pipeline(dataset: str, **kwargs) -> Pipeline:
+def create_pipeline(
+    dataset: str, model: str, users: str, test_df, comments: str = None, **kwargs
+) -> Pipeline:
     """Creates pipeline for generating kaggle submission file from saved predictions
 
     Args:
-        dataset (str): dataset name [santander/hm]
+        dataset (str): dataset name
+        model (str): name of gnn model which was used to generate predictions
+        users (str): dataframe with users ids subset for which submission should be generated (before mapping)
+        test_df (str): dataframe with test transactions, used for filtering predictions (before mapping)
     """
-    namespace = f"{dataset}_ks"
-    gr_namespace = "dgsr_kaggle_gr"
+    namespace_list = [x for x in [dataset, model, comments] if x is not None]
+    namespace = "_".join(namespace_list)
+    ks_namespace = f"kaggle_submission_{namespace}"
+    gr_namespace = f"graph_recommendation_{namespace}"
+    grp_namespace = f"graph_recommendation_preprocessing_{dataset}"
+
     pipeline_template = pipeline(
         [
             node(
@@ -20,7 +29,7 @@ def create_pipeline(dataset: str, **kwargs) -> Pipeline:
                     "all_users",
                     "users_mapping",
                     "items_mapping",
-                    "test_input",
+                    "test_df",
                     "params:new_item_column",
                     "params:new_user_column",
                     "params:original_user_column",
@@ -35,16 +44,16 @@ def create_pipeline(dataset: str, **kwargs) -> Pipeline:
     main_pipeline = pipeline(
         pipe=pipeline_template,
         inputs={
-            "predictions": f"{dataset}_{gr_namespace}_predictions",
-            "all_users": f"{dataset}_customers",
-            "users_mapping": f"{dataset}_users_mapping",
-            "items_mapping": f"{dataset}_items_mapping",
-            "test_input": f"{dataset}_test_input",
+            "predictions": f"{gr_namespace}_predictions",
+            "all_users": users,
+            "users_mapping": f"{grp_namespace}_users_mapping",
+            "items_mapping": f"{grp_namespace}_items_mapping",
+            "test_df": test_df,
         },
         outputs={
-            "submission": f"{dataset}_submission",
+            "submission": f"{ks_namespace}_submission",
         },
-        namespace=namespace,
+        namespace=ks_namespace,
     )
 
     return main_pipeline

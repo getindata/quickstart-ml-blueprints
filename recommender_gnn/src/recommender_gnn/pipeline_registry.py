@@ -55,7 +55,19 @@ def register_pipelines() -> Dict[str, Pipeline]:
         dataset="otto",
         model="dgsr",
     )
-    santander_kaggle_submission = ks.create_pipeline(dataset="santander")
+    santander_kaggle_submission = ks.create_pipeline(
+        dataset="santander",
+        model="dgsr",
+        users="santander_users",
+        test_df="santander_test_input",
+    )
+
+    otto_kaggle_submission = ks.create_pipeline(
+        dataset="otto",
+        model="dgsr",
+        users="otto_customers_val_act",
+        test_df="otto_transactions_val_act",
+    )
 
     test_gpu_cuda = tg.create_pipeline()
 
@@ -77,6 +89,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "santander_dgsr_kaggle_gr": graph_recommendation_santander_dgsr_kaggle_pipeline,
         "otto_dgsr_gr": graph_recommendation_otto_dgsr_pipeline,
         "santander_ks": santander_kaggle_submission,
+        "otto_ks": otto_kaggle_submission,
         # "hm_dgsr_kaggle_grm": graph_recommendation_modeling_hm_dgsr_kaggle_pipeline,
         # "hm_dgsr_kaggle_gr": graph_recommendation_hm_dgsr_kaggle_pipeline,
         # "hm_ks": hm_kaggle_submission,
@@ -87,6 +100,16 @@ def register_pipelines() -> Dict[str, Pipeline]:
             + graph_recommendation_modeling_santander_dgsr_kaggle_pipeline
             + graph_recommendation_santander_dgsr_kaggle_pipeline
             + santander_kaggle_submission
+        ),
+        "otto_e2e": (
+            otto_preprocessing_train_pipeline
+            + otto_preprocessing_test_pipeline
+            + otto_to_act_train_pipeline
+            + otto_to_act_test_pipeline
+            + graph_recommendation_preprocessing_otto_pipeline
+            + graph_recommendation_modeling_otto_dgsr_pipeline
+            + graph_recommendation_otto_dgsr_pipeline
+            + otto_kaggle_submission
         ),
         "tg": test_gpu_cuda,
     }

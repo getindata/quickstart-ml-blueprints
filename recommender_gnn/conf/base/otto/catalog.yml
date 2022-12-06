@@ -126,17 +126,25 @@ graph_recommendation_otto_dgsr_model:
   filepath: data/06_models/otto/graph_recommendation_otto_dgsr_model.pkl
   layer: model
 
-graph_recommendation_otto_dgsr_predictions:
+_save_load_args_csv: &save_load_args_csv
   type: pandas.CSVDataSet
-  filepath: data/07_model_output/otto/graph_recommendation_otto_dgsr_predictions.csv
-  layer: model_output
   save_args:
     index: False
   load_args:
     chunksize: 1000000
     low_memory: False
 
+graph_recommendation_otto_dgsr_predictions:
+  filepath: data/07_model_output/otto/graph_recommendation_otto_dgsr_predictions.csv
+  layer: model_output
+  <<: *save_load_args_csv
+
 graph_recommendation_otto_data_stats:
   type: pickle.PickleDataSet
   filepath: data/07_model_output/otto/graph_recommendation_otto_data_stats.pkl
   layer: model_output
+
+kaggle_submission_otto_dgsr_submission:
+  filepath: data/07_model_output/otto/kaggle_submission_otto_dgsr_submission.csv
+  layer: model_output
+  <<: *save_load_args_csv

@@ -72,12 +72,12 @@ def _get_columns(predictions: pd.DataFrame) -> Tuple:
 
 def _filter_by_test_users(
     submission: pd.DataFrame,
-    test_input: Union[Iterator[pd.DataFrame], pd.DataFrame],
+    test_df: Union[Iterator[pd.DataFrame], pd.DataFrame],
     test_user_column: str,
 ):
     """Filters submission dataframe with users ids present in test file"""
-    test_input = _concat_chunks(test_input)
-    test_users = set(test_input.loc[:, test_user_column])
+    test_df = _concat_chunks(test_df)
+    test_users = set(test_df.loc[:, test_user_column])
     submission = submission.loc[submission[test_user_column].isin(test_users), :]
     return submission
 
@@ -87,7 +87,7 @@ def generate_submission(
     all_users: pd.DataFrame,
     user_mapping: Dict,
     item_mapping: Dict,
-    test_input: Union[Iterator[pd.DataFrame], pd.DataFrame],
+    test_df: Union[Iterator[pd.DataFrame], pd.DataFrame],
     new_item_column: str,
     new_user_column: str,
     original_user_column: str,
@@ -101,7 +101,7 @@ def generate_submission(
         all_users (pd.DataFrame): dataframe with all users data
         user_mapping (Dict): user mapping dict used to map original user ids to ones consistent with GNNs models
         item_mapping (Dict): user mapping dict used to map original user ids to ones consistent with GNNs models
-        test_input (pd.DataFrame): dataframe containing user ids from test subset
+        test_df (pd.DataFrame): dataframe containing user ids from test subset
         new_item_column (str): name of item column required by Kaggle submission format
         new_user_column (str): name of user column required by Kaggle submission format
 
@@ -135,5 +135,5 @@ def generate_submission(
         " "
     )
     if filter_by_test_users:
-        submission = _filter_by_test_users(submission, test_input, new_user_column)
+        submission = _filter_by_test_users(submission, test_df, new_user_column)
     return submission
