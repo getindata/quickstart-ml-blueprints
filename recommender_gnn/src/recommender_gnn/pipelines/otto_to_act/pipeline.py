@@ -11,45 +11,39 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
         subset (str): subset name [train/test]
     """
     namespace = f"otto_to_act_{subset}"
+    preprocessing_namespace = f"otto_preprocessing_{subset}"
     pipeline_template = pipeline(
         [
             node(
                 func=extract_transactions,
                 inputs=[
-                    "preprocessed_df",
+                    "sample_df",
                 ],
-                outputs="otto_transactions_act",
-                name=f"otto_{subset}_to_transactions_node",
+                outputs="transactions",
+                name="extract_transactions_node",
             ),
             node(
                 func=extract_articles,
                 inputs=[
-                    "transactions_df",
+                    "transactions",
                 ],
-                outputs="otto_articles_act",
-                name=f"otto_{subset}_to_articles_node",
+                outputs="articles",
+                name="extract_articles_node",
             ),
             node(
                 func=extract_customers,
                 inputs=[
-                    "transactions_df",
+                    "transactions",
                 ],
-                outputs="otto_customers_act",
-                name=f"otto_{subset}_to_customers_node",
+                outputs="customers",
+                name="extract_customers_node",
             ),
         ]
     )
-    act_subset = "val" if subset == "test" else subset
     main_pipeline = pipeline(
         pipe=pipeline_template,
         inputs={
-            "preprocessed_df": f"otto_{subset}_preprocessed",
-            "transactions_df": f"otto_transactions_{act_subset}_act",
-        },
-        outputs={
-            "otto_transactions_act": f"otto_transactions_{act_subset}_act",
-            "otto_articles_act": f"otto_articles_{act_subset}_act",
-            "otto_customers_act": f"otto_customers_{act_subset}_act",
+            "sample_df": f"{preprocessing_namespace}.sample_df",
         },
         namespace=namespace,
     )

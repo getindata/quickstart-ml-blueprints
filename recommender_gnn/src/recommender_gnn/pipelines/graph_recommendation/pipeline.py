@@ -15,10 +15,11 @@ def create_pipeline(
         comments (str): i.e. indication of which subsets we want to create (only_train, train_val, train_val_test)
     """
     namespace_list = [x for x in [dataset, model, comments] if x is not None]
-    namespace = "_".join(namespace_list)
-    gr_namespace = f"graph_recommendation_{namespace}"
-    grm_namespace = f"graph_recommendation_modelling_{namespace}"
-    grp_namespace = f"graph_recommendation_preprocessing_{dataset}"
+    namespace = "_".join(["graph_recommendation"] + namespace_list)
+    grm_namespace = "_".join(["graph_recommendation_modelling"] + namespace_list)
+    grp_namespace = "_".join(
+        ["graph_recommendation_preprocessing"] + namespace_list[::2]
+    )
 
     pipeline_template = pipeline(
         [
@@ -64,19 +65,14 @@ def create_pipeline(
     main_pipeline = pipeline(
         pipe=pipeline_template,
         inputs={
-            "transactions_mapped": f"{grp_namespace}_transactions_mapped",
-            "negative_transactions_samples": f"{grm_namespace}_negative_transactions_samples",
-            "train_graphs": f"{grm_namespace}_train_graphs",
-            "val_graphs": f"{grm_namespace}_val_graphs",
-            "test_graphs": f"{grm_namespace}_test_graphs",
-            "prediction_graphs": f"{grm_namespace}_predict_graphs",
+            "transactions_mapped": f"{grp_namespace}.transactions_mapped",
+            "negative_transactions_samples": f"{grm_namespace}.negative_transactions_samples",
+            "train_graphs": f"{grm_namespace}.train_graphs",
+            "val_graphs": f"{grm_namespace}.val_graphs",
+            "test_graphs": f"{grm_namespace}.test_graphs",
+            "prediction_graphs": f"{grm_namespace}.predict_graphs",
         },
-        outputs={
-            "model": f"{gr_namespace}_model",
-            "data_stats": f"{gr_namespace}_data_stats",
-            "predictions": f"{gr_namespace}_predictions",
-        },
-        namespace=gr_namespace,
+        namespace=namespace,
     )
 
     return main_pipeline

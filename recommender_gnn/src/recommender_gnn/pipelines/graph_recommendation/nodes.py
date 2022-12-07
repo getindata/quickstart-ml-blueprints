@@ -211,6 +211,7 @@ def test_model(
         train_params=train_params,
         data_stats=data_stats,
     )
+    mlflow.pytorch.autolog(log_models=False)
     trainer.test(model, dataloaders=test_dataloader)
 
 

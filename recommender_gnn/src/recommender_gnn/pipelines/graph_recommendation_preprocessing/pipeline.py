@@ -10,11 +10,10 @@ def create_pipeline(dataset: str, comments: str = None, **kwargs) -> Pipeline:
 
     Args:
         dataset (str): dataset name
-        train_subset (bool): whether to include train subset
-        val_subset (bool): whether to include val subset
         comments (str): comments to add to the pipeline namespace
     """
     namespace = f"graph_recommendation_preprocessing_{dataset}"
+    to_act_namespace = f"{dataset}_to_act"
     if comments:
         namespace += f"_{comments}"
     main_pipeline_instance = pipeline(
@@ -22,10 +21,10 @@ def create_pipeline(dataset: str, comments: str = None, **kwargs) -> Pipeline:
             node(
                 func=preprocess_transactions,
                 inputs=[
-                    "transactions_train",
-                    "transactions_val",
+                    "train_transactions",
+                    "test_transactions",
                     "params:train_subset",
-                    "params:val_subset",
+                    "params:test_subset",
                     "params:original_date_column",
                 ],
                 outputs="transactions_preprocessed",
@@ -50,13 +49,8 @@ def create_pipeline(dataset: str, comments: str = None, **kwargs) -> Pipeline:
     main_pipeline = pipeline(
         pipe=main_pipeline_instance,
         inputs={
-            "transactions_train": f"{dataset}_transactions_train_act",
-            "transactions_val": f"{dataset}_transactions_val_act",
-        },
-        outputs={
-            "transactions_mapped": f"{namespace}_transactions_mapped",
-            "users_mapping": f"{namespace}_users_mapping",
-            "items_mapping": f"{namespace}_items_mapping",
+            "train_transactions": f"{to_act_namespace}_train.transactions",
+            "test_transactions": f"{to_act_namespace}_test.transactions",
         },
         namespace=namespace,
     )

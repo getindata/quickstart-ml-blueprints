@@ -15,10 +15,11 @@ def create_pipeline(
         test_df (str): dataframe with test transactions, used for filtering predictions (before mapping)
     """
     namespace_list = [x for x in [dataset, model, comments] if x is not None]
-    namespace = "_".join(namespace_list)
-    ks_namespace = f"kaggle_submission_{namespace}"
-    gr_namespace = f"graph_recommendation_{namespace}"
-    grp_namespace = f"graph_recommendation_preprocessing_{dataset}"
+    namespace = "_".join(["kaggle_submission"] + namespace_list)
+    gr_namespace = "_".join(["graph_recommendation"] + namespace_list)
+    grp_namespace = "_".join(
+        ["graph_recommendation_preprocessing"] + namespace_list[::2]
+    )
 
     pipeline_template = pipeline(
         [
@@ -44,16 +45,13 @@ def create_pipeline(
     main_pipeline = pipeline(
         pipe=pipeline_template,
         inputs={
-            "predictions": f"{gr_namespace}_predictions",
+            "predictions": f"{gr_namespace}.predictions",
             "all_users": users,
-            "users_mapping": f"{grp_namespace}_users_mapping",
-            "items_mapping": f"{grp_namespace}_items_mapping",
+            "users_mapping": f"{grp_namespace}.users_mapping",
+            "items_mapping": f"{grp_namespace}.items_mapping",
             "test_df": test_df,
         },
-        outputs={
-            "submission": f"{ks_namespace}_submission",
-        },
-        namespace=ks_namespace,
+        namespace=namespace,
     )
 
     return main_pipeline

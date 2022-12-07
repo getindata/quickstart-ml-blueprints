@@ -12,15 +12,13 @@ def create_pipeline(
     Args:
         dataset (str): dataset name
         model (str): name of gnn model to use
-        comments (str): i.e. indication of which subsets we want to create graphs
+        comments (str): i.e. some additional strings to distinguish pipeline namespace
     """
-    namespace_list = [
-        x
-        for x in ["graph_recommendation_modelling", dataset, model, comments]
-        if x is not None
-    ]
-    grm_namespace = "_".join(namespace_list)
-    grp_namespace = f"graph_recommendation_preprocessing_{dataset}"
+    namespace_list = [x for x in [dataset, model, comments] if x is not None]
+    namespace = "_".join(["graph_recommendation_modelling"] + namespace_list)
+    grp_namespace = "_".join(
+        ["graph_recommendation_preprocessing"] + namespace_list[::2]
+    )
 
     dgsr_pipeline = pipeline(
         [
@@ -66,16 +64,8 @@ def create_pipeline(
 
     main_pipeline = pipeline(
         pipe=models_dict.get(model),
-        inputs={"transactions_mapped": f"{grp_namespace}_transactions_mapped"},
-        outputs={
-            "transactions_graph": f"{grm_namespace}_transactions_graph",
-            "negative_transactions_samples": f"{grm_namespace}_negative_transactions_samples",
-            "train_graphs": f"{grm_namespace}_train_graphs",
-            "val_graphs": f"{grm_namespace}_val_graphs",
-            "test_graphs": f"{grm_namespace}_test_graphs",
-            "predict_graphs": f"{grm_namespace}_predict_graphs",
-        },
-        namespace=grm_namespace,
+        inputs={"transactions_mapped": f"{grp_namespace}.transactions_mapped"},
+        namespace=namespace,
     )
 
     return main_pipeline
