@@ -24,7 +24,7 @@ graph_recommendation_otto_dgsr:
       user_max_length: 50
       k_hop: 2
 
-graph_recommendation_santander_dgsr_kaggle:
+graph_recommendation_hm_dgsr:
   seed: 123
   save_model: True
   training:
@@ -32,32 +32,6 @@ graph_recommendation_santander_dgsr_kaggle:
       k: 20
       batch_size: 50
       epochs: 2
-      lr: 0.001
-      l2: 0.0001
-      validate: True
-    model_params:
-      hidden_size: 50
-      user_update: rnn
-      item_update: rnn
-      user_long: orgat
-      item_long: orgat
-      user_short: att
-      item_short: att
-      feat_drop_out: 0.3
-      attn_drop_out: 0.3
-      layer_num: 3
-      item_max_length: 50
-      user_max_length: 50
-      k_hop: 2
-
-graph_recommendation_hm_dgsr_kaggle:
-  seed: 123
-  save_model: True
-  training:
-    train_params:
-      k: 20
-      batch_size: 50
-      epochs: 10
       lr: 0.001
       l2: 0.0001
       validate: False

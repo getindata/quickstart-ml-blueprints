@@ -1,12 +1,15 @@
-graph_recommendation_preprocessing_santander:
-  train_subset: True 
-  test_subset: True
-
 graph_recommendation_preprocessing_hm:
-  train_subset: True 
-  test_subset: True
+  original_date_column: "date"
+  original_item_column: "article_id"
+  original_user_column: "customer_id"
+  new_date_column: "time"
+  new_item_column: "item_id"
+  new_user_column: "user_id"
 
 graph_recommendation_preprocessing_otto:
-  train_subset: False
-  test_subset: True
   original_date_column: "timestamp"
+  original_item_column: "article_id"
+  original_user_column: "customer_id"
+  new_date_column: "time"
+  new_item_column: "item_id"
+  new_user_column: "user_id"

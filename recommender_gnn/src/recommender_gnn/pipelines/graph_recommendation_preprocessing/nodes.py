@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Iterator, Tuple, Union
+from typing import Dict, Iterator, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -11,39 +11,34 @@ logger = logging.getLogger(__name__)
 
 
 def preprocess_transactions(
-    train_df: Union[Iterator[pd.DataFrame], pd.DataFrame],
-    val_df: Union[Iterator[pd.DataFrame], pd.DataFrame],
-    train_subset: bool = True,
-    val_subset: bool = True,
+    first_subset: Union[Iterator[pd.DataFrame], pd.DataFrame],
     original_date_column: str = "date",
     original_item_column: str = "article_id",
     original_user_column: str = "customer_id",
     new_date_column: str = "time",
     new_item_column: str = "item_id",
     new_user_column: str = "user_id",
+    second_subset: Optional[Union[Iterator[pd.DataFrame], pd.DataFrame]] = None,
 ) -> Union[pd.DataFrame, None]:
-    """If both present concatenates train and val transactions subsets for preprocessing purposes (there is no data leak
-    from previous data imputation, because we are not using imputed data for following tasks). Also converts date column
-    to timestamp and renames columns.
+    """If both present concatenates first_subset and second_subset of transactions for preprocessing purposes. Also
+    converts date column to timestamp and renames columns.
 
     Args:
-        train_df (pd.DataFrame): transactions train dataframe
-        val_df (pd.DataFrame): transaction val dataframe
-        train_subset (bool): whether to include train subset in preprocessing
-        val_subset (bool): whether to include val subset in preprocessing
+        first_subset (pd.DataFrame): first subset of transactions dataframe
         original_date_column (str): original date column name
         original_item_column (str): original item column name
         original_user_column (str): original user column name
         new_date_column (str): new date column name
         new_item_column (str): new item column name
         new_user_column (str): new user column name
+        second_subset (pd.DataFrame): second subset of transactions dataframe
 
     Returns:
         pd.DataFrame: concatenated transactions dataframe
     """
-    train_df = _concat_chunks(train_df) if train_subset else None
-    val_df = _concat_chunks(val_df) if val_subset else None
-    df = pd.concat([train_df, val_df]).reset_index(drop=True)
+    first_subset = _concat_chunks(first_subset)
+    second_subset = _concat_chunks(second_subset) if second_subset else None
+    df = pd.concat([first_subset, second_subset]).reset_index(drop=True)
     if df is None:
         return df
     if original_date_column == "date":

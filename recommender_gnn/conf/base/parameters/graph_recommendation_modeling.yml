@@ -7,20 +7,11 @@ graph_recommendation_modelling_otto_dgsr:
     test_flag: True
     predict_flag: True
 
-graph_recommendation_modelling_santander_dgsr_kaggle:
+graph_recommendation_modelling_hm_dgsr:
   preprocess:
     item_max_length: 50
     user_max_length: 50
     k_hop: 3
     val_flag: True
     test_flag: True
-    predict_flag: True
-
-graph_recommendation_modelling_hm_dgsr_kaggle:
-  preprocess:
-    item_max_length: 50
-    user_max_length: 50
-    k_hop: 3
-    val_flag: False
-    test_flag: False
     predict_flag: True
