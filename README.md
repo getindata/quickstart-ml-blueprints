@@ -41,6 +41,19 @@ short-term preference and character of users and items, respectively.
 
 ![dgsr_architecture](https://user-images.githubusercontent.com/32554595/205959876-25f6e4fa-4a32-4a79-9cff-77e8f5656077.png)
 
+## Local Setup
+
+### Data
+
+You can download `Otto` dataset with optimized memory footprint in parquet format from [here](Otto Full Optimized Memory Footprint).
+Downloaded files should be placed in `recommender_gnn/data/02_intermediate/otto` directory.
+
+You can also use `H&M` dataset ...
+
+### Docker
+
+...
+
 ## Kedro Pipelines
 
 Here we will describe all Kedro pipelines available for `recommender_gnn` use case.
@@ -78,11 +91,13 @@ Here we will describe all Kedro pipelines available for `recommender_gnn` use ca
     - generates generic Kaggle sumbission file from saved recommendations,
     - for different Kaggle competitions, it is possible that a slightly different format will be required.
 
+## How to Run Locally 
 
+[Kedro](https://github.com/kedro-org/kedro) framework was used to create maintainable and modular data science code. Take a look at the Kedro [documentation](https://kedro.readthedocs.io) to get started. Before executing any commands for this use case you should change your directory, ny running this command in root of `gid-ml-framework` project:
 
-## How to Run
-
-[Kedro](https://github.com/kedro-org/kedro) framework was used to create maintainable and modular data science code. Take a look at the Kedro [documentation](https://kedro.readthedocs.io) to get started.
+```bash
+cd recommender_gnn
+```
 
 Kedro pipelines should be run in order defined in [Kedro Pipelines](#kedro-pipelines) section. All available initialized pipelines are registered in `src/recommender_gnn/pipeline_registry.py` file, where you can find **pipeline names**. Each of these registered pipelines can be run with following command:
 
@@ -118,19 +133,89 @@ Example:
 kedro run --pipeline otto_graph_recommendation_preprocessing --from-inputs otto_train_parquet
 ```
 
-## Local Setup
+## How to Run in the Cloud
 
-### Data
+[kedro-vertexai](https://github.com/getindata/kedro-vertexai) is one of kedro plugins that supports running workflows on GCP Vertex AI Pipelines.
+You can specify configuration of such workflows inside `conf/base/vertexai.yml` file. After that it is very easy to run
+your Kedro pipelines in the cloud. To start Vertex AI Pipeline, run `kedro vertexai --env cloud run-once --pipeline <pipeline_name>`.
 
-You can download `Otto` dataset with optimized memory footprint in parquet format from [here](Otto Full Optimized Memory Footprint).
-Downloaded files should be placed in `recommender_gnn/data/02_intermediate/otto` directory.
+### Example GPU Configuration
 
-You can also use `H&M` dataset ...
+Let's take a look at some of the contents of example `kedro-vertexai` configuration file in `conf/base/vertexai.yml`:
 
-### Docker
+```yaml
+# ...
 
-...
+  resources:
 
+    # For nodes that require more RAM you can increase the "memory"
+    data-import-node:
+      memory: 2Gi
+
+    # Training nodes can utilize more than one CPU if the algorithm
+    # supports it
+    model-training-node:
+      cpu: 8
+      memory: 60Gi
+
+    # GPU-capable nodes can request 1 GPU slot
+    tensorflow-node:
+      gpu: 1
+
+    # Resources can be also configured via nodes tag
+    # (if there is node name and tag configuration for the same
+    # resource, tag configuration is overwritten with node one)
+    gpu_node_tag:
+      cpu: 1
+      gpu: 2
+
+    # Default settings for the nodes
+    __default__:
+      cpu: 200m
+      memory: 64Mi
+
+  # Optional section allowing to configure node selectors constraints
+  # like gpu accelerator for nodes with gpu resources.
+  # (Note that not all accelerators are available in all
+  # regions - https://cloud.google.com/compute/docs/gpus/gpu-regions-zones)
+  # and not for all machines and resources configurations - 
+  # https://cloud.google.com/vertex-ai/docs/training/configure-compute#specifying_gpus
+  node_selectors:
+    gpu_node_tag:
+      cloud.google.com/gke-accelerator: NVIDIA_TESLA_T4
+    tensorflow-step:
+      cloud.google.com/gke-accelerator: NVIDIA_TESLA_K80
+      
+# ...
+```
+
+As presented above `resources` and `node_selectors` sections enable adjustment of the resources reservations and limits for the
+selected `Kedro` nodes. Settings for individual nodes, we can define in two ways - using the name of the node or
+its [tag](https://kedro.readthedocs.io/en/stable/nodes_and_pipelines/nodes.html#how-to-tag-a-node) (if there is node name and tag configuration for the same resource, tag configuration is overwritten with
+node one). For example, with the `vertexai.yaml` configuration file shown above and the `Kedro`
+pipeline containing such a node:
+
+```python
+def create_pipeline(**kwargs):
+    return Pipeline(
+        [
+            node(
+                func=train_model,
+                inputs=["X_train", "y_train"],
+                outputs="regressor",
+                name="model_training_node",
+                tags="gpu_node_tag",
+            ),
+        ]
+    )
+```
+
+we expect this particular node to run with two `NVIDIA_TESLA_T4` GPUs, eight CPUs, and memory allocated according to
+the specified `60Gi` limit. (Not all accelerators are available in all [regions](https://cloud.google.com/compute/docs/gpus/gpu-regions-zones) and not for all [machines and
+resources configurations](https://cloud.google.com/vertex-ai/docs/training/configure-compute#specifying_gpus))
+
+*Note that if your node is part of modular pipeline you need to specify its name in `<namespace_name>.<node_name>`
+convention. It is not required for tags.*
 
 ## Kedro
 
