@@ -16,11 +16,17 @@ class TestConcatTrainVal:
     def test_given_empty_dataframes_should_raise_exception(self):
         empty_df = pd.DataFrame({})
         with pytest.raises(KeyError):
-            preprocess_transactions(empty_df, empty_df, self.date_column)
+            preprocess_transactions(
+                first_subset=empty_df,
+                second_subset=empty_df,
+                original_date_column=self.date_column,
+            )
 
     def test_output_shape(self, bank_train_transactions, bank_val_transactions):
         df = preprocess_transactions(
-            bank_train_transactions, bank_val_transactions, self.date_column
+            first_subset=bank_train_transactions,
+            second_subset=bank_val_transactions,
+            original_date_column=self.date_column,
         )
         expected_shape = (
             bank_train_transactions.shape[0] + bank_val_transactions.shape[0],
@@ -30,7 +36,9 @@ class TestConcatTrainVal:
 
     def test_output_columns(self, bank_train_transactions, bank_val_transactions):
         df = preprocess_transactions(
-            bank_train_transactions, bank_val_transactions, self.date_column
+            first_subset=bank_train_transactions,
+            second_subset=bank_val_transactions,
+            original_date_column=self.date_column,
         )
         assert set(df.columns) == self.column_names
 

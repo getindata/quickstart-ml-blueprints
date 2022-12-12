@@ -22,10 +22,9 @@ def _map_to_original(
     predictions.loc[:, user_column] = predictions.loc[:, user_column].map(
         reverse_user_mapping.get
     )
-    for item_column in item_columns:
-        predictions.loc[:, item_column] = predictions.loc[:, item_column].map(
-            reverse_item_mapping.get
-        )
+    predictions.loc[:, item_columns] = predictions.loc[:, item_columns].applymap(
+        reverse_item_mapping.get
+    )
     return predictions
 
 
@@ -93,17 +92,21 @@ def generate_submission(
     original_user_column: str,
     filter_by_test_users: bool,
 ) -> pd.DataFrame:
-    """Generates kaggle submission file based on predictions from model. It imputes predictions for missing
-    users, remap user and item ids and apply required formatting.
+    """Generates kaggle submission file based on predictions from model. It imputes predictions for users that have not
+    been assigned any predictions (for example users for which there was not enough data for model), remap user and item
+    ids and apply required formatting.
 
     Args:
         predictions (pd.DataFrame): dataframe with sorted predictions for each user with more than two transactions
-        all_users (pd.DataFrame): dataframe with all users data
+        all_users (pd.DataFrame): dataframe with all users data in ACT format
         user_mapping (Dict): user mapping dict used to map original user ids to ones consistent with GNNs models
         item_mapping (Dict): user mapping dict used to map original user ids to ones consistent with GNNs models
         test_df (pd.DataFrame): dataframe containing user ids from test subset
         new_item_column (str): name of item column required by Kaggle submission format
         new_user_column (str): name of user column required by Kaggle submission format
+        original_user_column (str): name of user column from ACT format required by Kaggle submission format
+        filter_by_test_users (bool): flag indicating if submission should be filtered by users from test subset to
+            include predictions only for them
 
     Returns:
         pd.DataFrame: dataframe with kaggle submission dataframe
@@ -117,6 +120,7 @@ def generate_submission(
         user_column,
         item_columns,
     )
+    predictions = predictions.astype(str)
     left_predictions = _impute_missing_predictions(
         predictions,
         all_users,

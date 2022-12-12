@@ -37,7 +37,7 @@ def preprocess_transactions(
         pd.DataFrame: concatenated transactions dataframe
     """
     first_subset = _concat_chunks(first_subset)
-    second_subset = _concat_chunks(second_subset) if second_subset else None
+    second_subset = _concat_chunks(second_subset)
     df = pd.concat([first_subset, second_subset]).reset_index(drop=True)
     if df is None:
         return df
