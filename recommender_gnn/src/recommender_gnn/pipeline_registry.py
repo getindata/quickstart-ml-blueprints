@@ -55,7 +55,6 @@ def register_pipelines() -> Dict[str, Pipeline]:
         dataset="otto",
         model="dgsr",
         users="otto_to_act_test.customers",
-        test_df="otto_to_act_test.transactions",
     )
 
     test_gpu_cuda = tg.create_pipeline()

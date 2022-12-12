@@ -13,12 +13,12 @@ run_config:
   root: gid-ml-framework-data/temp
 
   # Prefix of Vertex AI pipeline run
-  experiment_name: gid-ml-framework-gnns-santander
+  experiment_name: gid-ml-framework-recommender-gnn
 
   # Name of the scheduled run, templated with the schedule parameters
-  scheduled_run_name: gid-ml-framework-gnns-santander
+  scheduled_run_name: gid-ml-framework-recommender-gnn
 
-  run_name: gid-ml-framework-gnns-santander-${run_id}
+  run_name: gid-ml-framework-recommender-gnn-${run_id}
 
   # Optional service account to run vertex AI Pipeline with
   # service_account: iap-accessor@gid-advanced-analytics-infra.iam.gserviceaccount.com
