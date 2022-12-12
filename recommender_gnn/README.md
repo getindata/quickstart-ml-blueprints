@@ -5,7 +5,8 @@
 `recommender_gnn` is one of use cases implemented within GetInData ML Framework. The purpose of this use case is to
 demonstrate the utilization of an example graph network that achieves state-of-the-art results for a recommendation task
 on sequential data. It can also be used as a guide on how to train models using GPU accelerators on Google Cloud
-Platform employing the [kedro-vertexai plugin](https://github.com/getindata/kedro-vertexai).
+Platform employing the [kedro-vertexai plugin](https://github.com/getindata/kedro-vertexai). This use case can be also
+used as an example of Kedro project utilizing datasets from different sources. 
 
 ## Data
 
@@ -46,10 +47,10 @@ short-term preference and character of users and items, respectively.
 ### Data
 
 You can download `Otto` dataset with optimized memory footprint in parquet format from [here](Otto Full Optimized Memory Footprint).
-Downloaded files should be placed in `recommender_gnn/data/02_intermediate/otto` directory.
+Four downloaded files should be placed in `recommender_gnn/data/02_intermediate/otto` directory.
 
-You can also use `H&M` dataset ...
-
+You can also use `H&M` dataset, which preprocessed samples can be found [here](https://drive.google.com/drive/folders/11FR_jIBbBkGeNvU1RvVzlcm5O3wKclpw?usp=share_link).
+Three downloaded files containing data already in **ACT** format should be placed in `recommender_gnn/data/03_primary/hm` directory.
 ### Docker
 
 ...
@@ -90,6 +91,11 @@ Here we will describe all Kedro pipelines available for `recommender_gnn` use ca
 - `kaggle_submission`
     - generates generic Kaggle sumbission file from saved recommendations,
     - for different Kaggle competitions, it is possible that a slightly different format will be required.
+
+### Supplementary Pipelines
+
+- `test_gpu`
+    - utility pipeline for testing GPU configuration in the cloud.
 
 ## How to Run Locally 
 
