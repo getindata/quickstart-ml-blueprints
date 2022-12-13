@@ -325,4 +325,4 @@ kedro jupyter lab
 
 17. For VSCode:  
 
-Change `terminal.integrated.cwd` setting to your use case
+Change `terminal.integrated.cwd` setting to your use case main directory (`<name>`)

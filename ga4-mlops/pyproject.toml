@@ -1,7 +1,7 @@
 [tool.kedro]
 package_name = "ga4_mlops"
 project_name = "ga4_mlops"
-project_version = "0.18.3"
+project_version = "0.18.4"
 
 [tool.isort]
 profile = "black"
@@ -24,7 +24,8 @@ authors = ["piotr.chaberski <piotr.chaberski@getindata.com>"]
 
 [tool.poetry.dependencies]
 python = "3.8.12"
-kedro = "0.18.3"
+kedro = {version = "0.18.4", extras = ["pandas.GBQQueryDataset"]}
+pandas = "1.5.2"
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^3.5.1"
