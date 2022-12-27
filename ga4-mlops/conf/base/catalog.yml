@@ -3,10 +3,13 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/data/data_catalog.html
 
-ga4_raw_data:
+# RAW DATA
+
+ga4_data_train:
   type: pandas.GBQQueryDataSet
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
   project: gid-ml-framework
+  layer: raw
   load_args:
     reauth: True
     configuration: {
@@ -16,18 +19,108 @@ ga4_raw_data:
             {
                 'name': 'start_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210101'}
+                'parameterValue': {'value': '20210126'}
             },
             {
                 'name': 'end_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210102'}
+                'parameterValue': {'value': '20210128'}
             },
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
                 'parameterValue': {'value': 10}
+            }
+        ]
+      }
+    }
+
+ga4_data_valid:
+  type: pandas.GBQQueryDataSet
+  filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
+  project: gid-ml-framework
+  layer: raw
+  load_args:
+    reauth: True
+    configuration: {
+      'query': {
+        'parameterMode': 'NAMED',
+        'queryParameters': [
+            {
+                'name': 'start_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210129'}
             },
+            {
+                'name': 'end_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210129'}
+            },
+            {
+                'name': 'sample_size',
+                'parameterType': {'type': 'INT64'},
+                'parameterValue': {'value': 10}
+            }
+        ]
+      }
+    }
+
+ga4_data_test:
+  type: pandas.GBQQueryDataSet
+  filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
+  project: gid-ml-framework
+  layer: raw
+  load_args:
+    reauth: True
+    configuration: {
+      'query': {
+        'parameterMode': 'NAMED',
+        'queryParameters': [
+            {
+                'name': 'start_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210130'}
+            },
+            {
+                'name': 'end_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210130'}
+            },
+            {
+                'name': 'sample_size',
+                'parameterType': {'type': 'INT64'},
+                'parameterValue': {'value': 10}
+            }
+        ]
+      }
+    }
+
+ga4_data_batch_predict:
+  type: pandas.GBQQueryDataSet
+  filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
+  project: gid-ml-framework
+  layer: raw
+  load_args:
+    reauth: True
+    configuration: {
+      'query': {
+        'parameterMode': 'NAMED',
+        'queryParameters': [
+            {
+                'name': 'start_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210131'}
+            },
+            {
+                'name': 'end_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210131'}
+            },
+            {
+                'name': 'sample_size',
+                'parameterType': {'type': 'INT64'},
+                'parameterValue': {'value': 10}
+            }
         ]
       }
     }

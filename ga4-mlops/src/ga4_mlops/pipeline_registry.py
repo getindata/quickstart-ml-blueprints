@@ -12,9 +12,13 @@ def register_pipelines() -> Dict[str, Pipeline]:
     Returns:
         A mapping from pipeline names to ``Pipeline`` objects.
     """
-    data_preprocessing_pipeline = data_preprocessing.create_pipeline()
+    data_preprocessing_train_pipeline = data_preprocessing.create_pipeline(train=True)
+    data_preprocessing_batch_predict_pipeline = data_preprocessing.create_pipeline(
+        train=False
+    )
 
     return {
-        "__default__": data_preprocessing_pipeline,
-        "data_preprocessing": data_preprocessing_pipeline,
+        "__default__": data_preprocessing_train_pipeline,
+        "data_preprocessing_train": data_preprocessing_train_pipeline,
+        "data_preprocessing_batch_predict": data_preprocessing_batch_predict_pipeline,
     }
