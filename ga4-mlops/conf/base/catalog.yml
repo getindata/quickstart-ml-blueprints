@@ -29,7 +29,7 @@ ga4_data_train:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 10}
+                'parameterValue': {'value': 20}
             }
         ]
       }
@@ -124,3 +124,54 @@ ga4_data_batch_predict:
         ]
       }
     }
+
+# INTERMEDIATE DATA (AFTER: SELECTION, AGGREGATION, SAMPLING)
+
+df_train:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/df_train.csv
+  layer: intermediate
+  save_args:
+    index: False
+
+df_valid:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/df_valid.csv
+  layer: intermediate
+  save_args:
+    index: False
+
+df_test:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/df_test.csv
+  layer: intermediate
+  save_args:
+    index: False
+
+# PRIMARY DATA (AFTER: TRAIN/VALID/TEST MERGE AND SUBSET LABELING)
+
+df_train_valid_test:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/df_train_valid_test.csv
+  layer: primary
+  save_args:
+    index: False
+
+df_batch_predict:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/df_batch_predict.csv
+  layer: primary
+  save_args:
+    index: False
+
+# FEATURE DATA (AFTER: FEATURE ENGINEERING)
+
+# df_fe_train_valid_test
+# df_fe_batch_predict
+
+# MODEL INPUT DATA (AFTER: IMPUTATION, MANUAL FEATURE SELECTION, SPLITTING)
+
+# abt_train
+# abt_valid
+# abt_test
+# abt_batch_predict
