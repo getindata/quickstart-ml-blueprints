@@ -26,6 +26,11 @@ authors = ["piotr.chaberski <piotr.chaberski@getindata.com>"]
 python = "3.8.12"
 kedro = {version = "0.18.4", extras = ["pandas.GBQQueryDataset"]}
 pandas = "1.5.2"
+scikit-learn = "^1.2.0"
+cmake = "^3.25.0"
+xgboost = "^1.7.2"
+category-encoders = "^2.5.1.post0"
+kedro-mlflow = "^0.11.5"
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^3.5.1"

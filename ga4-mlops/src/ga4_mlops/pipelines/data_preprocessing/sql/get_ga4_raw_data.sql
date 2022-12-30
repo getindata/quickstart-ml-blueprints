@@ -7,25 +7,25 @@
 -- '
 SELECT * FROM (
   SELECT
-    s.full_visitor_id,
-    s.visit_start_time,
-    s.date,
-    s.device_category,
-    s.is_mobile,
-    s.operating_system,
-    s.browser,
-    s.country,
-    s.city,
-    s.traffic_source,
-    s.traffic_medium,
-    s.traffic_campaign,
-    s.is_first_visit,
-    s.product_pages_viewed,
-    u.total_hits,
-    u.total_pageviews,
-    u_visits.total_visits,
-    u_engagement.total_time_on_site,
-    s.added_to_cart
+    s.full_visitor_id AS i_full_visitor_id,
+    s.visit_start_time AS i_visit_start_time,
+    s.date AS i_date,
+    s.device_category AS c_device_category,
+    s.is_mobile AS c_is_mobile,
+    s.operating_system AS c_operating_system,
+    s.browser AS c_browser,
+    s.country AS c_country,
+    s.city AS c_city,
+    s.traffic_source AS c_traffic_source,
+    s.traffic_medium AS c_traffic_medium,
+    s.traffic_campaign AS c_traffic_campaign,
+    s.is_first_visit AS c_is_first_visit,
+    s.product_pages_viewed AS n_product_pages_viewed,
+    u.total_hits AS n_total_hits,
+    u.total_pageviews AS n_total_pageviews,
+    u_visits.total_visits AS n_total_visits,
+    u_engagement.total_time_on_site AS n_total_time_on_site,
+    s.added_to_cart AS y_added_to_cart
   FROM (
         -- sessions
         SELECT

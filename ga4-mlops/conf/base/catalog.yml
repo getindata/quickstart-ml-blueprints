@@ -95,7 +95,7 @@ ga4_data_test:
       }
     }
 
-ga4_data_batch_predict:
+ga4_data_predict:
   type: pandas.GBQQueryDataSet
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
   project: gid-ml-framework
@@ -125,53 +125,95 @@ ga4_data_batch_predict:
       }
     }
 
-# INTERMEDIATE DATA (AFTER: SELECTION, AGGREGATION, SAMPLING)
+# PRIMARY DATA (AFTER: AFTER: SELECTION, AGGREGATION, SAMPLING)
 
 df_train:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/df_train.csv
-  layer: intermediate
+  filepath: data/03_primary/df_train.csv
+  layer: primary
   save_args:
     index: False
 
 df_valid:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/df_valid.csv
-  layer: intermediate
+  filepath: data/03_primary/df_valid.csv
+  layer: primary
   save_args:
     index: False
 
 df_test:
   type: pandas.CSVDataSet
-  filepath: data/02_intermediate/df_test.csv
-  layer: intermediate
-  save_args:
-    index: False
-
-# PRIMARY DATA (AFTER: TRAIN/VALID/TEST MERGE AND SUBSET LABELING)
-
-df_train_valid_test:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/df_train_valid_test.csv
+  filepath: data/03_primary/df_test.csv
   layer: primary
   save_args:
     index: False
 
-df_batch_predict:
+df_predict:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/df_batch_predict.csv
+  filepath: data/03_primary/df_predict.csv
   layer: primary
   save_args:
     index: False
 
-# FEATURE DATA (AFTER: FEATURE ENGINEERING)
+# FEATURE DATA (AFTER: FEATURE ENGINEERING, IMPUTATION, ENCODING)
 
-# df_fe_train_valid_test
-# df_fe_batch_predict
+imputers_train:
+    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+    data_set:
+        type: pickle.PickleDataSet
+        filepath: output/imputers.pkl
 
-# MODEL INPUT DATA (AFTER: IMPUTATION, MANUAL FEATURE SELECTION, SPLITTING)
+imputers_predict:
+    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+    data_set:
+        type: pickle.PickleDataSet
+        filepath: output/imputers.pkl
+    run_id: 6d6b4602820b4972bc53cffad4614f3b
+
+feature_encoders_train:
+    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+    data_set:
+        type: pickle.PickleDataSet
+        filepath: output/feature_encoders.pkl
+
+feature_encoders_predict:
+    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+    data_set:
+        type: pickle.PickleDataSet
+        filepath: output/feature_encoders.pkl
+    run_id: 6d6b4602820b4972bc53cffad4614f3b
+
+df_fe_train:
+  type: pandas.CSVDataSet
+  filepath: data/04_feature/df_fe_train.csv
+  layer: feature
+  save_args:
+    index: False
+
+df_fe_valid:
+  type: pandas.CSVDataSet
+  filepath: data/04_feature/df_fe_valid.csv
+  layer: feature
+  save_args:
+    index: False
+
+df_fe_test:
+  type: pandas.CSVDataSet
+  filepath: data/04_feature/df_fe_test.csv
+  layer: feature
+  save_args:
+    index: False
+
+df_fe_predict:
+  type: pandas.CSVDataSet
+  filepath: data/04_feature/df_fe_predict.csv
+  layer: feature
+  save_args:
+    index: False
+
+# MODEL INPUT DATA (AFTER: MANUAL FEATURE SELECTION, SPLITTING)
 
 # abt_train
 # abt_valid
 # abt_test
-# abt_batch_predict
+# abt_predict
