@@ -100,7 +100,7 @@ def create_pipeline(train: bool = True, **kwargs) -> Pipeline:
             node(
                 name="exclude_features_test_node",
                 func=exclude_features,
-                inputs=["df_test_fe_temp", "params:features_to_exclude"],
+                inputs=["df_test_enc_temp", "params:features_to_exclude"],
                 outputs="abt_test",
             ),
         ]

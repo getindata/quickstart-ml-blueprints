@@ -29,7 +29,7 @@ ga4_data_train:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 20}
+                'parameterValue': {'value': 1000}
             }
         ]
       }
@@ -59,7 +59,7 @@ ga4_data_valid:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 10}
+                'parameterValue': {'value': 200}
             }
         ]
       }
@@ -89,7 +89,7 @@ ga4_data_test:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 10}
+                'parameterValue': {'value': 200}
             }
         ]
       }
@@ -119,7 +119,7 @@ ga4_data_predict:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 10}
+                'parameterValue': {'value': 200}
             }
         ]
       }
@@ -161,13 +161,13 @@ imputers_train:
     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
     data_set:
         type: pickle.PickleDataSet
-        filepath: output/imputers.pkl
+        filepath: data/04_feature/imputers.pkl
 
 imputers_predict:
     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
     data_set:
         type: pickle.PickleDataSet
-        filepath: output/imputers.pkl
+        filepath: data/04_feature/imputers.pkl
     run_id: 6d6b4602820b4972bc53cffad4614f3b
 
 feature_encoders_train:
@@ -240,3 +240,25 @@ abt_predict:
   layer: model_input
   save_args:
     index: False
+
+# MODELS
+
+model_train:
+    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+    data_set:
+        type: pickle.PickleDataSet
+        filepath: data/06_models/model.pkl
+
+model_hparams:
+  type: pandas.CSVDataSet
+  filepath: data/06_models/model_hparams.csv
+  layer: models
+  save_args:
+    index: False
+
+model_predict:
+    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+    data_set:
+        type: pickle.PickleDataSet
+        filepath: data/06_models/model.pkl
+    run_id: c9b5df81751949b39b8ea975580d88e4

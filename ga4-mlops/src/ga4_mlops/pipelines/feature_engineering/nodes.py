@@ -187,7 +187,8 @@ def apply_encoders(df: pd.DataFrame, feature_encoders: dict) -> pd.DataFrame:
     df = feature_encoders["onehot"].transform(df)
     df = feature_encoders["ordinal"].transform(df)
 
-    print(df.shape)
+    # Clean column names from not allowed symbols
+    df.columns = [re.sub(r"<|>|\[|\]", "", item) for item in df.columns]
 
     return df
 
