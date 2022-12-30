@@ -14,13 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
-    """_summary_
+    """Apply manual feature engineering transformations.
 
     Args:
-        df (pd.DataFrame): _description_
+        df (pd.DataFrame): data frame with raw features
 
     Returns:
-        pd.DataFrame: _description_
+        pd.DataFrame: data frame after feature engineering
     """
     logger.info("Applying manual feature engineering transformations...")
 
@@ -33,14 +33,14 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def fit_imputers(df: pd.DataFrame, imputation_strategies: dict) -> dict:
-    """_summary_
+    """Fit imputers for missing values using selected strategies.
 
     Args:
-        df (pd.DataFrame): _description_
-        imputation_strategies (dict): _description_
+        df (pd.DataFrame): data frame after feature engineering
+        imputation_strategies (dict): dictionary of imputation strategies for different features
 
     Returns:
-        pd.DataFrame: _description_
+        dict: dictionary of imputer objects
     """
     logger.info("Fitting missing values imputers...")
     columns_to_impute = [
@@ -93,14 +93,14 @@ def fit_imputers(df: pd.DataFrame, imputation_strategies: dict) -> dict:
 
 
 def apply_imputers(df: pd.DataFrame, imputers: dict) -> pd.DataFrame:
-    """_summary_
+    """Apply fitted imputers on a data frame.
 
     Args:
-        df (pd.DataFrame): _description_
-        encoders (dict): _description_
+        df (pd.DataFrame): data frame after feature engineering
+        imputers (dict): dictionary of imputer objects
 
     Returns:
-        pd.DataFrame: _description_
+        pd.DataFrame: imputed data frame
     """
     logger.info("Applying missing values imputers...")
 
@@ -136,13 +136,13 @@ def apply_imputers(df: pd.DataFrame, imputers: dict) -> pd.DataFrame:
 
 
 def fit_encoders(df: pd.DataFrame, encoder_types: dict) -> dict:
-    """_summary_
+    """Fit categorical encoders using selected types.
 
     Args:
-        df (pd.DataFrame): _description_
-
+        df (pd.DataFrame): data frame after imputation
+        encoder_types (dict): dictionary of encoder types for different features
     Returns:
-        pd.DataFrame: _description_
+        pd.DataFrame: dictionary of encoder objects
     """
     logger.info("Fitting categorical encoders...")
     columns_to_encode = [
@@ -172,13 +172,14 @@ def fit_encoders(df: pd.DataFrame, encoder_types: dict) -> dict:
 
 
 def apply_encoders(df: pd.DataFrame, feature_encoders: dict) -> pd.DataFrame:
-    """_summary_
+    """Apply fitted encoders on a data frame.
 
     Args:
-        feature_encoders (pickle.PickleDataSet): _description_
+        df (pd.DataFrame): _description_
+        feature_encoders (dict): dictionary of encoder objects
 
     Returns:
-        pd.DataFrame: _description_
+        pd.DataFrame: encoded data frame
     """
     logger.info("Applying categorical encoders...")
 
@@ -187,5 +188,26 @@ def apply_encoders(df: pd.DataFrame, feature_encoders: dict) -> pd.DataFrame:
     df = feature_encoders["ordinal"].transform(df)
 
     print(df.shape)
+
+    return df
+
+
+def exclude_features(df: pd.DataFrame, features_to_exclude: list) -> pd.DataFrame:
+    """Exclude manually selected features.
+
+    Args:
+        df (pd.DataFrame): data frame after feature encoding
+        features_to_exclude (list): list of features to exclude
+
+    Returns:
+        pd.DataFrame: data frame with selected features excluded
+    """
+    logger.info(f"Excluding selected features: {features_to_exclude}")
+
+    for feature in features_to_exclude:
+        feature_list = [
+            item for item in df.columns if re.compile(f"^{feature}").match(item)
+        ]
+        df = df.drop(feature_list, axis=1)
 
     return df

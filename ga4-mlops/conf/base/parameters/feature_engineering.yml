@@ -14,3 +14,5 @@ encoder_types:
   binary: [c_is_mobile, c_is_first_visit]   # for binary variables
   onehot: [c_device_category, c_operating_system, c_browser, c_traffic_source, c_traffic_medium]   # one-hot encoding
   ordinal: [c_country, c_city, c_traffic_campaign, c_weekday, c_visit_start_hour]   # integer encoding (ordinal, but order does not matter)
+
+features_to_exclude: []

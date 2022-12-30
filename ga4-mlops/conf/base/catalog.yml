@@ -211,9 +211,32 @@ df_fe_predict:
   save_args:
     index: False
 
-# MODEL INPUT DATA (AFTER: MANUAL FEATURE SELECTION, SPLITTING)
+# MODEL INPUT DATA (AFTER: MANUAL FEATURE SELECTION)
 
-# abt_train
-# abt_valid
-# abt_test
-# abt_predict
+abt_train:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/abt_train.csv
+  layer: model_input
+  save_args:
+    index: False
+
+abt_valid:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/abt_valid.csv
+  layer: model_input
+  save_args:
+    index: False
+
+abt_test:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/abt_test.csv
+  layer: model_input
+  save_args:
+    index: False
+
+abt_predict:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/abt_predict.csv
+  layer: model_input
+  save_args:
+    index: False

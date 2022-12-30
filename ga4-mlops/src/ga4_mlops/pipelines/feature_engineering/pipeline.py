@@ -9,6 +9,7 @@ from .nodes import (
     apply_encoders,
     apply_imputers,
     engineer_features,
+    exclude_features,
     fit_encoders,
     fit_imputers,
 )
@@ -83,6 +84,24 @@ def create_pipeline(train: bool = True, **kwargs) -> Pipeline:
                 func=apply_encoders,
                 inputs=["df_test_fe_temp", "feature_encoders_train"],
                 outputs="df_test_enc_temp",
+            ),
+            node(
+                name="exclude_features_train_node",
+                func=exclude_features,
+                inputs=["df_train_enc_temp", "params:features_to_exclude"],
+                outputs="abt_train",
+            ),
+            node(
+                name="exclude_features_valid_node",
+                func=exclude_features,
+                inputs=["df_valid_enc_temp", "params:features_to_exclude"],
+                outputs="abt_valid",
+            ),
+            node(
+                name="exclude_features_test_node",
+                func=exclude_features,
+                inputs=["df_test_fe_temp", "params:features_to_exclude"],
+                outputs="abt_test",
             ),
         ]
     )
