@@ -38,7 +38,7 @@ def train_and_validate_model(
         XGBoost model
     """
     logger.info(
-        "Starting training and validation procedure with hyperparameter optimization"
+        "Starting training and validation procedure with hyperparameter optimization..."
     )
 
     eval_fn = (
@@ -133,9 +133,7 @@ def test_model(abt_test: pd.DataFrame, model, eval_metric: str = "auc"):
         model (_type_): XGBoost model
         eval_metric (str, optional): model evaluation metric. Defaults to 'auc'.
     """
-    logger.info(
-        "Starting training and validation procedure with hyperparameter optimization"
-    )
+    logger.info("Testing model performance on the test set...")
 
     eval_fn = (
         roc_auc_score  # TODO: Can be modified later based on selected `eval_metric`
