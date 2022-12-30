@@ -2,6 +2,7 @@
 This is a boilerplate pipeline 'training'
 generated using Kedro 0.18.4
 """
+import json
 import logging
 import re
 
@@ -113,16 +114,12 @@ def train_and_validate_model(
     train_score = eval_fn(abt_train[target_col], preds_train)
     valid_score = eval_fn(abt_valid[target_col], preds_valid)
 
-    hparams = (
-        pd.DataFrame.from_dict(all_params, orient="index")
-        .reset_index()
-        .rename(columns={"index": "hparam", 0: "value"})
-    )
+    model_config = json.loads(model.save_config())
 
     mlflow.log_metric("train_score", train_score)
     mlflow.log_metric("valid_score", valid_score)
 
-    return model, hparams
+    return model, model_config
 
 
 def test_model(abt_test: pd.DataFrame, model, eval_metric: str = "auc"):

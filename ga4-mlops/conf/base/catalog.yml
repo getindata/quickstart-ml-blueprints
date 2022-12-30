@@ -249,12 +249,11 @@ model_train:
         type: pickle.PickleDataSet
         filepath: data/06_models/model.pkl
 
-model_hparams:
-  type: pandas.CSVDataSet
-  filepath: data/06_models/model_hparams.csv
-  layer: models
-  save_args:
-    index: False
+model_config:
+    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+    data_set:
+        type: json.JSONDataSet
+        filepath: data/06_models/model_config.json
 
 model_predict:
     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet

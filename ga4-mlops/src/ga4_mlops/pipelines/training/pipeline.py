@@ -23,7 +23,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:eval_metric",
                     "params:direction",
                 ],
-                outputs=["model_train", "model_hparams"],
+                outputs=["model_train", "model_config"],
             ),
             node(
                 name="test_node",
