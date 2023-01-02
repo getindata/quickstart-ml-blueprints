@@ -29,7 +29,7 @@ ga4_data_train:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 1000}
+                'parameterValue': {'value': 10000}
             }
         ]
       }
@@ -59,7 +59,7 @@ ga4_data_valid:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 200}
+                'parameterValue': {'value': 2000}
             }
         ]
       }
@@ -89,7 +89,7 @@ ga4_data_test:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 200}
+                'parameterValue': {'value': 2000}
             }
         ]
       }
@@ -119,7 +119,7 @@ ga4_data_predict:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 200}
+                'parameterValue': {'value': 2000}
             }
         ]
       }
@@ -168,7 +168,7 @@ imputers_predict:
     data_set:
         type: pickle.PickleDataSet
         filepath: data/04_feature/imputers.pkl
-    run_id: d0ae3a521cb1414f80b88593e04b86fb
+    run_id: 13d88d50774647a7b867fff282986b9f
 
 feature_encoders_train:
     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
@@ -181,7 +181,7 @@ feature_encoders_predict:
     data_set:
         type: pickle.PickleDataSet
         filepath: data/04_feature/feature_encoders.pkl
-    run_id: d0ae3a521cb1414f80b88593e04b86fb
+    run_id: 13d88d50774647a7b867fff282986b9f
 
 df_train_fe:
   type: pandas.CSVDataSet
@@ -260,7 +260,7 @@ model_predict:
     data_set:
         type: pickle.PickleDataSet
         filepath: data/06_models/model.pkl
-    run_id: d0ae3a521cb1414f80b88593e04b86fb
+    run_id: 13d88d50774647a7b867fff282986b9f
 
 # MODEL OUTPUT
 
