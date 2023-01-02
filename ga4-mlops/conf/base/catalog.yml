@@ -168,45 +168,45 @@ imputers_predict:
     data_set:
         type: pickle.PickleDataSet
         filepath: data/04_feature/imputers.pkl
-    run_id: 6d6b4602820b4972bc53cffad4614f3b
+    run_id: d0ae3a521cb1414f80b88593e04b86fb
 
 feature_encoders_train:
     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
     data_set:
         type: pickle.PickleDataSet
-        filepath: output/feature_encoders.pkl
+        filepath: data/04_feature/feature_encoders.pkl
 
 feature_encoders_predict:
     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
     data_set:
         type: pickle.PickleDataSet
-        filepath: output/feature_encoders.pkl
-    run_id: 6d6b4602820b4972bc53cffad4614f3b
+        filepath: data/04_feature/feature_encoders.pkl
+    run_id: d0ae3a521cb1414f80b88593e04b86fb
 
-df_fe_train:
+df_train_fe:
   type: pandas.CSVDataSet
-  filepath: data/04_feature/df_fe_train.csv
+  filepath: data/04_feature/df_train_fe.csv
   layer: feature
   save_args:
     index: False
 
-df_fe_valid:
+df_valid_fe:
   type: pandas.CSVDataSet
-  filepath: data/04_feature/df_fe_valid.csv
+  filepath: data/04_feature/df_valid_fe.csv
   layer: feature
   save_args:
     index: False
 
-df_fe_test:
+df_test_fe:
   type: pandas.CSVDataSet
-  filepath: data/04_feature/df_fe_test.csv
+  filepath: data/04_feature/df_test_fe.csv
   layer: feature
   save_args:
     index: False
 
-df_fe_predict:
+df_predict_fe:
   type: pandas.CSVDataSet
-  filepath: data/04_feature/df_fe_predict.csv
+  filepath: data/04_feature/df_predict_fe.csv
   layer: feature
   save_args:
     index: False
@@ -260,4 +260,13 @@ model_predict:
     data_set:
         type: pickle.PickleDataSet
         filepath: data/06_models/model.pkl
-    run_id: c9b5df81751949b39b8ea975580d88e4
+    run_id: d0ae3a521cb1414f80b88593e04b86fb
+
+# MODEL OUTPUT
+
+predictions:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/predictions.csv
+  layer: model_output
+  save_args:
+    index: False

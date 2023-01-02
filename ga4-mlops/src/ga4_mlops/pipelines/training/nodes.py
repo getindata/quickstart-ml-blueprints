@@ -42,9 +42,8 @@ def train_and_validate_model(
         "Starting training and validation procedure with hyperparameter optimization..."
     )
 
-    eval_fn = (
-        roc_auc_score  # TODO: Can be modified later based on selected `eval_metric`
-    )
+    # TODO: Can be modified later based on selected `eval_metric`
+    eval_fn = roc_auc_score
 
     num_cols = [item for item in abt_train.columns if re.compile("^n_").match(item)]
     cat_cols = [item for item in abt_train.columns if re.compile("^c_").match(item)]
@@ -127,14 +126,13 @@ def test_model(abt_test: pd.DataFrame, model, eval_metric: str = "auc"):
 
     Args:
         abt_test (pd.DataFrame): testing data frame
-        model (_type_): XGBoost model
+        model: XGBoost model
         eval_metric (str, optional): model evaluation metric. Defaults to 'auc'.
     """
     logger.info("Testing model performance on the test set...")
 
-    eval_fn = (
-        roc_auc_score  # TODO: Can be modified later based on selected `eval_metric`
-    )
+    # TODO: Can be modified later based on selected `eval_metric`
+    eval_fn = roc_auc_score
 
     num_cols = [item for item in abt_test.columns if re.compile("^n_").match(item)]
     cat_cols = [item for item in abt_test.columns if re.compile("^c_").match(item)]

@@ -2,7 +2,7 @@
 
 GetInData ML Framework use case covering the following areas:
 - Usage of Google Analytics 4 data
-- Standard classification models
+- Standard classification models (with scores calibration)
 - Batch scoring and online scoring
 - Automated Exploratory Data Analysis
 - Automated model explanations
