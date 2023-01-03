@@ -3,15 +3,26 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/data/data_catalog.html
 
+# COMMON SETTINGS
+
+_raw_data_args: &raw_data_args
+  type: pandas.GBQQueryDataSet
+  project: gid-ml-framework
+  layer: raw
+
+_data_args: &data_args
+  type: pandas.CSVDataSet
+  save_args:
+    index: False
+
+_artifact_args: &artifact_args
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+
 # RAW DATA
 
 ga4_data_train:
-  type: pandas.GBQQueryDataSet
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
-  project: gid-ml-framework
-  layer: raw
   load_args:
-    reauth: True
     configuration: {
       'query': {
         'parameterMode': 'NAMED',
@@ -34,14 +45,13 @@ ga4_data_train:
         ]
       }
     }
+    reauth: True
+  <<: *raw_data_args
+  
 
 ga4_data_valid:
-  type: pandas.GBQQueryDataSet
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
-  project: gid-ml-framework
-  layer: raw
   load_args:
-    reauth: True
     configuration: {
       'query': {
         'parameterMode': 'NAMED',
@@ -64,14 +74,12 @@ ga4_data_valid:
         ]
       }
     }
+    reauth: True
+  <<: *raw_data_args
 
 ga4_data_test:
-  type: pandas.GBQQueryDataSet
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
-  project: gid-ml-framework
-  layer: raw
   load_args:
-    reauth: True
     configuration: {
       'query': {
         'parameterMode': 'NAMED',
@@ -94,14 +102,12 @@ ga4_data_test:
         ]
       }
     }
+    
+  <<: *raw_data_args
 
 ga4_data_predict:
-  type: pandas.GBQQueryDataSet
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
-  project: gid-ml-framework
-  layer: raw
   load_args:
-    reauth: True
     configuration: {
       'query': {
         'parameterMode': 'NAMED',
@@ -124,149 +130,125 @@ ga4_data_predict:
         ]
       }
     }
+  <<: *raw_data_args
 
 # PRIMARY DATA (AFTER: AFTER: SELECTION, AGGREGATION, SAMPLING)
 
 df_train:
-  type: pandas.CSVDataSet
   filepath: data/03_primary/df_train.csv
   layer: primary
-  save_args:
-    index: False
+  <<: *data_args
 
 df_valid:
-  type: pandas.CSVDataSet
   filepath: data/03_primary/df_valid.csv
   layer: primary
-  save_args:
-    index: False
+  <<: *data_args
 
 df_test:
-  type: pandas.CSVDataSet
   filepath: data/03_primary/df_test.csv
   layer: primary
-  save_args:
-    index: False
+  <<: *data_args
 
 df_predict:
-  type: pandas.CSVDataSet
   filepath: data/03_primary/df_predict.csv
   layer: primary
-  save_args:
-    index: False
+  <<: *data_args
 
 # FEATURE DATA (AFTER: FEATURE ENGINEERING, IMPUTATION, ENCODING)
 
 imputers_train:
-    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-    data_set:
-        type: pickle.PickleDataSet
-        filepath: data/04_feature/imputers.pkl
+  data_set:
+    filepath: data/04_feature/imputers.pkl
+    type: pickle.PickleDataSet
+  <<: *artifact_args
 
 imputers_predict:
-    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-    data_set:
-        type: pickle.PickleDataSet
-        filepath: data/04_feature/imputers.pkl
-    run_id: 13d88d50774647a7b867fff282986b9f
+  run_id: f74f8c3f80554487ab3284b2033df781
+  data_set:
+    filepath: data/04_feature/imputers.pkl
+    type: pickle.PickleDataSet
+  <<: *artifact_args
 
 feature_encoders_train:
-    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-    data_set:
-        type: pickle.PickleDataSet
-        filepath: data/04_feature/feature_encoders.pkl
+  data_set:
+    filepath: data/04_feature/feature_encoders.pkl
+    type: pickle.PickleDataSet
+  <<: *artifact_args
 
 feature_encoders_predict:
-    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-    data_set:
-        type: pickle.PickleDataSet
-        filepath: data/04_feature/feature_encoders.pkl
-    run_id: 13d88d50774647a7b867fff282986b9f
+  run_id: f74f8c3f80554487ab3284b2033df781
+  data_set:
+    filepath: data/04_feature/feature_encoders.pkl
+    type: pickle.PickleDataSet
+  <<: *artifact_args
 
 df_train_fe:
-  type: pandas.CSVDataSet
   filepath: data/04_feature/df_train_fe.csv
   layer: feature
-  save_args:
-    index: False
+  <<: *data_args
 
 df_valid_fe:
-  type: pandas.CSVDataSet
   filepath: data/04_feature/df_valid_fe.csv
   layer: feature
-  save_args:
-    index: False
+  <<: *data_args
 
 df_test_fe:
-  type: pandas.CSVDataSet
   filepath: data/04_feature/df_test_fe.csv
   layer: feature
-  save_args:
-    index: False
+  <<: *data_args
 
 df_predict_fe:
-  type: pandas.CSVDataSet
   filepath: data/04_feature/df_predict_fe.csv
   layer: feature
-  save_args:
-    index: False
+  <<: *data_args
 
 # MODEL INPUT DATA (AFTER: MANUAL FEATURE SELECTION)
 
 abt_train:
-  type: pandas.CSVDataSet
   filepath: data/05_model_input/abt_train.csv
   layer: model_input
-  save_args:
-    index: False
+  <<: *data_args
 
 abt_valid:
   type: pandas.CSVDataSet
   filepath: data/05_model_input/abt_valid.csv
   layer: model_input
-  save_args:
-    index: False
+  <<: *data_args
 
 abt_test:
-  type: pandas.CSVDataSet
   filepath: data/05_model_input/abt_test.csv
   layer: model_input
-  save_args:
-    index: False
+  <<: *data_args
 
 abt_predict:
-  type: pandas.CSVDataSet
   filepath: data/05_model_input/abt_predict.csv
   layer: model_input
-  save_args:
-    index: False
+  <<: *data_args
 
 # MODELS
 
 model_train:
-    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-    data_set:
-        type: pickle.PickleDataSet
-        filepath: data/06_models/model.pkl
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/model.pkl
+  <<: *artifact_args
 
 model_config:
-    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-    data_set:
-        type: json.JSONDataSet
-        filepath: data/06_models/model_config.json
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/06_models/model_config.json
+  <<: *artifact_args
 
 model_predict:
-    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-    data_set:
-        type: pickle.PickleDataSet
-        filepath: data/06_models/model.pkl
-    run_id: 13d88d50774647a7b867fff282986b9f
+  run_id: f74f8c3f80554487ab3284b2033df781
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/model.pkl
+  <<: *artifact_args
 
 # MODEL OUTPUT
 
 predictions:
-  type: pandas.CSVDataSet
   filepath: data/07_model_output/predictions.csv
   layer: model_output
-  save_args:
-    index: False
+  <<: *data_args
