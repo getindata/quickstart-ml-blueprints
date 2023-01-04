@@ -6,9 +6,14 @@ import logging
 import re
 
 import category_encoders as ce
-import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
+
+from ..data_preparation_utils import (
+    clean_column_names,
+    ensure_column_types,
+    extract_column_names,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -50,13 +55,8 @@ def fit_imputers(df: pd.DataFrame, imputation_strategies: dict) -> dict:
         item in df.columns for item in columns_to_impute
     ), "Some of columns to encode are not in df"
 
-    num_cols = [item for item in df.columns if re.compile("^n_").match(item)]
-    cat_cols = [item for item in df.columns if re.compile("^c_").match(item)]
-
-    df[num_cols] = df[num_cols].astype(float)
-    df[cat_cols] = np.where(
-        pd.isnull(df[cat_cols]), df[cat_cols], df[cat_cols].astype(str)
-    )
+    _, num_cols, cat_cols, _ = extract_column_names(df)
+    df = ensure_column_types(df, num_cols, cat_cols)
 
     if len(imputation_strategies["mean"]) > 0:
         num_mean_imputer = SimpleImputer(strategy="mean")
@@ -104,13 +104,8 @@ def apply_imputers(df: pd.DataFrame, imputers: dict) -> pd.DataFrame:
     """
     logger.info("Applying missing values imputers...")
 
-    num_cols = [item for item in df.columns if re.compile("^n_").match(item)]
-    cat_cols = [item for item in df.columns if re.compile("^c_").match(item)]
-
-    df[num_cols] = df[num_cols].astype(float)
-    df[cat_cols] = np.where(
-        pd.isnull(df[cat_cols]), df[cat_cols], df[cat_cols].astype(str)
-    )
+    _, num_cols, cat_cols, _ = extract_column_names(df)
+    df = ensure_column_types(df, num_cols, cat_cols)
 
     if imputers["mean"] is not None:
         df[imputers["mean"].feature_names_in_] = imputers["mean"].transform(
@@ -187,8 +182,7 @@ def apply_encoders(df: pd.DataFrame, feature_encoders: dict) -> pd.DataFrame:
     df = feature_encoders["onehot"].transform(df)
     df = feature_encoders["ordinal"].transform(df)
 
-    # Clean column names from not allowed symbols
-    df.columns = [re.sub(r"<|>|\[|\]", "", item) for item in df.columns]
+    df = clean_column_names(df)
 
     return df
 

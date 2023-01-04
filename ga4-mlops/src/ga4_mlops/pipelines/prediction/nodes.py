@@ -3,10 +3,11 @@ This is a boilerplate pipeline 'prediction'
 generated using Kedro 0.18.4
 """
 import logging
-import re
 
 import pandas as pd
 import xgboost as xgb
+
+from ..data_preparation_utils import extract_column_names
 
 logger = logging.getLogger(__name__)
 
@@ -23,15 +24,13 @@ def predict(abt_predict: pd.DataFrame, model) -> pd.DataFrame:
     """
     logger.info("Applying model to get predictions...")
 
-    info_cols = [item for item in abt_predict.columns if re.compile("^i_").match(item)]
-    num_cols = [item for item in abt_predict.columns if re.compile("^n_").match(item)]
-    cat_cols = [item for item in abt_predict.columns if re.compile("^c_").match(item)]
+    info_cols, num_cols, cat_cols, _ = extract_column_names(abt_predict)
 
     dpredict = xgb.DMatrix(abt_predict[num_cols + cat_cols])
 
     scores = model.predict(dpredict)
 
-    predictions = abt_predict[info_cols]
+    predictions = abt_predict.loc[:, info_cols]
     predictions["y_score"] = scores
 
     return predictions

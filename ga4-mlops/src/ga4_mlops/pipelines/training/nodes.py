@@ -4,13 +4,14 @@ generated using Kedro 0.18.4
 """
 import json
 import logging
-import re
 
 import mlflow
 import optuna
 import pandas as pd
 import xgboost as xgb
 from sklearn.metrics import roc_auc_score
+
+from ..data_preparation_utils import extract_column_names
 
 logger = logging.getLogger(__name__)
 
@@ -45,11 +46,7 @@ def train_and_validate_model(
     # TODO: Can be modified later based on selected `eval_metric`
     eval_fn = roc_auc_score
 
-    num_cols = [item for item in abt_train.columns if re.compile("^n_").match(item)]
-    cat_cols = [item for item in abt_train.columns if re.compile("^c_").match(item)]
-    target_col = [item for item in abt_train.columns if re.compile("^y_").match(item)][
-        0
-    ]
+    _, num_cols, cat_cols, target_col = extract_column_names(abt_train)
 
     dtrain = xgb.DMatrix(abt_train[num_cols + cat_cols], label=abt_train[[target_col]])
     dvalid = xgb.DMatrix(abt_valid[num_cols + cat_cols], label=abt_valid[[target_col]])
@@ -134,9 +131,7 @@ def test_model(abt_test: pd.DataFrame, model, eval_metric: str = "auc"):
     # TODO: Can be modified later based on selected `eval_metric`
     eval_fn = roc_auc_score
 
-    num_cols = [item for item in abt_test.columns if re.compile("^n_").match(item)]
-    cat_cols = [item for item in abt_test.columns if re.compile("^c_").match(item)]
-    target_col = [item for item in abt_test.columns if re.compile("^y_").match(item)][0]
+    _, num_cols, cat_cols, target_col = extract_column_names(abt_test)
 
     dtest = xgb.DMatrix(abt_test[num_cols + cat_cols], label=abt_test[[target_col]])
 
