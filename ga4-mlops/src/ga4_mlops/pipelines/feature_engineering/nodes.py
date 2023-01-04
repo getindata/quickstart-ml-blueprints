@@ -58,29 +58,10 @@ def fit_imputers(df: pd.DataFrame, imputation_strategies: dict) -> dict:
     _, num_cols, cat_cols, _ = extract_column_names(df)
     df = ensure_column_types(df, num_cols, cat_cols)
 
-    if len(imputation_strategies["mean"]) > 0:
-        num_mean_imputer = SimpleImputer(strategy="mean")
-        num_mean_imputer.fit(df[imputation_strategies["mean"]])
-    else:
-        num_mean_imputer = None
-
-    if len(imputation_strategies["zero"]) > 0:
-        num_zero_imputer = SimpleImputer(strategy="constant", fill_value=0.0)
-        num_zero_imputer.fit(df[imputation_strategies["zero"]])
-    else:
-        num_zero_imputer = None
-
-    if len(imputation_strategies["mostfreq"]) > 0:
-        cat_mostfreq_imputer = SimpleImputer(strategy="most_frequent")
-        cat_mostfreq_imputer.fit(df[imputation_strategies["mostfreq"]])
-    else:
-        cat_mostfreq_imputer = None
-
-    if len(imputation_strategies["unknown"]) > 0:
-        cat_unknown_imputer = SimpleImputer(strategy="constant", fill_value="UNKNOWN")
-        cat_unknown_imputer.fit(df[imputation_strategies["unknown"]])
-    else:
-        cat_unknown_imputer = None
+    num_mean_imputer = _imputer_fit(df, imputation_strategies, "mean")
+    num_zero_imputer = _imputer_fit(df, imputation_strategies, "zero")
+    cat_mostfreq_imputer = _imputer_fit(df, imputation_strategies, "mostfreq")
+    cat_unknown_imputer = _imputer_fit(df, imputation_strategies, "unknown")
 
     imputers = {
         "mean": num_mean_imputer,
@@ -107,25 +88,10 @@ def apply_imputers(df: pd.DataFrame, imputers: dict) -> pd.DataFrame:
     _, num_cols, cat_cols, _ = extract_column_names(df)
     df = ensure_column_types(df, num_cols, cat_cols)
 
-    if imputers["mean"] is not None:
-        df[imputers["mean"].feature_names_in_] = imputers["mean"].transform(
-            df[imputers["mean"].feature_names_in_]
-        )
-
-    if imputers["zero"] is not None:
-        df[imputers["zero"].feature_names_in_] = imputers["zero"].transform(
-            df[imputers["zero"].feature_names_in_]
-        )
-
-    if imputers["mostfreq"] is not None:
-        df[imputers["mostfreq"].feature_names_in_] = imputers["mostfreq"].transform(
-            df[imputers["mostfreq"].feature_names_in_]
-        )
-
-    if imputers["unknown"] is not None:
-        df[imputers["unknown"].feature_names_in_] = imputers["unknown"].transform(
-            df[imputers["unknown"].feature_names_in_]
-        )
+    df = _imputer_transform(df, imputers, "mean")
+    df = _imputer_transform(df, imputers, "zero")
+    df = _imputer_transform(df, imputers, "mostfreq")
+    df = _imputer_transform(df, imputers, "unknown")
 
     return df
 
@@ -204,5 +170,57 @@ def exclude_features(df: pd.DataFrame, features_to_exclude: list) -> pd.DataFram
             item for item in df.columns if re.compile(f"^{feature}").match(item)
         ]
         df = df.drop(feature_list, axis=1)
+
+    return df
+
+
+def _imputer_fit(
+    df: pd.DataFrame, imputation_strategies: dict, selected_strategy: str
+) -> SimpleImputer:
+    """
+
+    Args:
+        df (pd.DataFrame): _description_
+        selected_strategy (str): _description_
+
+    Returns:
+        SimpleImputer: _description_
+    """
+    if selected_strategy == "mean":
+        imputer = SimpleImputer(strategy="mean")
+    elif selected_strategy == "zero":
+        imputer = SimpleImputer(strategy="constant", fill_value=0.0)
+    elif selected_strategy == "mostfreq":
+        imputer = SimpleImputer(strategy="most_frequent")
+    elif selected_strategy == "unknown":
+        imputer = SimpleImputer(strategy="constant", fill_value="UNKNOWN")
+    else:
+        imputer = None
+
+    if len(imputation_strategies[selected_strategy]) > 0:
+        imputer.fit(df[imputation_strategies[selected_strategy]])
+    else:
+        imputer = None
+
+    return imputer
+
+
+def _imputer_transform(
+    df: pd.DataFrame, imputers: dict, selected_strategy: str
+) -> pd.DataFrame:
+    """Apply imputer with a selected strategy, if exists.
+
+    Args:
+        df (pd.DataFrame): data frame to impute
+        imputers (dict): imputers dictionary
+        selected_strategy (str): selected imputation strategy from dictionary
+
+    Returns:
+        pd.DataFrame: imputed data frame
+    """
+    if imputers[selected_strategy] is not None:
+        df[imputers[selected_strategy].feature_names_in_] = imputers[
+            selected_strategy
+        ].transform(df[imputers[selected_strategy].feature_names_in_])
 
     return df
