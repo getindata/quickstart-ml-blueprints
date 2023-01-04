@@ -156,27 +156,27 @@ df_predict:
 
 # FEATURE DATA (AFTER: FEATURE ENGINEERING, IMPUTATION, ENCODING)
 
-imputers_train:
+imputers_fitted:
   data_set:
     filepath: data/04_feature/imputers.pkl
     type: pickle.PickleDataSet
   <<: *artifact_args
 
-imputers_predict:
-  run_id: f74f8c3f80554487ab3284b2033df781
+imputers_stored:
+  run_id: d27662fa1e6b4264a1468944e6fae95d
   data_set:
     filepath: data/04_feature/imputers.pkl
     type: pickle.PickleDataSet
   <<: *artifact_args
 
-feature_encoders_train:
+feature_encoders_fitted:
   data_set:
     filepath: data/04_feature/feature_encoders.pkl
     type: pickle.PickleDataSet
   <<: *artifact_args
 
-feature_encoders_predict:
-  run_id: f74f8c3f80554487ab3284b2033df781
+feature_encoders_stored:
+  run_id: d27662fa1e6b4264a1468944e6fae95d
   data_set:
     filepath: data/04_feature/feature_encoders.pkl
     type: pickle.PickleDataSet
@@ -240,7 +240,7 @@ model_config:
   <<: *artifact_args
 
 model_predict:
-  run_id: f74f8c3f80554487ab3284b2033df781
+  run_id: d27662fa1e6b4264a1468944e6fae95d
   data_set:
     type: pickle.PickleDataSet
     filepath: data/06_models/model.pkl

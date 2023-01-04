@@ -3,7 +3,8 @@ This is a boilerplate pipeline 'training'
 generated using Kedro 0.18.4
 """
 
-from kedro.pipeline import Pipeline, node, pipeline
+from kedro.pipeline import Pipeline, node
+from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import test_model, train_and_validate_model
 
