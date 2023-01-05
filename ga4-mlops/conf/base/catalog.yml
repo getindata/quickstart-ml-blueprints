@@ -20,7 +20,7 @@ _artifact_args: &artifact_args
 
 # RAW DATA
 
-ga4_data_train:
+train.ga4_data:
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
   load_args:
     configuration: {
@@ -49,7 +49,7 @@ ga4_data_train:
   <<: *raw_data_args
   
 
-ga4_data_valid:
+valid.ga4_data:
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
   load_args:
     configuration: {
@@ -77,7 +77,7 @@ ga4_data_valid:
     reauth: True
   <<: *raw_data_args
 
-ga4_data_test:
+test.ga4_data:
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
   load_args:
     configuration: {
@@ -105,7 +105,7 @@ ga4_data_test:
     
   <<: *raw_data_args
 
-ga4_data_predict:
+predict.ga4_data:
   filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
   load_args:
     configuration: {
@@ -134,100 +134,100 @@ ga4_data_predict:
 
 # PRIMARY DATA (AFTER: AFTER: SELECTION, AGGREGATION, SAMPLING)
 
-df_train:
+train.df:
   filepath: data/03_primary/df_train.csv
   layer: primary
   <<: *data_args
 
-df_valid:
+valid.df:
   filepath: data/03_primary/df_valid.csv
   layer: primary
   <<: *data_args
 
-df_test:
+test.df:
   filepath: data/03_primary/df_test.csv
   layer: primary
   <<: *data_args
 
-df_predict:
+predict.df:
   filepath: data/03_primary/df_predict.csv
   layer: primary
   <<: *data_args
 
 # FEATURE DATA (AFTER: FEATURE ENGINEERING, IMPUTATION, ENCODING)
 
-imputers_fitted:
+fitted.imputers:
   data_set:
     filepath: data/04_feature/imputers.pkl
     type: pickle.PickleDataSet
   <<: *artifact_args
 
-imputers_stored:
-  run_id: 878dac9be326412390da809194737297
+stored.imputers:
+  run_id: 5d366ee075f44a5da9b4bbebaa449ac1
   data_set:
     filepath: data/04_feature/imputers.pkl
     type: pickle.PickleDataSet
   <<: *artifact_args
 
-feature_encoders_fitted:
+fitted.feature_encoders:
   data_set:
     filepath: data/04_feature/feature_encoders.pkl
     type: pickle.PickleDataSet
   <<: *artifact_args
 
-feature_encoders_stored:
-  run_id: 878dac9be326412390da809194737297
+stored.feature_encoders:
+  run_id: 5d366ee075f44a5da9b4bbebaa449ac1
   data_set:
     filepath: data/04_feature/feature_encoders.pkl
     type: pickle.PickleDataSet
   <<: *artifact_args
 
-df_train_fe:
+train.df_fe:
   filepath: data/04_feature/df_train_fe.csv
   layer: feature
   <<: *data_args
 
-df_valid_fe:
+valid.df_fe:
   filepath: data/04_feature/df_valid_fe.csv
   layer: feature
   <<: *data_args
 
-df_test_fe:
+test.df_fe:
   filepath: data/04_feature/df_test_fe.csv
   layer: feature
   <<: *data_args
 
-df_predict_fe:
+predict.df_fe:
   filepath: data/04_feature/df_predict_fe.csv
   layer: feature
   <<: *data_args
 
 # MODEL INPUT DATA (AFTER: MANUAL FEATURE SELECTION)
 
-abt_train:
+train.abt:
   filepath: data/05_model_input/abt_train.csv
   layer: model_input
   <<: *data_args
 
-abt_valid:
+valid.abt:
   type: pandas.CSVDataSet
   filepath: data/05_model_input/abt_valid.csv
   layer: model_input
   <<: *data_args
 
-abt_test:
+test.abt:
   filepath: data/05_model_input/abt_test.csv
   layer: model_input
   <<: *data_args
 
-abt_predict:
+predict.abt:
   filepath: data/05_model_input/abt_predict.csv
   layer: model_input
   <<: *data_args
 
 # MODELS
 
-model_train:
+fitted.model:
   data_set:
     type: pickle.PickleDataSet
     filepath: data/06_models/model.pkl
@@ -239,8 +239,8 @@ model_config:
     filepath: data/06_models/model_config.json
   <<: *artifact_args
 
-model_predict:
-  run_id: 878dac9be326412390da809194737297
+stored.model:
+  run_id: 5d366ee075f44a5da9b4bbebaa449ac1
   data_set:
     type: pickle.PickleDataSet
     filepath: data/06_models/model.pkl

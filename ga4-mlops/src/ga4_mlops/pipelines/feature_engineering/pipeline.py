@@ -28,40 +28,40 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
     trasnformations_fitting_and_application_pipeline = pipeline(
         [
             node(
-                name="feature_engineering_train_node",
+                name="train.feature_engineering_node",
                 func=engineer_features,
-                inputs=["df_train"],
-                outputs="df_train_fe_temp",
+                inputs=["train.df"],
+                outputs="train.df_fe_temp",
             ),
             node(
-                name="imputers_fitting_node",
+                name="train.imputers_fitting_node",
                 func=fit_imputers,
-                inputs=["df_train_fe_temp", "params:imputation_strategies"],
-                outputs="imputers_fitted",
+                inputs=["train.df_fe_temp", "params:imputation_strategies"],
+                outputs="fitted.imputers",
             ),
             node(
-                name="imputers_application_train_node",
+                name="train.imputers_application_node",
                 func=apply_imputers,
-                inputs=["df_train_fe_temp", "imputers_fitted"],
-                outputs="df_train_imp_temp",
+                inputs=["train.df_fe_temp", "fitted.imputers"],
+                outputs="train.df_imp_temp",
             ),
             node(
-                name="encoders_fitting_node",
+                name="train.encoders_fitting_node",
                 func=fit_encoders,
-                inputs=["df_train_imp_temp", "params:encoder_types"],
-                outputs="feature_encoders_fitted",
+                inputs=["train.df_imp_temp", "params:encoder_types"],
+                outputs="fitted.feature_encoders",
             ),
             node(
-                name="encoders_application_train_node",
+                name="train.encoders_application_node",
                 func=apply_encoders,
-                inputs=["df_train_imp_temp", "feature_encoders_fitted"],
-                outputs="df_train_fe",
+                inputs=["train.df_imp_temp", "fitted.feature_encoders"],
+                outputs="train.df_fe",
             ),
             node(
-                name="exclude_features_train_node",
+                name="train.exclude_features_node",
                 func=exclude_features,
-                inputs=["df_train_fe", "params:features_to_exclude"],
-                outputs="abt_train",
+                inputs=["train.df_fe", "params:features_to_exclude"],
+                outputs="train.abt",
             ),
         ]
     )
@@ -71,31 +71,31 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
     trasnformations_application_pipeline = pipeline(
         [
             node(
-                name=f"feature_engineering_{subset}_node",
+                name=f"{subset}.feature_engineering_node",
                 func=engineer_features,
-                inputs=[f"df_{subset}"],
-                outputs=f"df_{subset}_fe_temp",
+                inputs=[f"{subset}.df"],
+                outputs=f"{subset}.df_fe_temp",
             ),
             node(
-                name=f"imputers_application_{subset}_node",
+                name=f"{subset}.imputers_application_node",
                 func=apply_imputers,
-                inputs=[f"df_{subset}_fe_temp", f"imputers_{transformations_source}"],
-                outputs=f"df_{subset}_imp_temp",
+                inputs=[f"{subset}.df_fe_temp", f"{transformations_source}.imputers"],
+                outputs=f"{subset}.df_imp_temp",
             ),
             node(
-                name=f"encoders_application_{subset}_node",
+                name=f"{subset}.encoders_application_node",
                 func=apply_encoders,
                 inputs=[
-                    f"df_{subset}_imp_temp",
-                    f"feature_encoders_{transformations_source}",
+                    f"{subset}.df_imp_temp",
+                    f"{transformations_source}.feature_encoders",
                 ],
-                outputs=f"df_{subset}_fe",
+                outputs=f"{subset}.df_fe",
             ),
             node(
-                name=f"exclude_features_{subset}_node",
+                name=f"{subset}.exclude_features_node",
                 func=exclude_features,
-                inputs=[f"df_{subset}_fe", "params:features_to_exclude"],
-                outputs=f"abt_{subset}",
+                inputs=[f"{subset}.df_fe", "params:features_to_exclude"],
+                outputs=f"{subset}.abt",
             ),
         ]
     )

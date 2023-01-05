@@ -18,15 +18,18 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
     possible_subsets = ["train", "valid", "test", "predict"]
     assert subset in possible_subsets, f"Subset should be one of: {possible_subsets}"
 
+    namespace = f"{subset}"
+
     main_pipeline = pipeline(
         [
             node(
-                name=f"get_and_aggregate_data_{subset}_node",
+                name="get_and_aggregate_data_node",
                 func=get_and_aggregate_data,
-                inputs=[f"ga4_data_{subset}"],
-                outputs=f"df_{subset}",
+                inputs=["ga4_data"],
+                outputs="df",
             ),
-        ]
+        ],
+        namespace=namespace,
     )
 
     return main_pipeline
