@@ -187,23 +187,3 @@ def _get_eval_fn(eval_metric: str):
         eval_fn = None
 
     return eval_fn
-
-    # model = xgb.train(
-    #     all_params,
-    #     dtrain,
-    #     evals=[(dvalid, "validation")],
-    #     verbose_eval=False,
-    #     early_stopping_rounds=30,
-    # )
-
-    # preds_train = model.predict(dtrain)
-    # preds_valid = model.predict(dvalid)
-    # train_score = eval_fn(abt_train[target_col], preds_train)
-    # valid_score = eval_fn(abt_valid[target_col], preds_valid)
-
-    # model_config = json.loads(model.save_config())
-
-    # mlflow.log_metric("train_score", train_score)
-    # mlflow.log_metric("valid_score", valid_score)
-
-    # return model, model_config
