@@ -163,7 +163,7 @@ imputers_fitted:
   <<: *artifact_args
 
 imputers_stored:
-  run_id: 0be8893ccd344eda824d7cc679e54987
+  run_id: 878dac9be326412390da809194737297
   data_set:
     filepath: data/04_feature/imputers.pkl
     type: pickle.PickleDataSet
@@ -176,7 +176,7 @@ feature_encoders_fitted:
   <<: *artifact_args
 
 feature_encoders_stored:
-  run_id: 0be8893ccd344eda824d7cc679e54987
+  run_id: 878dac9be326412390da809194737297
   data_set:
     filepath: data/04_feature/feature_encoders.pkl
     type: pickle.PickleDataSet
@@ -240,7 +240,7 @@ model_config:
   <<: *artifact_args
 
 model_predict:
-  run_id: 0be8893ccd344eda824d7cc679e54987
+  run_id: 878dac9be326412390da809194737297
   data_set:
     type: pickle.PickleDataSet
     filepath: data/06_models/model.pkl

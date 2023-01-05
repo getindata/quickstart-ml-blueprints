@@ -25,7 +25,6 @@ def predict(abt_predict: pd.DataFrame, model) -> pd.DataFrame:
     logger.info("Applying model to get predictions...")
 
     info_cols, num_cols, cat_cols, _ = extract_column_names(abt_predict)
-
     dpredict = xgb.DMatrix(abt_predict[num_cols + cat_cols])
 
     scores = model.predict(dpredict)

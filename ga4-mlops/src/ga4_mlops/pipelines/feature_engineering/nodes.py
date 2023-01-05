@@ -48,6 +48,7 @@ def fit_imputers(df: pd.DataFrame, imputation_strategies: dict) -> dict:
         dict: dictionary of imputer objects
     """
     logger.info("Fitting missing values imputers...")
+
     columns_to_impute = [
         item for sublist in list(imputation_strategies.values()) for item in sublist
     ]
@@ -106,6 +107,7 @@ def fit_encoders(df: pd.DataFrame, encoder_types: dict) -> dict:
         pd.DataFrame: dictionary of encoder objects
     """
     logger.info("Fitting categorical encoders...")
+
     columns_to_encode = [
         item for sublist in list(encoder_types.values()) for item in sublist
     ]
