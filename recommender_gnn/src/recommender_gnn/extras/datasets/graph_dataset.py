@@ -60,6 +60,18 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
         return dataset
 
     def _save(self, data: List) -> None:
+        graphs_collection = self._unpack_data(data)
+        save_filepath = os.path.join(self._dir, f"graphs.{self.file_extension}")
+        logger.info(f"Saving graphs here: {self._dir}")
+        save_graphs_python(save_filepath, graphs_collection)
+
+    def _describe(self) -> Dict[str, Any]:
+        """Returns a dict that describes the attributes of the dataset."""
+        return dict(filepath=self._dir, protocol=self._protocol)
+
+    @staticmethod
+    def _unpack_data(data: List) -> Dict[str, Any]:
+        """Unpacks the data from the list of tuples into a dictionary."""
         graphs_collection = {}
         if data:
             for row in data:
@@ -68,13 +80,7 @@ class DGSRSubGraphsDataSet(AbstractDataSet):
                     graph_id = "_".join([str(user), str(item_number)])
                     graphs_list = create_graphs_list(graph, graph_dict)
                     graphs_collection[graph_id] = graphs_list
-        save_filepath = os.path.join(self._dir, f"graphs.{self.file_extension}")
-        logger.info(f"Saving graphs here: {self._dir}")
-        save_graphs_python(save_filepath, graphs_collection)
-
-    def _describe(self) -> Dict[str, Any]:
-        """Returns a dict that describes the attributes of the dataset."""
-        return dict(filepath=self._dir, protocol=self._protocol)
+        return graphs_collection
 
 
 def _create_path_obj(path: str) -> Union[Pathy, Path]:

@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import pytest
 from dgl import DGLHeteroGraph
 from pytest_lazyfixture import lazy_fixture
@@ -6,6 +9,7 @@ from recommender_gnn.extras.graph_utils.dgsr_utils import (
     SubGraphsDataset,
     eval_metric,
     load_graphs_python,
+    save_graphs_python,
 )
 
 
@@ -70,3 +74,10 @@ def test_eval_metric_ndgg(scores_custom):
     results = [eval_metric([score]) for score in scores_custom]
     ndggs = [result[5] for result in results]
     assert ndggs == [0.1, 0.0, 0.03562071871080222, 0.023981246656813147, 0.0]
+
+
+def test_save_graphs_python_should_write_to_directory(tmp_path):
+    graphs_collection = {}
+    tmp_file_path = os.path.join(str(tmp_path), "graphs.pkl")
+    save_graphs_python(tmp_file_path, graphs_collection)
+    assert len(list(Path(tmp_path).iterdir())) == 1
