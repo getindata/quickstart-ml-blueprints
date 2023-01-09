@@ -82,7 +82,7 @@ def _filter_by_test_users(
 
 
 def generate_submission(
-    predictions: pd.DataFrame,
+    predictions: Union[Iterator[pd.DataFrame], pd.DataFrame],
     all_users: pd.DataFrame,
     user_mapping: Dict,
     item_mapping: Dict,

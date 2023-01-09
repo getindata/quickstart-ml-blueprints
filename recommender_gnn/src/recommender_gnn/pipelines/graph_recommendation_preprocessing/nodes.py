@@ -68,7 +68,7 @@ def _create_mapping(df: pd.DataFrame, map_column: str) -> Dict:
 
 
 def map_users_and_items(
-    transactions_df: Iterator[pd.DataFrame],
+    transactions_df: Union[Iterator[pd.DataFrame], pd.DataFrame],
     user_column: str = "user_id",
     item_column: str = "item_id",
     time_column: str = "time",

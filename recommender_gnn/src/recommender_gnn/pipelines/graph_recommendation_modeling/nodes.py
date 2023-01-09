@@ -1,6 +1,6 @@
 """Some variables will have names form the original paper script for easier comparison and understanding"""
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, Iterator, List, Tuple, Union
 from xmlrpc.client import Boolean
 
 import dgl
@@ -58,7 +58,9 @@ def _construct_graph(user: List, item: List, time: List) -> dgl.DGLGraph:
     return graph
 
 
-def generate_graph_dgsr(df: pd.DataFrame) -> dgl.DGLGraph:
+def generate_graph_dgsr(
+    df: Union[Iterator[pd.DataFrame], pd.DataFrame]
+) -> dgl.DGLGraph:
     """Generates graph from whole dataset. This graph will be used for creating transactions subgraphs for each user.
 
     Args:
@@ -423,7 +425,7 @@ def _correct_shape(sample_lists: List) -> List:
 
 
 def preprocess_dgsr(
-    df: pd.DataFrame,
+    df: Union[Iterator[pd.DataFrame], pd.DataFrame],
     graph: dgl.DGLGraph,
     item_max_length: int = 50,
     user_max_length: int = 50,
@@ -480,7 +482,9 @@ def preprocess_dgsr(
     return train_list, val_list, test_list, predict_list
 
 
-def sample_negatives_dgsr(df: pd.DataFrame) -> pd.DataFrame:
+def sample_negatives_dgsr(
+    df: Union[Iterator[pd.DataFrame], pd.DataFrame]
+) -> pd.DataFrame:
     """Sample negative items for each user based on transactions dataframe
 
     Args:

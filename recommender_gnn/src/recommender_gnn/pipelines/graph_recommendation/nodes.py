@@ -1,7 +1,7 @@
 import logging
 from functools import partial
 from operator import itemgetter
-from typing import Dict, Optional, Tuple
+from typing import Dict, Iterator, Optional, Tuple, Union
 
 import mlflow.pytorch
 import pandas as pd
@@ -136,7 +136,7 @@ def _log_auto_logged_info(mlflow_run: mlflow.entities.Run) -> None:
 def train_model(
     train_set: SubGraphsDataset,
     val_set: SubGraphsDataset,
-    transactions: pd.DataFrame,
+    transactions: Union[Iterator[pd.DataFrame], pd.DataFrame],
     negative_samples: pd.DataFrame,
     model_params: Dict,
     train_params: Dict,
