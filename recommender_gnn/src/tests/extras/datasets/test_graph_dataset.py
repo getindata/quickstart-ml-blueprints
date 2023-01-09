@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
@@ -53,8 +51,7 @@ class TestDGSRSubGraphsDataSet:
             (lazy_fixture("predict_subgraphs_list")),
         ],
     )
-    def test_save_should_write_to_directory(self, tmp_path, test_list):
-        tmp_path = str(tmp_path)
-        dataset = DGSRSubGraphsDataSet(tmp_path, self.save_args)
-        dataset._save(test_list)
-        assert len(list(Path(tmp_path).iterdir())) == 1
+    def test_unpack_data_should_return_graphs_collection_dictionary(self, test_list):
+        graphs_collection = DGSRSubGraphsDataSet._unpack_data(test_list)
+        assert isinstance(graphs_collection, dict)
+        assert len(graphs_collection) == len(test_list)

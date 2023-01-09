@@ -29,7 +29,7 @@ tracking:
     pipelines: []
 
   experiment:
-    name: santander_submission
+    name: gid-ml-framework-recommender-gnn
     restore_if_deleted: True  # if the experiment`name` was previously deleted experiment, should we restore it?
 
   run:

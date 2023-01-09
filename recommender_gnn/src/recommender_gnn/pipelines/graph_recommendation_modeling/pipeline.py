@@ -4,15 +4,21 @@ from kedro.pipeline.modular_pipeline import pipeline
 from .nodes import generate_graph_dgsr, preprocess_dgsr, sample_negatives_dgsr
 
 
-def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeline:
+def create_pipeline(
+    dataset: str, model: str, comments: str = None, **kwargs
+) -> Pipeline:
     """Creates pipeline for graph data modeling for given GNN model
 
     Args:
         dataset (str): dataset name
         model (str): name of gnn model to use
-        comments (str): i.e. indication of which subsets we want to create graphs
+        comments (str): i.e. some additional strings to distinguish pipeline namespace
     """
-    namespace = "_".join([dataset, model, comments, "grm"])
+    namespace_list = [x for x in [dataset, model, comments] if x is not None]
+    namespace = "_".join(["graph_recommendation_modelling"] + namespace_list)
+    grp_namespace = "_".join(
+        ["graph_recommendation_preprocessing"] + namespace_list[::2]
+    )
 
     dgsr_pipeline = pipeline(
         [
@@ -58,15 +64,7 @@ def create_pipeline(dataset: str, model: str, comments: str, **kwargs) -> Pipeli
 
     main_pipeline = pipeline(
         pipe=models_dict.get(model),
-        inputs={"transactions_mapped": f"{dataset}_transactions_mapped"},
-        outputs={
-            "transactions_graph": f"{namespace}_transactions_graph",
-            "negative_transactions_samples": f"{namespace}_negative_transactions_samples",
-            "train_graphs": f"{namespace}_train_graphs",
-            "val_graphs": f"{namespace}_val_graphs",
-            "test_graphs": f"{namespace}_test_graphs",
-            "predict_graphs": f"{namespace}_predict_graphs",
-        },
+        inputs={"transactions_mapped": f"{grp_namespace}.transactions_mapped"},
         namespace=namespace,
     )
 

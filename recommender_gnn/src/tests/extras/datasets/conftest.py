@@ -50,6 +50,7 @@ def predict_subgraphs_list():
 
 @pytest.fixture(params=[1, 100, 150])
 def custom_chunks(request):
-    n = request.param
-    chunks = [pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6]}) for _ in range(n)]
+    chunksize = request.param
+    path = "src/tests/fixtures/dataframes/otto_raw_sample.csv"
+    chunks = pd.read_csv(path, chunksize=chunksize)
     return chunks

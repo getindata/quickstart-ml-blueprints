@@ -169,3 +169,10 @@ def test_subgraphs_path():
 def predict_subgraphs_path():
     subgraphs = get_subset_subgraphs_path("predict")
     return subgraphs
+
+
+@pytest.fixture
+def otto_dummy_df():
+    path = "src/tests/fixtures/dataframes/otto_raw_sample.csv"
+    otto_df = pd.read_csv(path)
+    return otto_df

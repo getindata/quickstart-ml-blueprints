@@ -1,12 +1,4 @@
-santander_dgsr_train_val_test_grm:
-  preprocess:
-    item_max_length: 50
-    user_max_length: 50
-    k_hop: 3
-    val_flag: True
-    test_flag: True
-
-santander_dgsr_kaggle_grm:
+graph_recommendation_modelling_otto_dgsr:
   preprocess:
     item_max_length: 50
     user_max_length: 50
@@ -15,19 +7,11 @@ santander_dgsr_kaggle_grm:
     test_flag: True
     predict_flag: True
 
-hm_dgsr_train_val_test_grm:
+graph_recommendation_modelling_hm_dgsr:
   preprocess:
     item_max_length: 50
     user_max_length: 50
     k_hop: 3
     val_flag: True
     test_flag: True
-
-hm_dgsr_kaggle_grm:
-  preprocess:
-    item_max_length: 50
-    user_max_length: 50
-    k_hop: 3
-    val_flag: False
-    test_flag: False
     predict_flag: True

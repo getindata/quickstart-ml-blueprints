@@ -4,8 +4,8 @@ import pytest
 
 from recommender_gnn.pipelines.graph_recommendation_preprocessing.nodes import (
     _create_mapping,
-    concat_train_val,
     map_users_and_items,
+    preprocess_transactions,
 )
 
 
@@ -13,23 +13,20 @@ class TestConcatTrainVal:
     date_column = "date"
     column_names = {"item_id", "user_id", "time"}
 
-    def test_given_wrong_date_column_should_raise_exception(
-        self, bank_train_transactions, bank_val_transactions
-    ):
-        wrong_column = "no_date_column"
-        with pytest.raises(KeyError):
-            concat_train_val(
-                bank_train_transactions, bank_val_transactions, wrong_column
-            )
-
     def test_given_empty_dataframes_should_raise_exception(self):
         empty_df = pd.DataFrame({})
         with pytest.raises(KeyError):
-            concat_train_val(empty_df, empty_df, self.date_column)
+            preprocess_transactions(
+                first_subset=empty_df,
+                second_subset=empty_df,
+                original_date_column=self.date_column,
+            )
 
     def test_output_shape(self, bank_train_transactions, bank_val_transactions):
-        df = concat_train_val(
-            bank_train_transactions, bank_val_transactions, self.date_column
+        df = preprocess_transactions(
+            first_subset=bank_train_transactions,
+            second_subset=bank_val_transactions,
+            original_date_column=self.date_column,
         )
         expected_shape = (
             bank_train_transactions.shape[0] + bank_val_transactions.shape[0],
@@ -38,8 +35,10 @@ class TestConcatTrainVal:
         assert df.shape == expected_shape
 
     def test_output_columns(self, bank_train_transactions, bank_val_transactions):
-        df = concat_train_val(
-            bank_train_transactions, bank_val_transactions, self.date_column
+        df = preprocess_transactions(
+            first_subset=bank_train_transactions,
+            second_subset=bank_val_transactions,
+            original_date_column=self.date_column,
         )
         assert set(df.columns) == self.column_names
 

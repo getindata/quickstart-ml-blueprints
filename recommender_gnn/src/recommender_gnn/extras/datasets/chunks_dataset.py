@@ -6,6 +6,7 @@ from typing import Iterator, Union
 
 import pandas as pd
 from kedro.io.core import get_filepath_str
+from pandas.io.parsers import TextFileReader
 
 
 def _load(self) -> pd.DataFrame:
@@ -21,7 +22,9 @@ def _load(self) -> pd.DataFrame:
     return pd.read_csv(load_path, **self._load_args)
 
 
-def _concat_chunks(chunks: Union[Iterator[pd.DataFrame], pd.DataFrame]) -> pd.DataFrame:
+def _concat_chunks(
+    chunks: Union[Iterator[pd.DataFrame], pd.DataFrame, None] = None
+) -> Union[pd.DataFrame, None]:
     """Auxiliary function for concatenating chunks into dataframe
 
     Args:
@@ -30,10 +33,13 @@ def _concat_chunks(chunks: Union[Iterator[pd.DataFrame], pd.DataFrame]) -> pd.Da
     Returns:
         pd.DataFrame: dataframe
     """
-    if isinstance(chunks, pd.DataFrame):
+    if chunks is None:
+        return None
+    elif isinstance(chunks, pd.DataFrame):
         df = chunks
-    else:
+        return df
+    elif isinstance(chunks, TextFileReader):
         df = pd.DataFrame()
         for chunk in chunks:
             df = pd.concat([df, chunk], ignore_index=True)
-    return df
+        return df

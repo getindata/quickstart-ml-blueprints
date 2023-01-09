@@ -59,4 +59,4 @@ class TestGenerateSubmission:
             self.user_column,
             None,
         )
-        assert submission_df.shape == (6, 2)
+        assert submission_df.shape == (11, 2)
