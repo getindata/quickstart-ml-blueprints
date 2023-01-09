@@ -1,4 +1,4 @@
-name: gid_ml_framework
+name: gnns
 channels:
   - pytorch
   - dglteam
@@ -11,8 +11,6 @@ dependencies:
   - python=3.8.12
   - mamba
   - pip  # pip must be mentioned explicitly, or conda-lock will fail
-  - poetry
-  - conda-forge::cudatoolkit=11.6
   - pytorch::pytorch=1.12.1
   - pytorch::torchaudio=0.12.1
   - pytorch::torchvision=0.13.1

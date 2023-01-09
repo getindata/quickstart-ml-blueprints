@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=nvidia/cuda:11.7.0-cudnn8-devel-ubuntu22.04
+ARG BASE_IMAGE=nvidia/cuda:11.3.0-runtime-ubuntu20.04
 
 FROM $BASE_IMAGE
 
@@ -28,34 +28,26 @@ RUN conda update -y conda
 ENV CONDA_ALWAYS_YES="true"
 
 # poetry install
-ENV POETRY_VERSION=1.2.0
+ENV POETRY_VERSION=1.2.1
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$PATH:${HOME}/.local/bin"
 RUN poetry config virtualenvs.create false
 COPY pyproject.toml poetry.lock ./
-
-# conda and poetry setup
-COPY environment.yml virtual-packages.yml ./
-RUN conda create -n temp -c conda-forge mamba conda-lock poetry='1.*' python='3.8.12' && conda clean -afy
-SHELL ["conda", "run", "-n", "temp", "/bin/bash", "-c"]
-RUN conda-lock -k explicit --conda mamba
-#RUN poetry add --lock torch=1.12.1 torchaudio=0.12.1 torchvision=0.13.1 conda-lock
-SHELL ["/bin/bash", "-c"]
-RUN conda env remove -n temp
+RUN pip install pip==22.1.2 setuptools==63.1.0
 
 # requirements, we can consider using conda-pack tool with multi-stage builds for smaller image size
+COPY environment.yml virtual-packages.yml ./
 COPY conda-linux-64.lock ./
-RUN conda create --name gid_ml_framework --file conda-linux-64.lock && conda clean -afy \
+RUN conda create --name gnns --file conda-linux-64.lock && conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
     && find /opt/conda/ -follow -type f -name '*.js.map' -delete
-SHELL ["conda", "run", "-n", "gid_ml_framework", "/bin/bash", "-c"]
-RUN poetry lock
+SHELL ["conda", "run", "-n", "gnns", "/bin/bash", "-c"]
 RUN poetry install && rm -rf ${HOME}/.cache/pypoetry
 
 COPY . .
-    
-ENV PATH /opt/conda/envs/gid_ml_framework/bin:$PATH
-ENV CONDA_DEFAULT_ENV gid_ml_framework
 
-CMD ["kedro", "run", "-p", "santander_e2e"]
+ENV PATH /opt/conda/envs/gnns/bin:$PATH
+ENV CONDA_DEFAULT_ENV gnns
+
+CMD ["kedro", "run", "-p", "tg"]

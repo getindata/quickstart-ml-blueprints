@@ -162,6 +162,9 @@ venv.bak/
 # MLflow
 mlruns/
 
+# Vertexai custom jobs
+config.yaml
+
 .ipython
 .pytest_cache
 .dive-ci
