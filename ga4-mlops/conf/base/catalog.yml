@@ -1,0 +1,254 @@
+# Here you can define all your data sets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://kedro.readthedocs.io/en/stable/data/data_catalog.html
+
+# COMMON SETTINGS
+
+_raw_data_args: &raw_data_args
+  type: pandas.GBQQueryDataSet
+  project: gid-ml-framework
+  layer: raw
+
+_data_args: &data_args
+  type: pandas.CSVDataSet
+  save_args:
+    index: False
+
+_artifact_args: &artifact_args
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+
+# RAW DATA
+
+train.ga4_data:
+  filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
+  load_args:
+    configuration: {
+      'query': {
+        'parameterMode': 'NAMED',
+        'queryParameters': [
+            {
+                'name': 'start_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210126'}
+            },
+            {
+                'name': 'end_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210128'}
+            },
+            {
+                'name': 'sample_size',
+                'parameterType': {'type': 'INT64'},
+                'parameterValue': {'value': 10000}
+            }
+        ]
+      }
+    }
+    reauth: True
+  <<: *raw_data_args
+  
+
+valid.ga4_data:
+  filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
+  load_args:
+    configuration: {
+      'query': {
+        'parameterMode': 'NAMED',
+        'queryParameters': [
+            {
+                'name': 'start_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210129'}
+            },
+            {
+                'name': 'end_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210129'}
+            },
+            {
+                'name': 'sample_size',
+                'parameterType': {'type': 'INT64'},
+                'parameterValue': {'value': 2000}
+            }
+        ]
+      }
+    }
+    reauth: True
+  <<: *raw_data_args
+
+test.ga4_data:
+  filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
+  load_args:
+    configuration: {
+      'query': {
+        'parameterMode': 'NAMED',
+        'queryParameters': [
+            {
+                'name': 'start_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210130'}
+            },
+            {
+                'name': 'end_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210130'}
+            },
+            {
+                'name': 'sample_size',
+                'parameterType': {'type': 'INT64'},
+                'parameterValue': {'value': 2000}
+            }
+        ]
+      }
+    }
+    
+  <<: *raw_data_args
+
+predict.ga4_data:
+  filepath: src/ga4_mlops/pipelines/data_preprocessing/sql/get_ga4_raw_data.sql
+  load_args:
+    configuration: {
+      'query': {
+        'parameterMode': 'NAMED',
+        'queryParameters': [
+            {
+                'name': 'start_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210131'}
+            },
+            {
+                'name': 'end_date',
+                'parameterType': {'type': 'STRING'},
+                'parameterValue': {'value': '20210131'}
+            },
+            {
+                'name': 'sample_size',
+                'parameterType': {'type': 'INT64'},
+                'parameterValue': {'value': 2000}
+            }
+        ]
+      }
+    }
+  <<: *raw_data_args
+
+# PRIMARY DATA (AFTER: AFTER: SELECTION, AGGREGATION, SAMPLING)
+
+train.df:
+  filepath: data/03_primary/df_train.csv
+  layer: primary
+  <<: *data_args
+
+valid.df:
+  filepath: data/03_primary/df_valid.csv
+  layer: primary
+  <<: *data_args
+
+test.df:
+  filepath: data/03_primary/df_test.csv
+  layer: primary
+  <<: *data_args
+
+predict.df:
+  filepath: data/03_primary/df_predict.csv
+  layer: primary
+  <<: *data_args
+
+# FEATURE DATA (AFTER: FEATURE ENGINEERING, IMPUTATION, ENCODING)
+
+fitted.imputers:
+  data_set:
+    filepath: data/04_feature/imputers.pkl
+    type: pickle.PickleDataSet
+  <<: *artifact_args
+
+stored.imputers:
+  run_id: 5d366ee075f44a5da9b4bbebaa449ac1
+  data_set:
+    filepath: data/04_feature/imputers.pkl
+    type: pickle.PickleDataSet
+  <<: *artifact_args
+
+fitted.feature_encoders:
+  data_set:
+    filepath: data/04_feature/feature_encoders.pkl
+    type: pickle.PickleDataSet
+  <<: *artifact_args
+
+stored.feature_encoders:
+  run_id: 5d366ee075f44a5da9b4bbebaa449ac1
+  data_set:
+    filepath: data/04_feature/feature_encoders.pkl
+    type: pickle.PickleDataSet
+  <<: *artifact_args
+
+train.df_fe:
+  filepath: data/04_feature/df_train_fe.csv
+  layer: feature
+  <<: *data_args
+
+valid.df_fe:
+  filepath: data/04_feature/df_valid_fe.csv
+  layer: feature
+  <<: *data_args
+
+test.df_fe:
+  filepath: data/04_feature/df_test_fe.csv
+  layer: feature
+  <<: *data_args
+
+predict.df_fe:
+  filepath: data/04_feature/df_predict_fe.csv
+  layer: feature
+  <<: *data_args
+
+# MODEL INPUT DATA (AFTER: MANUAL FEATURE SELECTION)
+
+train.abt:
+  filepath: data/05_model_input/abt_train.csv
+  layer: model_input
+  <<: *data_args
+
+valid.abt:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/abt_valid.csv
+  layer: model_input
+  <<: *data_args
+
+test.abt:
+  filepath: data/05_model_input/abt_test.csv
+  layer: model_input
+  <<: *data_args
+
+predict.abt:
+  filepath: data/05_model_input/abt_predict.csv
+  layer: model_input
+  <<: *data_args
+
+# MODELS
+
+fitted.model:
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/model.pkl
+  <<: *artifact_args
+
+model_config:
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/06_models/model_config.json
+  <<: *artifact_args
+
+stored.model:
+  run_id: 5d366ee075f44a5da9b4bbebaa449ac1
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/model.pkl
+  <<: *artifact_args
+
+# MODEL OUTPUT
+
+predictions:
+  filepath: data/07_model_output/predictions.csv
+  layer: model_output
+  <<: *data_args

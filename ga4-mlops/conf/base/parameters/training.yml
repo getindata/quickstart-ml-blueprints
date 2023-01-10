@@ -1,0 +1,11 @@
+# This is a boilerplate parameters config generated for pipeline 'training'
+# using Kedro 0.18.4.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://kedro.readthedocs.io/en/0.18.4/kedro_project_setup/configuration.html#parameters
+
+seed: 42
+optim_time: 60    # in seconds
+objective: binary:logistic
+eval_metric: auc
+direction: maximize

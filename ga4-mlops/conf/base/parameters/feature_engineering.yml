@@ -1,0 +1,18 @@
+# This is a boilerplate parameters config generated for pipeline 'feature_engineering'
+# using Kedro 0.18.4.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://kedro.readthedocs.io/en/0.18.4/kedro_project_setup/configuration.html#parameters
+
+imputation_strategies:
+  mean: [n_total_time_on_site]    # for numerical: replace NULLs with column mean
+  zero: []    # for numerical: replace NULLs with zeros
+  mostfreq: []    # for categorical: replace NULLs with most frequent value
+  unknown: [c_traffic_campaign, c_weekday, c_visit_start_hour]    # for categorical: replace NULLs with UNKNOWN token
+
+encoder_types:
+  binary: [c_is_mobile, c_is_first_visit]   # for binary variables
+  onehot: [c_device_category, c_operating_system, c_browser, c_traffic_source, c_traffic_medium]   # one-hot encoding
+  ordinal: [c_country, c_city, c_traffic_campaign, c_weekday, c_visit_start_hour]   # integer encoding (ordinal, but order does not matter)
+
+features_to_exclude: []
