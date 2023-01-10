@@ -1,3 +1,0 @@
-santander_to_act_main:
-  customers:
-    merge_type: 'last'

@@ -31,4 +31,5 @@ out/
 # pyenv
 .python-version
 
-output
+
+recommender_gnn/pipeline.json

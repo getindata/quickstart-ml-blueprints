@@ -1,189 +1,109 @@
-# INPUT DATA
-hm_articles_input:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/hm/articles.csv
-  layer: raw
-  load_args:
-    dtype:
-      article_id: str
-
-hm_customers_input:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/hm/customers.csv
-  layer: raw
-
-hm_transactions_input:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/hm/transactions_train.csv
-  layer: raw
-  load_args:
-    dtype:
-      article_id: str
-
-# SAMPLE
-hm_customers:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/hm/hm_customers.csv
-  layer: intermediate
-  save_args:
-    index: False
-
-hm_transactions:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/hm/hm_transactions.csv
-  layer: intermediate
+_save_load_args_pq: &save_load_args_pq
+  type: pandas.ParquetDataSet
   save_args:
     index: False
   load_args:
-    dtype:
-      article_id: str
+    engine: pyarrow
 
-hm_articles:
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/hm/hm_articles.csv
-  layer: intermediate
-  save_args:
-    index: False
-  load_args:
-    dtype:
-      article_id: str
-
-# TRAIN VAL SPLIT
-hm_transactions_train:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/hm/hm_transactions_train.csv
+hm_to_act_train.transactions:
+  filepath: data/03_primary/hm/hm_to_act_train_transactions.parquet
   layer: primary
-  save_args:
-    index: False
-  load_args:
-    dtype:
-      article_id: str
+  <<: *save_load_args_pq
 
-hm_transactions_val:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/hm/hm_transactions_val.csv
+hm_to_act_train.articles:
+  filepath: data/03_primary/hm/hm_to_act_train_articles.parquet
   layer: primary
-  save_args:
-    index: False
-  load_args:
-    dtype:
-      article_id: str
+  <<: *save_load_args_pq
 
-# GRAPH RECOMMENDATION
-hm.transactions_graph:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/hm/hm_transactions_graph.csv
+hm_to_act_train.customers:
+  filepath: data/03_primary/hm/hm_to_act_train_customers.parquet
   layer: primary
-  save_args:
-    index: False
-  load_args:
-    dtype:
-      item_id: int32
-      user_id: int32
-    chunksize: 1000000
-    low_memory: False
+  <<: *save_load_args_pq
 
-hm_transactions_mapped:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/hm/hm_transactions_mapped.csv
+graph_recommendation_preprocessing_hm.transactions_preprocessed:
+  filepath: data/03_primary/hm/graph_recommendation_preprocessing_hm_transactions_preprocessed.parquet
   layer: primary
-  save_args:
-    index: False
-  load_args:
-    chunksize: 1000000
-    low_memory: False
+  <<: *save_load_args_pq
 
-hm_users_mapping:
+graph_recommendation_preprocessing_hm.transactions_mapped:
+  filepath: data/04_feature/hm/graph_recommendation_preprocessing_hm_transactions_mapped.parquet
+  layer: feature
+  <<: *save_load_args_pq
+
+graph_recommendation_preprocessing_hm.users_mapping:
+  filepath: data/04_feature/hm/graph_recommendation_preprocessing_hm_users_mapping.pkl
   type: pickle.PickleDataSet
-  filepath: data/03_primary/hm/hm_users_mapping.pickle
-  layer: primary
-  backend: pickle
+  layer: feature
 
-hm_items_mapping:
+graph_recommendation_preprocessing_hm.items_mapping:
+  filepath: data/04_feature/hm/graph_recommendation_preprocessing_hm_items_mapping.pkl
   type: pickle.PickleDataSet
-  filepath: data/03_primary/hm/hm_items_mapping.pickle
-  layer: primary
-  backend: pickle
+  layer: feature
 
-#DGSR
-
-##train_val_test
-hm_dgsr_train_val_test_transactions_graph:
+graph_recommendation_modelling_hm_dgsr.transactions_graph:
   type: pickle.PickleDataSet
-  filepath: data/04_feature/hm/hm_dgsr_train_val_test_transactions_graph.pickle
+  filepath: data/04_feature/hm/graph_recommendation_modelling_hm_dgsr_transactions_graph.pickle
   layer: feature
   backend: pickle
 
-hm_dgsr_train_val_test_negative_transactions_samples:
+graph_recommendation_modelling_hm_dgsr.negative_transactions_samples:
   type: pickle.PickleDataSet
-  filepath: data/03_primary/hm/hm_dgsr_train_val_test_negative_transactions_samples.pickle
-  layer: primary
-  load_args:
-    chunksize: 1000000
-    low_memory: False
-
-hm_dgsr_train_val_test_train_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
-  dir: data/05_model_input/hm/hm_dgsr_train_val_test_train_graphs
-  load_args:
-    file_extension: bin
-
-hm_dgsr_train_val_test_val_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
-  dir: data/05_model_input/hm/hm_dgsr_train_val_test_val_graphs
-  load_args:
-    file_extension: bin
-
-hm_dgsr_train_val_test_test_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
-  dir: data/05_model_input/hm/hm_dgsr_train_val_test_test_graphs
-  load_args:
-    file_extension: bin
-
-##only_train
-hm_dgsr_only_train_transactions_graph:
-  type: pickle.PickleDataSet
-  filepath: data/04_feature/hm/hm_dgsr_only_train_transactions_graph.pickle
+  filepath: data/04_feature/hm/graph_recommendation_modelling_hm_dgsr_negative_transactions_samples.pickle
   layer: feature
   backend: pickle
 
-hm_dgsr_only_train_negative_transactions_samples:
-  type: pickle.PickleDataSet
-  filepath: data/03_primary/hm/hm_dgsr_negative_only_train_transactions_samples.pickle
-  layer: primary
-  load_args:
-    chunksize: 1000000
-    low_memory: False
-
-hm_dgsr_only_train_train_graphs:
-  type: gid_ml_framework.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
-  dir: data/05_model_input/hm/hm_dgsr_only_train_train_graphs
-  load_args:
+graph_recommendation_modelling_hm_dgsr.train_graphs:
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/hm/graph_recommendation_modelling_hm_dgsr_train_graphs
+  layer: model_input
+  save_args:
     file_extension: bin
 
-hm_dgsr_kaggle_gr_model:
-  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+graph_recommendation_modelling_hm_dgsr.val_graphs:
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/hm/graph_recommendation_modelling_hm_dgsr_val_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+graph_recommendation_modelling_hm_dgsr.test_graphs:
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/hm/graph_recommendation_modelling_hm_dgsr_test_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+graph_recommendation_modelling_hm_dgsr.predict_graphs:
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/hm/graph_recommendation_modelling_hm_dgsr_predict_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+graph_recommendation_hm_dgsr.model:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/hm/graph_recommendation_hm_dgsr_model.pkl
   layer: model
-  data_set:
-    type: pickle.PickleDataSet
-    filepath: data/06_models/hm/hm_dgsr_kaggle_trained_model.pkl
 
-hm_dgsr_kaggle_gr_predictions:
+_save_load_args_csv: &save_load_args_csv
   type: pandas.CSVDataSet
-  filepath: data/07_model_output/hm/hm_dgsr_kaggle_gr_predictions.csv
-  layer: model_output
   save_args:
     index: False
   load_args:
     chunksize: 1000000
     low_memory: False
 
-hm_submission:
-  type: pandas.CSVDataSet
-  filepath: data/07_model_output/hm/hm_submission.csv
+graph_recommendation_hm_dgsr.predictions:
+  filepath: data/07_model_output/hm/graph_recommendation_hm_dgsr_predictions.csv
   layer: model_output
-  save_args:
-    index: False
-  load_args:
-    chunksize: 1000000
-    low_memory: False
+  <<: *save_load_args_csv
+
+graph_recommendation_hm.data_stats:
+  type: pickle.PickleDataSet
+  filepath: data/07_model_output/hm/graph_recommendation_hm_data_stats.pkl
+  layer: model_output
+
+kaggle_submission_hm_dgsr.submission:
+  filepath: data/07_model_output/hm/kaggle_submission_hm_dgsr_submission.csv
+  layer: model_output
+  <<: *save_load_args_csv

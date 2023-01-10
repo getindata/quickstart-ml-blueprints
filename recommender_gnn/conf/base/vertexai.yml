@@ -3,7 +3,7 @@ project_id: gid-ml-framework
 region: europe-west4
 run_config:
   # Name of the image to run as the pipeline steps
-  image: europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/gid-ml-framework:latest
+  image: europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-data/recommender_gnn:latest
 
   # Pull policy to be used for the steps. Use Always if you push the images
   # on the same tag, or Never if you use only local images
@@ -13,12 +13,12 @@ run_config:
   root: gid-ml-framework-data/temp
 
   # Prefix of Vertex AI pipeline run
-  experiment_name: gid-ml-framework-gnns-santander
+  experiment_name: gid-ml-framework-recommender-gnn
 
   # Name of the scheduled run, templated with the schedule parameters
-  scheduled_run_name: gid-ml-framework-gnns-santander
+  scheduled_run_name: gid-ml-framework-recommender-gnn
 
-  run_name: gid-ml-framework-gnns-santander-${run_id}
+  run_name: gid-ml-framework-recommender-gnn-${run_id}
 
   # Optional service account to run vertex AI Pipeline with
   # service_account: iap-accessor@gid-advanced-analytics-infra.iam.gserviceaccount.com
@@ -32,16 +32,25 @@ run_config:
   # for the nodes. When not provided they're set to 500m cpu and 1024Mi memory.
   # If you don't want to specify pipeline resources set both to None in __default__.
   resources:
-    # Default settings for the nodes
     __default__:
-      cpu: 1
-      memory: 1Gi
+      cpu: 8
+      memory: 30Gi
 
-    # # Training nodes can utilize more than one CPU if the algorithm
-    # # supports it
-    santander_dgsr_kaggle_gr.train_model_node:
-      nvidia.com/gpu: 1
+    gpu_tag:
+      gpu: 1
+      cpu: 8
+      memory: 90Gi
 
+    preprocessing_tag:
+      memory: 60Gi
+
+    test-gpu-node:
+      cpu: 2
+      memory: 14Gi
+    
+  node_selectors:
+    gpu_tag:
+      cloud.google.com/gke-accelerator: NVIDIA_TESLA_T4
 
   # Optional section allowing to generate config files at runtime,
   # useful e.g. when you need to obtain credentials dynamically and store them in credentials.yaml

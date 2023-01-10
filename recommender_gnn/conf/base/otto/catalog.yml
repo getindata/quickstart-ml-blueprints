@@ -1,0 +1,155 @@
+_save_load_args_pq: &save_load_args_pq
+  type: pandas.ParquetDataSet
+  save_args:
+    index: False
+  load_args:
+    engine: pyarrow
+
+
+otto_train_parquet:
+  filepath: data/02_intermediate/otto/train.parquet
+  layer: intermediate
+  <<: *save_load_args_pq
+
+otto_test_parquet:
+  filepath: data/02_intermediate/otto/test.parquet
+  layer: intermediate
+  <<: *save_load_args_pq
+
+otto_id_to_type_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/02_intermediate/otto/id2type.pkl
+  layer: model
+
+otto_type_to_id_mapping:
+  type: pickle.PickleDataSet
+  filepath: data/02_intermediate/otto/type2id.pkl
+  layer: model
+
+otto_preprocessing_train.sample_df:
+  filepath: data/02_intermediate/otto/otto_preprocessing_train_sample_df.parquet
+  layer: intermediate
+  <<: *save_load_args_pq
+
+otto_preprocessing_test.sample_df:
+  filepath: data/02_intermediate/otto/otto_preprocessing_test_sample_df.parquet
+  layer: intermediate
+  <<: *save_load_args_pq
+
+otto_to_act_train.transactions:
+  filepath: data/03_primary/otto/otto_to_act_train_transactions.parquet
+  layer: primary
+  <<: *save_load_args_pq
+
+otto_to_act_test.transactions:
+  filepath: data/03_primary/otto/otto_to_act_test_transactions.parquet
+  layer: primary
+  <<: *save_load_args_pq
+
+otto_to_act_train.articles:
+  filepath: data/03_primary/otto/otto_to_act_train_articles.parquet
+  layer: primary
+  <<: *save_load_args_pq
+
+otto_to_act_test.articles:
+  filepath: data/03_primary/otto/otto_to_act_test_articles.parquet
+  layer: primary
+  <<: *save_load_args_pq
+
+otto_to_act_train.customers:
+  filepath: data/03_primary/otto/otto_to_act_train_customers.parquet
+  layer: primary
+  <<: *save_load_args_pq
+
+otto_to_act_test.customers:
+  filepath: data/03_primary/otto/otto_to_act_test_customers.parquet
+  layer: primary
+  <<: *save_load_args_pq
+
+graph_recommendation_preprocessing_otto.transactions_preprocessed:
+  filepath: data/03_primary/otto/graph_recommendation_preprocessing_otto_transactions_preprocessed.parquet
+  layer: primary
+  <<: *save_load_args_pq
+
+graph_recommendation_preprocessing_otto.transactions_mapped:
+  filepath: data/04_feature/otto/graph_recommendation_preprocessing_otto_transactions_mapped.parquet
+  layer: feature
+  <<: *save_load_args_pq
+
+graph_recommendation_preprocessing_otto.users_mapping:
+  filepath: data/04_feature/otto/graph_recommendation_preprocessing_otto_users_mapping.pkl
+  type: pickle.PickleDataSet
+  layer: feature
+
+graph_recommendation_preprocessing_otto.items_mapping:
+  filepath: data/04_feature/otto/graph_recommendation_preprocessing_otto_items_mapping.pkl
+  type: pickle.PickleDataSet
+  layer: feature
+
+graph_recommendation_modelling_otto_dgsr.transactions_graph:
+  type: pickle.PickleDataSet
+  filepath: data/04_feature/otto/graph_recommendation_modelling_otto_dgsr_transactions_graph.pickle
+  layer: feature
+  backend: pickle
+
+graph_recommendation_modelling_otto_dgsr.negative_transactions_samples:
+  type: pickle.PickleDataSet
+  filepath: data/04_feature/otto/graph_recommendation_modelling_otto_dgsr_negative_transactions_samples.pickle
+  layer: feature
+  backend: pickle
+
+graph_recommendation_modelling_otto_dgsr.train_graphs:
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/otto/graph_recommendation_modelling_otto_dgsr_train_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+graph_recommendation_modelling_otto_dgsr.val_graphs:
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/otto/graph_recommendation_modelling_otto_dgsr_val_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+graph_recommendation_modelling_otto_dgsr.test_graphs:
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/otto/graph_recommendation_modelling_otto_dgsr_test_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+graph_recommendation_modelling_otto_dgsr.predict_graphs:
+  type: recommender_gnn.extras.datasets.graph_dataset.DGSRSubGraphsDataSet
+  dir: data/05_model_input/otto/graph_recommendation_modelling_otto_dgsr_predict_graphs
+  layer: model_input
+  save_args:
+    file_extension: bin
+
+graph_recommendation_otto_dgsr.model:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/otto/graph_recommendation_otto_dgsr_model.pkl
+  layer: model
+
+_save_load_args_csv: &save_load_args_csv
+  type: pandas.CSVDataSet
+  save_args:
+    index: False
+  load_args:
+    chunksize: 1000000
+    low_memory: False
+
+graph_recommendation_otto_dgsr.predictions:
+  filepath: data/07_model_output/otto/graph_recommendation_otto_dgsr_predictions.csv
+  layer: model_output
+  <<: *save_load_args_csv
+
+graph_recommendation_otto.data_stats:
+  type: pickle.PickleDataSet
+  filepath: data/07_model_output/otto/graph_recommendation_otto_data_stats.pkl
+  layer: model_output
+
+kaggle_submission_otto_dgsr.submission:
+  filepath: data/07_model_output/otto/kaggle_submission_otto_dgsr_submission.csv
+  layer: model_output
+  <<: *save_load_args_csv

@@ -1,0 +1,4 @@
+test_gpu_pickle:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/test_gpu.pkl
+  layer: model

@@ -1,4 +1,4 @@
 subdirs:
   linux-64:
     packages:
-      __cuda: 11.7
+      __cuda: 11.3

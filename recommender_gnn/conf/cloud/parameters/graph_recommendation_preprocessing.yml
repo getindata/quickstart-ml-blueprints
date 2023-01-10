@@ -1,7 +1,15 @@
-santander:
-  concat:
-    date_column: 'date'
+graph_recommendation_preprocessing_hm:
+  original_date_column: "date"
+  original_item_column: "article_id"
+  original_user_column: "customer_id"
+  new_date_column: "time"
+  new_item_column: "item_id"
+  new_user_column: "user_id"
 
-hm:
-  concat:
-    date_column: 't_dat'
+graph_recommendation_preprocessing_otto:
+  original_date_column: "timestamp"
+  original_item_column: "article_id"
+  original_user_column: "customer_id"
+  new_date_column: "time"
+  new_item_column: "item_id"
+  new_user_column: "user_id"
