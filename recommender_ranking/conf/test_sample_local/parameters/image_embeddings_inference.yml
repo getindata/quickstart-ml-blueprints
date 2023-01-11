@@ -1,0 +1,5 @@
+image_embeddings_inference:
+  model_uri: models:/pl_image_embeddings_test/latest # runs:/a3371c8e351f4ebaaad12f02d78a9b2a/model / models:/pl_image_embeddings/latest
+  image_path: data/01_raw/sample/images_128_128
+  platform: local
+  batch_size: 64

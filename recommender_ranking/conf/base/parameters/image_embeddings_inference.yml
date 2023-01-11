@@ -1,5 +1,5 @@
 image_embeddings_inference:
-  run_id: ed7592e0901945e2b8ba7c937b3da6cb
-  image_path: gid-ml-framework-hm-data/01_raw/images_128_128 # gid-ml-framework-hm-data/01_raw/images_128_128 / data/01_raw/images_128_128
-  platform: gcp # local / gcp
+  model_uri: models:/pl_image_embeddings/latest # runs:/a3371c8e351f4ebaaad12f02d78a9b2a/model / models:/pl_image_embeddings/latest
+  image_path: data/01_raw/images_128_128
+  platform: local
   batch_size: 64

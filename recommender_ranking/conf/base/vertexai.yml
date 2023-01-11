@@ -69,21 +69,21 @@ run_config:
     #   memory: 32Gi
 
     # most memory intensive nodes
-    merge-candidate-features-add-label-node:
-      cpu: 8
-      memory: 32Gi
+    # merge-candidate-features-add-label-node:
+    #   cpu: 8
+    #   memory: 32Gi
 
-    merge-candidate-features-add-article-features-node:
-      cpu: 8
-      memory: 64Gi
+    # merge-candidate-features-add-article-features-node:
+    #   cpu: 8
+    #   memory: 64Gi
 
-    merge-candidate-features-add-customer-features-node:
-      cpu: 16
-      memory: 128Gi
+    # merge-candidate-features-add-customer-features-node:
+    #   cpu: 16
+    #   memory: 128Gi
 
-    merge-candidate-features-add-dict-features-node:
-      cpu: 16
-      memory: 200Gi
+    # merge-candidate-features-add-dict-features-node:
+    #   cpu: 16
+    #   memory: 200Gi
 
     # train-ranking-train-val-split-node:
     #   cpu: 16
@@ -101,9 +101,9 @@ run_config:
     #   cpu: 16
     #   memory: 128Gi
 
-    generate-predictions-generate-predictions-node:
-      cpu: 16
-      memory: 256Gi
+    # generate-predictions-generate-predictions-node:
+    #   cpu: 16
+    #   memory: 256Gi
 
   # Optional section allowing to generate config files at runtime,
   # useful e.g. when you need to obtain credentials dynamically and store them in credentials.yaml

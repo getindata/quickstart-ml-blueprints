@@ -1,4 +1,5 @@
-from kedro.pipeline import Pipeline, node, pipeline
+from kedro.pipeline import Pipeline, node
+from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import feature_selection
 
@@ -9,6 +10,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=feature_selection,
+                name="feature_selection_automated_articles_columns_node",
                 inputs=[
                     "automated_articles_features_temp",
                     "params:feature_selection_params",
@@ -18,6 +20,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=feature_selection,
+                name="feature_selection_automated_customers_columns_node",
                 inputs=[
                     "automated_customers_features_temp",
                     "params:feature_selection_params",
@@ -27,6 +30,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=feature_selection,
+                name="feature_selection_manual_articles_columns_node",
                 inputs=[
                     "manual_articles_features_temp",
                     "params:feature_selection_params",
@@ -36,6 +40,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=feature_selection,
+                name="feature_selection_manual_customers_columns_node",
                 inputs=[
                     "manual_customers_features_temp",
                     "params:feature_selection_params",

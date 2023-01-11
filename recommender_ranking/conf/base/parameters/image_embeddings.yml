@@ -1,6 +1,6 @@
 image_embeddings:
-  image_path: gid-ml-framework-hm-data/01_raw/images_128_128 # gid-ml-framework-hm-data/01_raw/images_128_128 / data/01_raw/images_128_128
-  platform: gcp # local / gcp
+  image_path: data/01_raw/images_128_128
+  platform: local
   encoder: SimpleEncoder
   decoder: SimpleDecoder
   batch_size: 32
@@ -9,5 +9,5 @@ image_embeddings:
   num_epochs: 1
   shuffle_reconstructions: True
   save_model: True
-  model_name: pl_image_embeddings
+  model_name: pl_image_embeddings # pl_image_embeddings / null
   seed: 321

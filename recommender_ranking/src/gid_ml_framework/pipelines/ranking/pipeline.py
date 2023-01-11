@@ -27,6 +27,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "val_transactions",
                     "params:training.params",
                     "params:training.k",
+                    "params:training.save_model",
+                    "params:training.model_name",
                 ],
                 outputs=None,
             ),

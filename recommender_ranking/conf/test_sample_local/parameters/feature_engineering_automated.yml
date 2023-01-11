@@ -1,0 +1,3 @@
+feature_engineering_automated:
+  n_days: [7, 30, null]
+  

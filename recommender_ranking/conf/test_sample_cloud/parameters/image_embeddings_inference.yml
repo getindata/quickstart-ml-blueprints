@@ -1,0 +1,5 @@
+image_embeddings_inference:
+  model_uri: models:/pl_image_embeddings_test/latest # runs:/0506681ab1e04fb58d56b9354923af00/model / models:/pl_image_embeddings_test/latest
+  image_path: gid-ml-framework-hm-data/sample/01_raw/images_128_128
+  platform: gcp
+  batch_size: 64

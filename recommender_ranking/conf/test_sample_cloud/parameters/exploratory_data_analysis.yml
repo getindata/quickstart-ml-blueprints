@@ -1,0 +1,5 @@
+exploratory_data_analysis:
+  # is there a nicer way of adding a literal value?
+  customers: customers
+  transactions: transactions
+  articles: articles

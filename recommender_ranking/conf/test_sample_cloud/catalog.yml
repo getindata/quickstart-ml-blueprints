@@ -1,0 +1,287 @@
+# INPUT DATA
+articles:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/01_raw/articles.csv
+  layer: raw
+  load_args:
+    dtype:
+      article_id: str
+
+customers:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/01_raw/customers.csv
+  layer: raw
+
+raw_transactions:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/01_raw/transactions_train.csv
+  layer: raw
+  load_args:
+    dtype:
+      article_id: str
+
+# FILTERED & SAMPLE
+transactions:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/transactions_filtered.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+
+articles_sample:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/articles_sample.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+
+customers_sample:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/customers_sample.csv
+  layer: intermediate
+  save_args:
+    index: False
+
+transactions_sample:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/transactions_sample.csv
+  layer: intermediate
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+
+# RESIZING IMAGES
+# input_images:
+#   type: gid_ml_framework.extras.datasets.image_dataset.DirWithImagesDataSet
+#   dir: gs://gid-ml-framework-hm-data/01_raw/images/010/
+#   load_args:
+#     img_extension: jpg
+
+# resized_images:
+#   type: gid_ml_framework.extras.datasets.image_dataset.DirWithImagesDataSet
+#   dir: gs://gid-ml-framework-hm-data/02_intermediate/results
+#   save_args:
+#     img_extension: jpg
+
+# EMBEDDINGS
+image_embeddings:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/04_feature/image_embeddings.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+text_embeddings:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/04_feature/text_embeddings.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+# CANDIDATE GENERATION
+candidates:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/03_primary/candidates.pq
+  layer: primary
+  load_args:
+    engine: pyarrow
+
+### RECALL MAXIMIZATION - CANDIDATE GENERATION
+# TRAIN VAL SPLIT
+train_transactions:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/03_primary/train_transactions.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+
+val_transactions:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/03_primary/val_transactions.csv
+  layer: primary
+  save_args:
+    index: False
+  load_args:
+    dtype:
+      article_id: str
+  
+train_candidates:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/03_primary/train_candidates.pq
+  layer: primary
+  load_args:
+    engine: pyarrow
+
+# TEMP FEATURE ENGINEERING
+automated_articles_features_temp:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/automated_articles_features_temp.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+automated_customers_features_temp:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/automated_customers_features_temp.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+manual_articles_features_temp:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/manual_articles_features_temp.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+manual_customers_features_temp:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/manual_customers_features_temp.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+# FEATURE SELECTION COLUMNS
+automated_articles_columns:
+  type: pickle.PickleDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/automated_articles_columns.pkl
+  layer: intermediate
+  backend: pickle
+
+automated_customers_columns:
+  type: pickle.PickleDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/automated_customers_columns.pkl
+  layer: intermediate
+  backend: pickle
+
+manual_articles_columns:
+  type: pickle.PickleDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/manual_articles_columns.pkl
+  layer: intermediate
+  backend: pickle
+
+manual_customers_columns:
+  type: pickle.PickleDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/manual_customers_columns.pkl
+  layer: intermediate
+  backend: pickle
+
+# AUTOMATED FEATURE ENGINEERING
+automated_articles_features:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/04_feature/automated_articles_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+automated_customers_features:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/04_feature/automated_customers_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+# MANUAL FEATURE ENGINEERING
+manual_articles_features:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/04_feature/manual_articles_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+manual_customers_features:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/04_feature/manual_customers_features.pq
+  layer: feature
+  load_args:
+    engine: pyarrow
+
+# manual_customers_prod_group_features:
+#   type: pandas.ParquetDataSet
+#   filepath: gs://gid-ml-framework-hm-data/04_feature/manual_customer_prod_group_features.pq
+#   layer: feature
+#   load_args:
+#     engine: pyarrow
+
+# CANDIDATES FEATURE ENGINEERING
+jaccard_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/05_model_input/jaccard_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow
+
+image_cosine_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/05_model_input/image_cosine_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow
+
+text_cosine_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/05_model_input/text_cosine_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow
+
+candidates_similarity_features:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/05_model_input/candidates_similarity_features.pq
+  layer: model_input
+  load_args:
+    engine: pyarrow
+
+# intermediate feature engineering - memory optimization
+candidates_step_0:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/candidates_step_0.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+candidates_step_1:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/candidates_step_1.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+candidates_step_2:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/candidates_step_2.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+final_candidates:
+  type: pandas.ParquetDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/final_candidates.pq
+  layer: intermediate
+  load_args:
+    engine: pyarrow
+
+# recommendations
+recommendations:
+  type: pandas.CSVDataSet
+  filepath: gs://gid-ml-framework-hm-data/sample/07_model_output/recommendations.csv
+  layer: model_output
+  save_args:
+    index: False
+
+image_autoencoder_training_metadata:
+  type: pickle.PickleDataSet
+  layer: intermediate
+  filepath: gs://gid-ml-framework-hm-data/sample/02_intermediate/image_autoencoder_training_metadata.pkl
+  # backend: pickle

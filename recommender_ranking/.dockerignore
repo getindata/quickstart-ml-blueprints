@@ -27,6 +27,7 @@ results
 
 # CUSTOM
 mlruns
+mlflow.sqlite.db
 venv
 .venv
 __pycache__

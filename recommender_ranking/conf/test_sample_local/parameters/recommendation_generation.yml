@@ -1,0 +1,4 @@
+generate_predictions:
+  models: # pass model URI in a list
+    - models:/lgbm_ranker_test/latest # 5M negative samples runs:/f8aca99f5e1248a1846e087a663b2770/model / models:/lgbm_ranker_test/latest
+  k: 12
