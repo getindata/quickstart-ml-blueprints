@@ -5,6 +5,8 @@ train_ranking:
     neg_samples: 1_000_000
   training:
     k: 12
+    save_model: True
+    model_name: lgbm_ranker # lgbm_ranker / null
     params: 
       objective: binary # binary/lambdarank
       boosting_type: gbdt

@@ -161,6 +161,7 @@ venv.bak/
 
 # MLflow
 mlruns/
+mlflow.sqlite.db
 
 .ipython
 .pytest_cache

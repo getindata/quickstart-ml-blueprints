@@ -1,0 +1,19 @@
+train_optuna_ranking:
+  dataset:
+    val_size: 0.15
+    downsampling: true
+    neg_samples: 1_000_000
+  training:
+    k: 12
+    params: 
+      objective: binary # binary/lambdarank
+      boosting_type: gbdt
+      scale_pos_weight: 1
+      metric: auc # auc/map
+      verbose: 1
+      # eval_at: 12 # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    optuna_params:
+      n_trials: 50
+      direction: maximize # minimize
+      study_name: hm_binary_optuna_downsampling
+      log_models: false

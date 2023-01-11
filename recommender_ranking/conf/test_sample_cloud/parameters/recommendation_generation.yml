@@ -1,0 +1,8 @@
+generate_predictions:
+  models: # pass model URI in a list
+    - models:/lgbm_ranker_test/latest # runs:/f8aca99f5e1248a1846e087a663b2770/model / models:/lightgbm_ranker/latest
+    # - runs:/f8aca99f5e1248a1846e087a663b2770/model # 5M negative samples runs:/f8aca99f5e1248a1846e087a663b2770/model
+    # - runs:/b226550924b64c078247a688f163bcb7/model # 2M negative samples runs:/b226550924b64c078247a688f163bcb7/model
+    # - runs:/88d216f2d8424926b064f19e06fcaa4d/model # 1M negative samples runs:/88d216f2d8424926b064f19e06fcaa4d/model
+    # - runs:/abe6d9e1e85243b3a75ed42d3a7a94e8/model # all samples runs:/abe6d9e1e85243b3a75ed42d3a7a94e8/model
+  k: 12

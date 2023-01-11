@@ -1,0 +1,13 @@
+image_embeddings:
+  image_path: gid-ml-framework-hm-data/sample/01_raw/images_128_128
+  platform: gcp
+  encoder: SimpleEncoder
+  decoder: SimpleDecoder
+  batch_size: 32
+  image_size: [128, 128]
+  embedding_size: 32
+  num_epochs: 1
+  shuffle_reconstructions: True
+  save_model: True
+  model_name: pl_image_embeddings_test # pl_image_embeddings_test / null
+  seed: 321

@@ -13,16 +13,16 @@ from .nodes import (
 )
 
 
-def create_pipeline(**kwargs) -> Pipeline:
-    # Train vs inference flag
-    TRAIN_FLAG = ""  # 'train_'/''
+def create_pipeline(train_flag: bool = False, **kwargs) -> Pipeline:
+    "Use empty string '' if inference, or 'train_' if training flag"
+    mode_prefix = "train_" if train_flag else ""
 
     # nodes for multiple use
     unpack_candidates_node = node(
         func=unpack_candidates,
         name="unpack_candidates_node",
         inputs=[
-            f"{TRAIN_FLAG}candidates",
+            f"{mode_prefix}candidates",
             "params:drop_random_strategies",
         ],
         outputs="unpacked_candidates",
@@ -31,8 +31,9 @@ def create_pipeline(**kwargs) -> Pipeline:
         func=filter_last_n_rows_per_customer,
         name="filter_last_n_rows_per_customer_node",
         inputs=[
-            f"{TRAIN_FLAG}transactions",
+            f"{mode_prefix}transactions",
             "params:last_n_rows",
+            "params:date_column",
         ],
         outputs="latest_transactions",
     )
@@ -71,7 +72,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
         ],
         namespace="candidates_feature_engineering",
-        inputs=[f"{TRAIN_FLAG}candidates", "articles", f"{TRAIN_FLAG}transactions"],
+        inputs=[f"{mode_prefix}candidates", "articles", f"{mode_prefix}transactions"],
         outputs="jaccard_similarity_features",
     )
 
@@ -103,8 +104,8 @@ def create_pipeline(**kwargs) -> Pipeline:
         ],
         namespace="candidates_feature_engineering",
         inputs=[
-            f"{TRAIN_FLAG}candidates",
-            f"{TRAIN_FLAG}transactions",
+            f"{mode_prefix}candidates",
+            f"{mode_prefix}transactions",
             "image_embeddings",
         ],
         outputs="image_cosine_similarity_features",
@@ -138,8 +139,8 @@ def create_pipeline(**kwargs) -> Pipeline:
         ],
         namespace="candidates_feature_engineering",
         inputs=[
-            f"{TRAIN_FLAG}candidates",
-            f"{TRAIN_FLAG}transactions",
+            f"{mode_prefix}candidates",
+            f"{mode_prefix}transactions",
             "text_embeddings",
         ],
         outputs="text_cosine_similarity_features",

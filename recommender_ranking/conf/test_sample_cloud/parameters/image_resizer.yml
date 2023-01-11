@@ -1,0 +1,3 @@
+process_images:
+  output_size: [128, 128]
+  method: lanczos

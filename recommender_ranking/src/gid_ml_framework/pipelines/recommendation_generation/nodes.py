@@ -9,18 +9,17 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
-def _load_model(run_id: str) -> lgb.Booster:
-    """Loads model based on MLflow run_id.
+def _load_model(model_uri: str) -> lgb.Booster:
+    """Loads model based on MLflow model URI.
 
     Args:
-        run_id (str): MLflow run_id
+        model_uri (str): MLflow model URI
 
     Returns:
         lgb.Booster: LightGBM model
     """
-    logger.info(f"Loading model from {run_id=}")
-    logged_model_uri = f"runs:/{run_id}/model"
-    loaded_model = mlflow.lightgbm.load_model(logged_model_uri)
+    logger.info(f"Loading model from: {model_uri=}")
+    loaded_model = mlflow.lightgbm.load_model(model_uri)
     return loaded_model
 
 
@@ -122,7 +121,7 @@ def _predict_from_multiple_models(
 
     Args:
         candidates (pd.DataFrame): candidates
-        models (List[str]): list of MLflow run_id's for each model
+        models (List[str]): list of MLflow model URI for each model
         k (int, optional): top k recommended items. Defaults to 12.
 
     Returns:
@@ -150,7 +149,7 @@ def _predict_from_single_model(
 
     Args:
         candidates (pd.DataFrame): candidates
-        model_str (str): MLflow run_id for single model
+        model_str (str): MLflow model URI for a single model
         k (int, optional): top k recommended items. Defaults to 12.
 
     Returns:
@@ -171,7 +170,7 @@ def generate_predictions(
 
     Args:
         candidates (pd.DataFrame): candidates
-        models (List[str]): list of MLflow run_id's
+        models (List[str]): list of MLflow model URI
         k (int, optional): top k recommended items. Defaults to 12.
 
     Returns:

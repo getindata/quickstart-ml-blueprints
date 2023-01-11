@@ -140,14 +140,14 @@ automated_customers_features_temp:
 
 manual_articles_features_temp:
   type: pandas.ParquetDataSet
-  filepath: gs://gid-ml-framework-hm-data/02_intermediate/manual_article_features_temp.pq
+  filepath: gs://gid-ml-framework-hm-data/02_intermediate/manual_articles_features_temp.pq
   layer: intermediate
   load_args:
     engine: pyarrow
 
 manual_customers_features_temp:
   type: pandas.ParquetDataSet
-  filepath: gs://gid-ml-framework-hm-data/02_intermediate/manual_customer_features_temp.pq
+  filepath: gs://gid-ml-framework-hm-data/02_intermediate/manual_customers_features_temp.pq
   layer: intermediate
   load_args:
     engine: pyarrow
@@ -195,24 +195,24 @@ automated_customers_features:
 # MANUAL FEATURE ENGINEERING
 manual_articles_features:
   type: pandas.ParquetDataSet
-  filepath: gs://gid-ml-framework-hm-data/04_feature/manual_article_features.pq
+  filepath: gs://gid-ml-framework-hm-data/04_feature/manual_articles_features.pq
   layer: feature
   load_args:
     engine: pyarrow
 
 manual_customers_features:
   type: pandas.ParquetDataSet
-  filepath: gs://gid-ml-framework-hm-data/04_feature/manual_customer_features.pq
+  filepath: gs://gid-ml-framework-hm-data/04_feature/manual_customers_features.pq
   layer: feature
   load_args:
     engine: pyarrow
 
-manual_customers_prod_group_features:
-  type: pandas.ParquetDataSet
-  filepath: gs://gid-ml-framework-hm-data/04_feature/manual_customer_prod_group_features.pq
-  layer: feature
-  load_args:
-    engine: pyarrow
+# manual_customers_prod_group_features:
+#   type: pandas.ParquetDataSet
+#   filepath: gs://gid-ml-framework-hm-data/04_feature/manual_customer_prod_group_features.pq
+#   layer: feature
+#   load_args:
+#     engine: pyarrow
 
 # CANDIDATES FEATURE ENGINEERING
 jaccard_similarity_features:
@@ -279,3 +279,23 @@ recommendations:
   layer: model_output
   save_args:
     index: False
+
+# models
+# image_autoencoder:
+#   type: kedro_mlflow.io.models.MlflowModelSaverDataSet
+#   filepath: gs://gid-ml-framework-hm-data/06_models/image_autoencoder
+#   flavor: mlflow.pytorch
+#   layer: models
+
+# image_autoencoder:
+#     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+#     data_set:
+#         type: kedro_mlflow.io.models.MlflowModelSaverDataSet
+#         flavor: mlflow.pytorch
+#         filepath: gs://gid-ml-framework-hm-data/06_models/image_autoencoder
+
+image_autoencoder_training_metadata:
+  type: pickle.PickleDataSet
+  layer: intermediate
+  filepath: gs://gid-ml-framework-hm-data/02_intermediate/image_autoencoder_training_metadata.pkl
+  # backend: pickle

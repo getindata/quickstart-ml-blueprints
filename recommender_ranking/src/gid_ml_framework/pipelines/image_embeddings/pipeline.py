@@ -24,10 +24,10 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:model_name",
                     "params:seed",
                 ],
-                outputs=None,
+                outputs="image_autoencoder_training_metadata",
             ),
         ],
         namespace="image_embeddings",
         inputs=None,
-        outputs=None,
+        outputs=["image_autoencoder_training_metadata"],
     )

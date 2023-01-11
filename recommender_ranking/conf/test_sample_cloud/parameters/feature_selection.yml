@@ -1,0 +1,5 @@
+feature_selection:
+  feature_selection_params:
+    pct_null_threshold: 0.95
+    corr_threshold: 0.95
+  feature_selection: true

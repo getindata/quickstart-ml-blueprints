@@ -1,8 +1,7 @@
 import logging
 from itertools import chain
-from typing import List, Union
+from typing import Dict, List, Union
 
-import mlflow
 import mlflow.pytorch
 import pandas as pd
 import pytorch_lightning as pl
@@ -14,6 +13,15 @@ logger = logging.getLogger(__name__)
 
 
 def _stack_predictions(predictions: List, emb_size: Union[int, str]) -> pd.DataFrame:
+    """Stacking predictions from list, and saving them as pd.DataFrame
+
+    Args:
+        predictions (List): list containing tuples of embeddings, labels. Each tuple is the size of batch size
+        emb_size (Union[int, str]): embedding size
+
+    Returns:
+        pd.DataFrame: embeddings
+    """
     out_emb, out_labels = list(), list()
     for emb, labels in predictions:
         out_emb.append(emb)
@@ -25,13 +33,26 @@ def _stack_predictions(predictions: List, emb_size: Union[int, str]) -> pd.DataF
 
 
 def calculate_image_embeddings(
-    run_id: str, img_dir: str, platform: str, batch_size: int
-) -> None:
+    model_uri: str,
+    img_dir: str,
+    platform: str,
+    batch_size: int,
+    training_metadata: Dict,
+) -> pd.DataFrame:
+    """Generates image embeddings, given a trained model from MLflow model URI.
 
-    logged_model_uri = f"runs:/{run_id}/model"
-    logger.info(f"Loading model from {logged_model_uri=}")
-    loaded_model = mlflow.pytorch.load_model(logged_model_uri)
+    Args:
+        model_uri (str): MLflow model URI
+        img_dir (str): directory with images to generate embeddings
+        platform (str): local or gcp
+        batch_size (int): batch size
+        training_metadata (Dict): image autoencoder training metadata
 
+    Returns:
+        pd.DataFrame: image embeddings
+    """
+    logger.info(f"Loading model from: {model_uri=}")
+    loaded_model = mlflow.pytorch.load_model(model_uri)
     logger.info(f"Loading data from {img_dir=} on {platform=}")
     hm_dataloader = HMDataLoader(img_dir, batch_size, platform=platform)
     trainer = pl.Trainer(max_epochs=1, logger=False)

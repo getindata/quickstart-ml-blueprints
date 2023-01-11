@@ -13,7 +13,7 @@ push:
 
 tag:
 	@ echo "tagging docker image"
-	docker tag gid-ml-framework:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-hm-data/gid-ml-framework
+	docker tag recommender_ranking:latest europe-west4-docker.pkg.dev/gid-ml-framework/gid-ml-framework-hm-data/gid-ml-framework
 
 generate_token:
 	@ echo "generating identity token"

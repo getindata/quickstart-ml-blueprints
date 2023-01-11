@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import lightgbm as lgb
 import mlflow
@@ -169,6 +169,8 @@ def train_single_model(
     val_transactions: pd.DataFrame,
     model_params: Dict,
     k: int = 12,
+    save_model: bool = False,
+    model_name: Optional[str] = "lgbm_ranker",
 ) -> None:
     """Trains a LightGBM model, (optionally) logs the model and metrics to MLflow.
 
@@ -207,7 +209,9 @@ def train_single_model(
         val_candidates, "label", features, cat_features, val_group
     )
 
-    mlflow.lightgbm.autolog(silent=True)
+    mlflow.lightgbm.autolog(
+        silent=True, log_models=save_model, registered_model_name=model_name
+    )
     logger.info(f'Starting training model for objective: {model_params["objective"]}')
     model = lgb.train(
         model_params,

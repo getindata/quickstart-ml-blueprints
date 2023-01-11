@@ -1,0 +1,6 @@
+data_sampling:
+  cutoff_date: '2020-04-01'
+  customers_sample_size: 0.04
+  articles_sample_size: 0.06
+  article_img_dir: data/01_raw/sample/images_128_128
+  article_img_sample_dir: data/02_intermediate/sample/images_128_128_sample

@@ -1,6 +1,6 @@
 import logging
 from importlib import import_module
-from typing import List
+from typing import Dict, List, Optional
 
 import mlflow
 import mlflow.pytorch
@@ -26,9 +26,34 @@ def train_image_embeddings(
     num_epochs: int = 5,
     shuffle_reconstructions: bool = False,
     save_model: bool = False,
-    model_name: str = "image_embeddings_model",
+    model_name: Optional[str] = "image_embeddings_model",
     seed: int = 321,
-) -> None:
+) -> Dict:
+    """Trains an image autoencoder, saves the model to MLflow.
+    Returns an output,
+    whose main functionality is to start the inference after the training pipeline, if run simultaneously.
+    If the whole project is executed end-to-end, the order of execution is guaranteed.
+    1. Training -> 2. Inference (generating embeddings)
+
+    Args:
+        img_dir (str): directory with images to train on
+        platform (str): local or gcp
+        encoder (str): name of a class containing encoder architecture. Must be in pl_encoders.py file.
+        decoder (str): name of a class containing decoder architecture. Must be in pl_decoders.py file.
+        batch_size (int, optional): batch size. Defaults to 32.
+        image_size (List[int], optional): initial image size. Defaults to [128, 128].
+        embedding_size (int, optional): resulting embedding size. Defaults to 32.
+        num_epochs (int, optional): number of epochs to train on. Defaults to 5.
+        shuffle_reconstructions (bool, optional): whether to shuffle reconstruction images for different epochs.
+            Reconstruction images are saved as artifacts to MLflow during model training. Defaults to False.
+        save_model (bool, optional): whether to save the model. Defaults to False.
+        model_name (str, optional): name of a model that will be registered to MLflow.
+            Defaults to "image_embeddings_model".
+        seed (int, optional): random seed. Defaults to 321.
+
+    Returns:
+        Dict: metadata related with the training
+    """
 
     logger.info(f"Setting seed at: {seed}")
     seed_everything(seed, True)
@@ -63,3 +88,5 @@ def train_image_embeddings(
     logger.info(f"Starting training autoencoder, {save_model=}, {model_name=}")
     hm_trainer.fit(model=hm_autoencoder, train_dataloaders=hm_dataloader)
     logger.info("Finished training autoencoder")
+    training_metadata = dict()
+    return training_metadata
