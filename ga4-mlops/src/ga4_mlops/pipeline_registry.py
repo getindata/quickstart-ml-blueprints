@@ -5,6 +5,7 @@ from kedro.pipeline import Pipeline
 
 from .pipelines import (
     data_preprocessing,
+    explanation,
     feature_engineering,
     prediction,
     training,
@@ -40,6 +41,9 @@ def register_pipelines() -> Dict[str, Pipeline]:
     feature_engineering_predict_pipeline = feature_engineering.create_pipeline(
         subset="predict"
     )
+    explanation_train_pipeline = explanation.create_pipeline(subset="train")
+    explanation_valid_pipeline = explanation.create_pipeline(subset="valid")
+    explanation_test_pipeline = explanation.create_pipeline(subset="test")
 
     training_pipeline = training.create_pipeline()
     prediction_pipeline = prediction.create_pipeline()
@@ -84,4 +88,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "prediction": prediction_pipeline,
         "end_to_end_training": end_to_end_training_pipeline,
         "end_to_end_prediction": end_to_end_prediction_pipeline,
+        "explanation_train": explanation_train_pipeline,
+        "explanation_valid": explanation_valid_pipeline,
+        "explanation_test": explanation_test_pipeline,
     }

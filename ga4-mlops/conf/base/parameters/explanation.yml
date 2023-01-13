@@ -1,0 +1,8 @@
+# This is a boilerplate parameters config generated for pipeline 'explanation'
+# using Kedro 0.18.4.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://kedro.readthedocs.io/en/0.18.4/kedro_project_setup/configuration.html#parameters
+
+n_obs: 1000
+sampling_seed: 42
