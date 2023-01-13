@@ -2,7 +2,6 @@
 This is a boilerplate pipeline 'training'
 generated using Kedro 0.18.4
 """
-import json
 import logging
 from typing import Tuple
 
@@ -11,6 +10,7 @@ import optuna
 import pandas as pd
 import xgboost as xgb
 from sklearn.metrics import roc_auc_score
+from xgboost import XGBClassifier
 
 from ..data_preparation_utils import extract_column_names
 
@@ -27,6 +27,7 @@ def optimize_hyperparameters(
     direction: str = "maximize",
 ) -> dict:
     """Optimize hyperparameters for XGBoost model.
+    Optimization procedure uses native XGBoost API with DMatrix datasets to speed up the procedure.
 
     Args:
         df_train (pd.DataFrame): training data frame
@@ -51,11 +52,12 @@ def optimize_hyperparameters(
     dvalid = xgb.DMatrix(abt_valid[num_cols + cat_cols], label=abt_valid[[target_col]])
 
     settings = {
-        "num_boost_round": 200,
+        "n_estimators": 200,
         "seed": seed,
         "verbosity": 0,
         "objective": objective,
         "eval_metric": eval_metric,
+        "early_stopping_rounds": 30,
     }
 
     def xgb_objective(trial):
@@ -104,8 +106,10 @@ def train_and_validate_model(
     abt_valid: pd.DataFrame,
     hparams: dict,
     eval_metric: str = "auc",
-) -> Tuple[xgb.Booster, str]:
+) -> Tuple[XGBClassifier, str]:
     """Trains and validates XGBoost model.
+    Final training procedure uses scikit-learn API to be compatible with XAI packages
+    and consistent with other scikit-learn algorithms.
 
     Args:
         abt_train (pd.DataFrame): training data frame
@@ -121,23 +125,21 @@ def train_and_validate_model(
     eval_fn = _get_eval_fn(eval_metric)
 
     _, num_cols, cat_cols, target_col = extract_column_names(abt_train)
-    dtrain = xgb.DMatrix(abt_train[num_cols + cat_cols], label=abt_train[[target_col]])
-    dvalid = xgb.DMatrix(abt_valid[num_cols + cat_cols], label=abt_valid[[target_col]])
 
-    model = xgb.train(
-        hparams,
-        dtrain,
-        evals=[(dvalid, "validation")],
-        verbose_eval=False,
-        early_stopping_rounds=30,
+    model = XGBClassifier(**hparams)
+    model.fit(
+        X=abt_train[num_cols + cat_cols],
+        y=abt_train[target_col],
+        eval_set=[(abt_valid[num_cols + cat_cols], abt_valid[target_col])],
+        verbose=False,
     )
 
-    preds_train = model.predict(dtrain)
-    preds_valid = model.predict(dvalid)
-    train_score = eval_fn(abt_train[target_col], preds_train)
-    valid_score = eval_fn(abt_valid[target_col], preds_valid)
+    train_preds = model.predict_proba(abt_train[num_cols + cat_cols])[:, 1]
+    train_score = eval_fn(abt_train[target_col], train_preds)
+    valid_preds = model.predict_proba(abt_valid[num_cols + cat_cols])[:, 1]
+    valid_score = eval_fn(abt_valid[target_col], valid_preds)
 
-    model_config = json.loads(model.save_config())
+    model_config = model.get_params()
 
     mlflow.log_metric("train_score", train_score)
     mlflow.log_metric("valid_score", valid_score)
@@ -145,22 +147,21 @@ def train_and_validate_model(
     return model, model_config
 
 
-def test_model(abt_test: pd.DataFrame, model, eval_metric: str = "auc"):
+def test_model(abt_test: pd.DataFrame, model: XGBClassifier, eval_metric: str = "auc"):
     """Test XGBoost model on the test set.
 
     Args:
         abt_test (pd.DataFrame): testing data frame
-        model: XGBoost model
+        model (XGBClassifier): XGBoost model
         eval_metric (str, optional): model evaluation metric. Defaults to 'auc'.
     """
     logger.info("Testing model performance on the test set...")
 
     eval_fn = _get_eval_fn(eval_metric)
     _, num_cols, cat_cols, target_col = extract_column_names(abt_test)
-    dtest = xgb.DMatrix(abt_test[num_cols + cat_cols], label=abt_test[[target_col]])
 
-    preds_test = model.predict(dtest)
-    test_score = eval_fn(abt_test[target_col], preds_test)
+    test_preds = model.predict_proba(abt_test[num_cols + cat_cols])[:, 1]
+    test_score = eval_fn(abt_test[target_col], test_preds)
 
     mlflow.log_metric("test_score", test_score)
 
