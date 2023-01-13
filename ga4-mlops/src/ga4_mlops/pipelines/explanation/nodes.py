@@ -3,17 +3,19 @@ This is a boilerplate pipeline 'explanation'
 generated using Kedro 0.18.4
 """
 import logging
+from warnings import filterwarnings
 
-# import mlflow
+import mlflow
 import pandas as pd
 import shap
+from xgboost import XGBClassifier
 
 from ..data_preparation_utils import extract_column_names
 
-# import xgboost as xgb
-
-
 logger = logging.getLogger(__name__)
+filterwarnings(
+    action="ignore", category=DeprecationWarning
+)  # Otherwise shap generates DeprecationWarning: "`np.int` is a deprecated alias for the builtin `int`"
 
 
 def sample_data(abt: pd.DataFrame, n_obs: int, seed: int) -> pd.DataFrame:
@@ -51,26 +53,18 @@ def sample_data(abt: pd.DataFrame, n_obs: int, seed: int) -> pd.DataFrame:
     return abt_sample
 
 
-def explain_model(abt_sample: pd.DataFrame, model) -> shap.Explainer:
+def explain_model(abt_sample: pd.DataFrame, model: XGBClassifier) -> shap.Explainer:
     """_summary_
 
     Args:
-        model (_type_): _description_
         abt_sample (pd.DataFrame): _description_
+        model (XGBClassifier): _description_
 
     Returns:
         shap.Explainer: _description_
     """
     logger.info("Building model explainer...")
 
-    # _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
+    _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
 
-    # if isinstance(model, xgb.Booster):  # TODO: list to be curated
-    #     predict_func = model.predict
-    #     data = xgb.DMatrix(abt_sample[num_cols + cat_cols])
-
-    # else:
-    #     predict_func = model.predict_proba
-    #     data = abt_sample[num_cols + cat_cols]
-
-    # mlflow.shap.log_explanation(predict_func, data)
+    mlflow.shap.log_explanation(model.predict_proba, abt_sample[num_cols + cat_cols])
