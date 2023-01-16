@@ -252,3 +252,28 @@ predictions:
   filepath: data/07_model_output/predictions.csv
   layer: model_output
   <<: *data_args
+
+# REPORTING
+
+shap_summary_plot:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/shap_summary_plot.png
+    save_args:
+      format: png
+  <<: *artifact_args
+
+feature_importance:
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/08_reporting/feature_importance.json
+  <<: *artifact_args
+
+partial_dependence_plots:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/partial_dependence_plots
+    overwrite: True
+    save_args:
+      format: png
+  <<: *artifact_args

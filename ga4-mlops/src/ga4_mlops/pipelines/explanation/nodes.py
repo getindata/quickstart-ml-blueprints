@@ -5,10 +5,10 @@ generated using Kedro 0.18.4
 import logging
 from warnings import filterwarnings
 
-import mlflow
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import shap
-from xgboost import XGBClassifier
 
 from ..data_preparation_utils import extract_column_names
 
@@ -53,18 +53,80 @@ def sample_data(abt: pd.DataFrame, n_obs: int, seed: int) -> pd.DataFrame:
     return abt_sample
 
 
-def explain_model(abt_sample: pd.DataFrame, model: XGBClassifier) -> shap.Explainer:
-    """_summary_
+def calculate_shap(abt_sample: pd.DataFrame, model) -> list:
+    """Create Explainer and calculate SHAP values for the ABT sample
 
     Args:
-        abt_sample (pd.DataFrame): _description_
-        model (XGBClassifier): _description_
+        abt_sample (pd.DataFrame): ABT sample
+        model: any fitted model with `predict_proba` method
 
     Returns:
-        shap.Explainer: _description_
+        list: A set of calculated SHAP values
     """
-    logger.info("Building model explainer...")
+    logger.info(
+        f"Calculating SHAP values on a sample of {abt_sample.shape[0]} observations..."
+    )
 
     _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
+    features_sample = abt_sample[num_cols + cat_cols]
 
-    mlflow.shap.log_explanation(model.predict_proba, abt_sample[num_cols + cat_cols])
+    explainer = shap.KernelExplainer(model.predict_proba, features_sample)
+    shap_values = explainer.shap_values(features_sample)
+
+    return shap_values
+
+
+def create_explanations(
+    shap_values: list, abt_sample: pd.DataFrame, model, pdp_top_n: int
+) -> tuple:
+    """Create a set of explanations for given model and data sample.
+
+    Args:
+        shap_values (list): previously calculated SHAP values
+        abt_sample (pd.DataFrame): ABT sample
+        model (_type_): any fitted model with `predict_proba` method
+        pdp_top_n (int): number of top N most important features to show on partial dependence plots
+
+    Returns:
+        tuple: a set of different explanations to be logged
+    """
+    logger.info("Creating and logging model explanations...")
+
+    _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
+    features_sample = abt_sample[num_cols + cat_cols]
+
+    # SHAP summary plot
+    shap.summary_plot(
+        shap_values, features=features_sample, plot_size=(10, 10), show=False
+    )
+    shap_summary_plot = plt.gcf()
+
+    # Feature importances
+    vals = np.abs(shap_values).mean(0)
+    feature_importance_df = pd.DataFrame(
+        list(zip(features_sample.columns, sum(vals))), columns=["feature", "importance"]
+    )
+    feature_importance_df.sort_values(by=["importance"], ascending=False, inplace=True)
+    feature_importance = {
+        k: v
+        for k, v in zip(
+            feature_importance_df["feature"], feature_importance_df["importance"]
+        )
+    }
+
+    # Partial dependence plots
+    top_n_feaures = feature_importance_df.index[:pdp_top_n].to_list()
+    partial_dependence_plots = dict()
+    for idx in top_n_feaures:
+        shap.plots.partial_dependence(
+            idx,
+            lambda x: model.predict_proba(x)[:, 1],
+            features_sample,
+            model_expected_value=True,
+            feature_expected_value=True,
+            show=False,
+        )
+        feature_name = feature_importance_df["feature"][idx]
+        partial_dependence_plots[f"{feature_name}.png"] = plt.gcf()
+
+    return shap_summary_plot, feature_importance, partial_dependence_plots

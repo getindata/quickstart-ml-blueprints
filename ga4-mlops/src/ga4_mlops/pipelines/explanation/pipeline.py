@@ -6,7 +6,7 @@ generated using Kedro 0.18.4
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
-from .nodes import explain_model, sample_data
+from .nodes import calculate_shap, create_explanations, sample_data
 
 
 def create_pipeline(subset: str, **kwargs) -> Pipeline:
@@ -30,10 +30,25 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                 outputs=f"{subset}.abt_sample",
             ),
             node(
-                name=f"{subset}.explain_model_node",
-                func=explain_model,
+                name=f"{subset}.calculate_shap_node",
+                func=calculate_shap,
                 inputs=[f"{subset}.abt_sample", "stored.model"],
-                outputs=None,
+                outputs="shap_values",
+            ),
+            node(
+                name=f"{subset}.create_explanations_node",
+                func=create_explanations,
+                inputs=[
+                    "shap_values",
+                    f"{subset}.abt_sample",
+                    "stored.model",
+                    "params:pdp_top_n",
+                ],
+                outputs=[
+                    "shap_summary_plot",
+                    "feature_importance",
+                    "partial_dependence_plots",
+                ],
             ),
         ]
     )
