@@ -5,19 +5,18 @@ generated using Kedro 0.18.4
 import logging
 
 import pandas as pd
-from xgboost import XGBClassifier
 
 from ..data_preparation_utils import extract_column_names
 
 logger = logging.getLogger(__name__)
 
 
-def predict(abt_predict: pd.DataFrame, model: XGBClassifier) -> pd.DataFrame:
+def predict(abt_predict: pd.DataFrame, model) -> pd.DataFrame:
     """Make predictions on a given data frame.
 
     Args:
         abt_predict (pd.DataFrame): data frame to predict on
-        model (XGBClassifier): XGBoost model
+        model (): any model with predict_proba method
 
     Returns:
         pd.DataFrame: data frame with predicted scores
