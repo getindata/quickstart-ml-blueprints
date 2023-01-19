@@ -18,6 +18,9 @@ _data_args: &data_args
 _artifact_args: &artifact_args
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
 
+_stored_modeling_artifacts_args: &stored_modeling_artifacts_args
+  run_id: b8f82a5ce5a14901895b398160a0f627
+
 # RAW DATA
 
 train.ga4_data:
@@ -163,10 +166,10 @@ fitted.imputers:
   <<: *artifact_args
 
 stored.imputers:
-  run_id: 565f80a41ac54ca280ea0e1fca5e3f98
   data_set:
     filepath: data/04_feature/imputers.pkl
     type: pickle.PickleDataSet
+  <<: *stored_modeling_artifacts_args
   <<: *artifact_args
 
 fitted.feature_encoders:
@@ -176,10 +179,10 @@ fitted.feature_encoders:
   <<: *artifact_args
 
 stored.feature_encoders:
-  run_id: 565f80a41ac54ca280ea0e1fca5e3f98
   data_set:
     filepath: data/04_feature/feature_encoders.pkl
     type: pickle.PickleDataSet
+  <<: *stored_modeling_artifacts_args
   <<: *artifact_args
 
 train.df_fe:
@@ -240,10 +243,10 @@ model_config:
   <<: *artifact_args
 
 stored.model:
-  run_id: 565f80a41ac54ca280ea0e1fca5e3f98
   data_set:
     type: pickle.PickleDataSet
     filepath: data/06_models/model.pkl
+  <<: *stored_modeling_artifacts_args
   <<: *artifact_args
 
 # MODEL OUTPUT
