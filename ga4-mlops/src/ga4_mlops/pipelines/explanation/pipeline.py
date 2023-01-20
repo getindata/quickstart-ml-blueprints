@@ -13,34 +13,36 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
     """Create model explanation pipeline.
 
     Args:
-        subset (str): subset to explain model on (train, valid or test). It has to have ground truth (target) column.
+        subset (str): Data subset to explain model on (train, valid, test). Has to contain ground truth column (target).
 
     Returns:
-        Pipeline: Kedro pipeline for model explanation
+        Pipeline: explanation Kedro pipeline
     """
     possible_subsets = ["train", "valid", "test"]
     assert subset in possible_subsets, f"Subset should be one of: {possible_subsets}"
 
-    main_pipeline = pipeline(
+    namespace = subset
+
+    pipeline_template = pipeline(
         [
             node(
-                name=f"{subset}.sample_data_node",
+                name="sample_data_node",
                 func=sample_data,
-                inputs=[f"{subset}.abt", "params:n_obs", "params:sampling_seed"],
-                outputs=f"{subset}.abt_sample",
+                inputs=["abt", "params:n_obs", "params:sampling_seed"],
+                outputs="abt_sample",
             ),
             node(
-                name=f"{subset}.calculate_shap_node",
+                name="calculate_shap_node",
                 func=calculate_shap,
-                inputs=[f"{subset}.abt_sample", "stored.model"],
+                inputs=["abt_sample", "stored.model"],
                 outputs="shap_values",
             ),
             node(
-                name=f"{subset}.create_explanations_node",
+                name="create_explanations_node",
                 func=create_explanations,
                 inputs=[
                     "shap_values",
-                    f"{subset}.abt_sample",
+                    "abt_sample",
                     "stored.model",
                     "params:pdp_top_n",
                 ],
@@ -51,6 +53,24 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                 ],
             ),
         ]
+    )
+
+    main_pipeline = pipeline(
+        pipe=pipeline_template,
+        inputs={
+            "stored.model": "stored.model",
+        },
+        parameters={
+            "n_obs": "n_obs",
+            "sampling_seed": "sampling_seed",
+            "pdp_top_n": "pdp_top_n",
+        },
+        outputs={
+            "shap_summary_plot": "shap_summary_plot",
+            "feature_importance": "feature_importance",
+            "partial_dependence_plots": "partial_dependence_plots",
+        },
+        namespace=namespace,
     )
 
     return main_pipeline

@@ -6,4 +6,4 @@
 
 n_obs: 100
 sampling_seed: 42
-pdp_top_n: 10  # The number of most important variables to show on partial dependence plots
+pdp_top_n: 5  # The number of most important variables to show on partial dependence plots
