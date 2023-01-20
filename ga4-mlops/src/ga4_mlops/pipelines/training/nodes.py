@@ -118,7 +118,7 @@ def train_and_validate_model(
         eval_metric (str, optional): model evaluation metric. Defaults to "auc".
 
     Returns:
-        Tuple[xgb.Booster, str]: trained XGBoost model and string with XGBoost full config in JSON-like format
+        Tuple[XGBClassifier, str]: trained XGBoost model and string with XGBoost full config in JSON-like format
     """
     logger.info("Training and validating XGBoost model...")
 

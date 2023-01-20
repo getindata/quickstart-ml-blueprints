@@ -3,12 +3,14 @@ This is a boilerplate pipeline 'explanation'
 generated using Kedro 0.18.4
 """
 import logging
+from typing import Any, Dict, List, Tuple, Union
 from warnings import filterwarnings
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
+from matplotlib.figure import Figure
 
 from ..data_preparation_utils import extract_column_names
 
@@ -53,15 +55,15 @@ def sample_data(abt: pd.DataFrame, n_obs: int, seed: int) -> pd.DataFrame:
     return abt_sample
 
 
-def calculate_shap(abt_sample: pd.DataFrame, model) -> list:
+def calculate_shap(abt_sample: pd.DataFrame, model: Any) -> List[np.ndarray]:
     """Create Explainer and calculate SHAP values for the ABT sample
 
     Args:
         abt_sample (pd.DataFrame): ABT sample
-        model: any fitted model with `predict_proba` method
+        model (Any): any fitted model with `predict_proba` method
 
     Returns:
-        list: A set of calculated SHAP values
+        List[np.ndarray]: A set of calculated SHAP values
     """
     logger.info(
         f"Calculating SHAP values on a sample of {abt_sample.shape[0]} observations..."
@@ -77,45 +79,128 @@ def calculate_shap(abt_sample: pd.DataFrame, model) -> list:
 
 
 def create_explanations(
-    shap_values: list, abt_sample: pd.DataFrame, model, pdp_top_n: int
-) -> tuple:
+    shap_values: List[np.ndarray],
+    abt_sample: pd.DataFrame,
+    model: Any,
+    pdp_top_n: int = 5,
+) -> Tuple[Any]:
     """Create a set of explanations for given model and data sample.
 
     Args:
-        shap_values (list): previously calculated SHAP values
+        shap_values (List[np.ndarray]): previously calculated SHAP values
         abt_sample (pd.DataFrame): ABT sample
-        model (_type_): any fitted model with `predict_proba` method
-        pdp_top_n (int): number of top N most important features to show on partial dependence plots
+        model (Any): any fitted model with `predict_proba` method
+        pdp_top_n (int): number of top N most important features to show on partial dependence plots. Defaults to 5.
 
     Returns:
-        tuple: a set of different explanations to be logged
+        Tuple[Any]: a set of different explanations to be logged
     """
     logger.info("Creating and logging model explanations...")
 
+    shap_summary_plot = _create_shap_summary_plot(shap_values, abt_sample)
+    feature_importance = _calculate_feature_importance(
+        shap_values, abt_sample, output_form="dict"
+    )
+    partial_dependence_plots = _create_partial_dependence_plots(
+        shap_values, abt_sample, model, pdp_top_n
+    )
+
+    return shap_summary_plot, feature_importance, partial_dependence_plots
+
+
+def _create_shap_summary_plot(
+    shap_values: List[np.ndarray], abt_sample: pd.DataFrame
+) -> Figure:
+    """Create SHAP summary plot.
+
+    Args:
+        shap_values (List[np.ndarray]): SHAP values
+        abt_sample (pd.DataFrame): ABT sample
+
+    Returns:
+        Figure: SHAP summary plot
+    """
     _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
     features_sample = abt_sample[num_cols + cat_cols]
 
-    # SHAP summary plot
     shap.summary_plot(
         shap_values, features=features_sample, plot_size=(10, 10), show=False
     )
     shap_summary_plot = plt.gcf()
 
-    # Feature importances
+    return shap_summary_plot
+
+
+def _calculate_feature_importance(
+    shap_values: List[np.ndarray], abt_sample: pd.DataFrame, output_form: str = "dict"
+) -> Union[dict, pd.DataFrame]:
+    """Calculate percentage of mean SHAP value-based feature importance.
+
+    Args:
+        shap_values (List[np.ndarray]): SHAP values
+        abt_sample (pd.DataFrame): ABT sample
+        output_form (str, optional): One of 'dict', 'data_frame'. Defaults to "dict".
+
+    Returns:
+        Union[dict, pd.DataFrame]: percentage of mean SHAP value-based feature importance
+    """
+    allowed_output = ["dict", "data_frame"]
+    assert (
+        output_form in allowed_output
+    ), f"Parameter output_form should be one of {allowed_output}"
+
+    _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
+    features_sample = abt_sample[num_cols + cat_cols]
+
     vals = np.abs(shap_values).mean(0)
+    sum_vals = sum(vals)
+    sum_vals_norm = sum_vals / sum(sum_vals)
+
     feature_importance_df = pd.DataFrame(
-        list(zip(features_sample.columns, sum(vals))), columns=["feature", "importance"]
+        list(zip(features_sample.columns, sum_vals_norm)),
+        columns=["feature", "importance"],
     )
     feature_importance_df.sort_values(by=["importance"], ascending=False, inplace=True)
-    feature_importance = {
-        k: v
-        for k, v in zip(
-            feature_importance_df["feature"], feature_importance_df["importance"]
-        )
-    }
 
-    # Partial dependence plots
-    top_n_feaures = feature_importance_df.index[:pdp_top_n].to_list()
+    if output_form == "dict":
+        feature_importance_dict = {
+            k: v
+            for k, v in zip(
+                feature_importance_df["feature"], feature_importance_df["importance"]
+            )
+        }
+
+        return feature_importance_dict
+    else:
+        return feature_importance_df
+
+
+def _create_partial_dependence_plots(
+    shap_values: List[np.ndarray],
+    abt_sample: pd.DataFrame,
+    model: Any,
+    pdp_top_n: int = 5,
+) -> Dict[str, Figure]:
+    """Create partial dependence plots for a set of most important features.
+
+    Args:
+        shap_values (List[np.ndarray]): SHAP values
+        abt_sample (pd.DataFrame): ABT sample
+        model (Any): any fitted model with `predict_proba` method
+        pdp_top_n (int, optional): any fitted model with `predict_proba` method. Defaults to 5.
+
+    Returns:
+        Dict[str, Figure]: a dictionary of partial dependence plots
+    """
+
+    _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
+    features_sample = abt_sample[num_cols + cat_cols]
+
+    feature_importance = _calculate_feature_importance(
+        shap_values, abt_sample, output_form="data_frame"
+    )
+
+    top_n_feaures = feature_importance.index[:pdp_top_n].to_list()
     partial_dependence_plots = dict()
     for idx in top_n_feaures:
         shap.plots.partial_dependence(
@@ -126,7 +211,7 @@ def create_explanations(
             feature_expected_value=True,
             show=False,
         )
-        feature_name = feature_importance_df["feature"][idx]
+        feature_name = feature_importance["feature"][idx]
         partial_dependence_plots[f"{feature_name}.png"] = plt.gcf()
 
-    return shap_summary_plot, feature_importance, partial_dependence_plots
+    return partial_dependence_plots

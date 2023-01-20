@@ -10,13 +10,13 @@ from .nodes import calculate_shap, create_explanations, sample_data
 
 
 def create_pipeline(subset: str, **kwargs) -> Pipeline:
-    """_summary_
+    """Create model explanation pipeline.
 
     Args:
-        subset (str): _description_
+        subset (str): subset to explain model on (train, valid or test). It has to have ground truth (target) column.
 
     Returns:
-        Pipeline: _description_
+        Pipeline: Kedro pipeline for model explanation
     """
     possible_subsets = ["train", "valid", "test"]
     assert subset in possible_subsets, f"Subset should be one of: {possible_subsets}"
