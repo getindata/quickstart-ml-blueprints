@@ -9,6 +9,7 @@ import mlflow
 import optuna
 import pandas as pd
 import xgboost as xgb
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import roc_auc_score
 from xgboost import XGBClassifier
 
@@ -135,11 +136,38 @@ def train_xgboost_model(
     return model, model_config
 
 
+def fit_calibrator(
+    abt_test: pd.DataFrame, model: Any, method: str = "isotonic"
+) -> CalibratedClassifierCV:
+    """Fit calibration model on test subset.
+
+    Args:
+        abt_test (pd.DataFrame): test ABT (not used in training/validation)
+        model (Any): any model with `predict_proba` method
+        method (str, optional): calibration methods ("isotonic" or "sigmoid"). Defaults to "isotonic".
+
+    Returns:
+        CalibratedClassifierCV: calibrated model
+    """
+    calibration_methods = ["isotonic", "sigmoid"]
+    assert (
+        method in calibration_methods
+    ), f"Parameter `method` should be one of: {calibration_methods}"
+
+    _, num_cols, cat_cols, target_col = extract_column_names(abt_test)
+
+    calibrator = CalibratedClassifierCV(model, method=method, cv="prefit")
+
+    calibrator.fit(X=abt_test[num_cols + cat_cols], y=abt_test[target_col])
+
+    return calibrator
+
+
 def evaluate_model(abt: pd.DataFrame, model: Any, eval_metric: str = "auc") -> float:
     """Test XGBoost model on the test set.
 
     Args:
-        abt_test (pd.DataFrame): testing data frame
+        abt_test (pd.DataFrame): ABT to evaluate on
         model (Any): any model with `predict_proba` method
         eval_metric (str, optional): model evaluation metric. Defaults to 'auc'.
 
@@ -157,16 +185,17 @@ def evaluate_model(abt: pd.DataFrame, model: Any, eval_metric: str = "auc") -> f
     return metric_value
 
 
-def log_metric(metric_value: float, subset: str) -> None:
+def log_metric(metric_value: float, subset_alias: str, model_alias: str) -> None:
     """Log metric value for given subset to MLflow.
 
     Args:
         metric_value (float): metric value
-        subset (str): subset alias
+        subset_alias (str): subset alias ("train", "valid", "test")
+        model_alias (str): model alias ("model", "calibrator")
     """
-    logger.info(f"Logging {subset} metric value...")
+    logger.info(f"Logging {subset_alias} metric value for {model_alias}...")
 
-    mlflow.log_metric(f"{subset}_metric_value", metric_value)  # TODO: DELETE
+    mlflow.log_metric(f"{model_alias}_{subset_alias}_metric_value", metric_value)
 
 
 def _get_eval_fn(eval_metric: str) -> Callable:

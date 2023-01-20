@@ -236,18 +236,32 @@ fitted.model:
     filepath: data/06_models/model.pkl
   <<: *artifact_args
 
-model_config:
-  data_set:
-    type: json.JSONDataSet
-    filepath: data/06_models/model_config.json
-  <<: *artifact_args
-
 stored.model:
   data_set:
     type: pickle.PickleDataSet
     filepath: data/06_models/model.pkl
   <<: *stored_modeling_artifacts_args
   <<: *artifact_args
+
+fitted.calibrator:
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/calibrator.pkl
+  <<: *artifact_args
+
+stored.calibrator:
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/calibrator.pkl
+  <<: *stored_modeling_artifacts_args
+  <<: *artifact_args
+
+model_config:
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/06_models/model_config.json
+  <<: *artifact_args
+
 
 # MODEL OUTPUT
 
@@ -257,6 +271,14 @@ predictions:
   <<: *data_args
 
 # REPORTING
+
+calibration_plot:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/calibration_plot.png
+    save_args:
+      format: png
+  <<: *artifact_args
 
 shap_summary_plot:
   data_set:
