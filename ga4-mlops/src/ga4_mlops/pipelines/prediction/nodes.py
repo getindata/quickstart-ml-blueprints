@@ -3,6 +3,7 @@ This is a boilerplate pipeline 'prediction'
 generated using Kedro 0.18.4
 """
 import logging
+from typing import Any
 
 import pandas as pd
 
@@ -11,12 +12,12 @@ from ..data_preparation_utils import extract_column_names
 logger = logging.getLogger(__name__)
 
 
-def predict(abt_predict: pd.DataFrame, model) -> pd.DataFrame:
+def predict(abt_predict: pd.DataFrame, model: Any) -> pd.DataFrame:
     """Make predictions on a given data frame.
 
     Args:
         abt_predict (pd.DataFrame): data frame to predict on
-        model: any model with predict_proba method
+        model (Any): any model with predict_proba method
 
     Returns:
         pd.DataFrame: data frame with predicted scores
