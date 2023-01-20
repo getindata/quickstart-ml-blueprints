@@ -7,18 +7,20 @@ from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import (
-    optimize_hyperparameters,
-    test_model,
-    train_and_validate_model,
+    evaluate_model,
+    log_metric,
+    optimize_xgboost_hyperparameters,
+    train_xgboost_model,
 )
 
 
 def create_pipeline(**kwargs) -> Pipeline:
-    return pipeline(
+
+    training_pipeline = pipeline(
         [
             node(
                 name="optimize_hyperparameters_node",
-                func=optimize_hyperparameters,
+                func=optimize_xgboost_hyperparameters,
                 inputs=[
                     "train.abt",
                     "valid.abt",
@@ -31,21 +33,38 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="best_params",
             ),
             node(
-                name="training_and_validation_node",
-                func=train_and_validate_model,
+                name="training_node",
+                func=train_xgboost_model,
                 inputs=[
                     "train.abt",
                     "valid.abt",
                     "best_params",
-                    "params:eval_metric",
                 ],
                 outputs=["fitted.model", "model_config"],
             ),
-            node(
-                name="test_node",
-                func=test_model,
-                inputs=["test.abt", "fitted.model", "params:eval_metric"],
-                outputs=None,
-            ),
         ]
     )
+
+    subsets = ["train", "valid", "test"]
+    training_and_evaluation_pipeline = training_pipeline
+
+    for subset in subsets:
+        evaluation_pipeline = pipeline(
+            [
+                node(
+                    name=f"evaluate_model_{subset}_node",
+                    func=evaluate_model,
+                    inputs=[f"{subset}.abt", "fitted.model", "params:eval_metric"],
+                    outputs=f"{subset}_metric_value",
+                ),
+                node(
+                    name=f"log_metric_{subset}_node",
+                    func=log_metric,
+                    inputs=[f"{subset}_metric_value", f"params:{subset}_name"],
+                    outputs=None,
+                ),
+            ]
+        )
+        training_and_evaluation_pipeline += evaluation_pipeline
+
+    return training_and_evaluation_pipeline

@@ -3,7 +3,7 @@ This is a boilerplate pipeline 'training'
 generated using Kedro 0.18.4
 """
 import logging
-from typing import Tuple
+from typing import Any, Callable, Tuple
 
 import mlflow
 import optuna
@@ -17,7 +17,7 @@ from ..data_preparation_utils import extract_column_names
 logger = logging.getLogger(__name__)
 
 
-def optimize_hyperparameters(
+def optimize_xgboost_hyperparameters(
     abt_train: pd.DataFrame,
     abt_valid: pd.DataFrame,
     seed: int = 42,
@@ -60,7 +60,7 @@ def optimize_hyperparameters(
         "early_stopping_rounds": 30,
     }
 
-    def xgb_objective(trial):
+    def objective(trial):
         params = {
             "booster": trial.suggest_categorical("booster", ["gbtree"]),
             "max_depth": trial.suggest_int("max_depth", 2, 10),
@@ -93,7 +93,7 @@ def optimize_hyperparameters(
     sampler = optuna.samplers.TPESampler(seed=seed)
     study = optuna.create_study(direction=direction, sampler=sampler)
 
-    study.optimize(xgb_objective, timeout=optim_time)
+    study.optimize(objective, timeout=optim_time)
 
     best_params = settings
     best_params.update(study.best_params)
@@ -101,11 +101,10 @@ def optimize_hyperparameters(
     return best_params
 
 
-def train_and_validate_model(
+def train_xgboost_model(
     abt_train: pd.DataFrame,
     abt_valid: pd.DataFrame,
     hparams: dict,
-    eval_metric: str = "auc",
 ) -> Tuple[XGBClassifier, str]:
     """Trains and validates XGBoost model.
     Final training procedure uses scikit-learn API to be compatible with XAI packages
@@ -115,14 +114,11 @@ def train_and_validate_model(
         abt_train (pd.DataFrame): training data frame
         abt_valid (pd.DataFrame): validation data frame
         hparams (dict): XGBoost settings and hyperparameters as returned by `optimize_hyperparameters`
-        eval_metric (str, optional): model evaluation metric. Defaults to "auc".
 
     Returns:
         Tuple[XGBClassifier, str]: trained XGBoost model and string with XGBoost full config in JSON-like format
     """
     logger.info("Training and validating XGBoost model...")
-
-    eval_fn = _get_eval_fn(eval_metric)
 
     _, num_cols, cat_cols, target_col = extract_column_names(abt_train)
 
@@ -134,46 +130,53 @@ def train_and_validate_model(
         verbose=False,
     )
 
-    train_preds = model.predict_proba(abt_train[num_cols + cat_cols])[:, 1]
-    train_score = eval_fn(abt_train[target_col], train_preds)
-    valid_preds = model.predict_proba(abt_valid[num_cols + cat_cols])[:, 1]
-    valid_score = eval_fn(abt_valid[target_col], valid_preds)
-
     model_config = model.get_params()
-
-    mlflow.log_metric("train_score", train_score)
-    mlflow.log_metric("valid_score", valid_score)
 
     return model, model_config
 
 
-def test_model(abt_test: pd.DataFrame, model: XGBClassifier, eval_metric: str = "auc"):
+def evaluate_model(abt: pd.DataFrame, model: Any, eval_metric: str = "auc") -> float:
     """Test XGBoost model on the test set.
 
     Args:
         abt_test (pd.DataFrame): testing data frame
-        model (XGBClassifier): XGBoost model
+        model (Any): any model with `predict_proba` method
         eval_metric (str, optional): model evaluation metric. Defaults to 'auc'.
+
+    Returns:
+
     """
     logger.info("Testing model performance on the test set...")
 
     eval_fn = _get_eval_fn(eval_metric)
-    _, num_cols, cat_cols, target_col = extract_column_names(abt_test)
+    _, num_cols, cat_cols, target_col = extract_column_names(abt)
 
-    test_preds = model.predict_proba(abt_test[num_cols + cat_cols])[:, 1]
-    test_score = eval_fn(abt_test[target_col], test_preds)
+    preds = model.predict_proba(abt[num_cols + cat_cols])[:, 1]
+    metric_value = eval_fn(abt[target_col], preds)
 
-    mlflow.log_metric("test_score", test_score)
+    return metric_value
 
 
-def _get_eval_fn(eval_metric: str):
+def log_metric(metric_value: float, subset: str) -> None:
+    """Log metric value for given subset to MLflow.
+
+    Args:
+        metric_value (float): metric value
+        subset (str): subset alias
+    """
+    logger.info(f"Logging {subset} metric value...")
+
+    mlflow.log_metric(f"{subset}_metric_value", metric_value)  # TODO: DELETE
+
+
+def _get_eval_fn(eval_metric: str) -> Callable:
     """Get evaluation function based on metric name.
 
     Args:
         eval_metric (str): evaluation metric name
 
     Returns:
-        Evaluation function.
+        Callable: evaluation function
     """
     # TODO: Add different metrics
     # If label based, need to add threshold based labeling for predicted scores

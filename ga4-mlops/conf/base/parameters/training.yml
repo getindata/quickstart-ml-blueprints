@@ -5,7 +5,12 @@
 # Link: https://kedro.readthedocs.io/en/0.18.4/kedro_project_setup/configuration.html#parameters
 
 seed: 42
-optim_time: 60  # in seconds
+optim_time: 5  # in seconds
 objective: binary:logistic
 eval_metric: auc
 direction: maximize
+calibration_metod: isotonic  # either "isotonic" or "sigmoid"
+
+train_name: train
+valid_name: valid
+test_name: test
