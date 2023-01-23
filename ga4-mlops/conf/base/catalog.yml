@@ -262,6 +262,13 @@ model_config:
     filepath: data/06_models/model_config.json
   <<: *artifact_args
 
+calibration_plot:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/calibration_plot.png
+    save_args:
+      format: png
+  <<: *artifact_args
 
 # MODEL OUTPUT
 
@@ -272,32 +279,47 @@ predictions:
 
 # REPORTING
 
-calibration_plot:
+model.shap_summary_plot:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/calibration_plot.png
+    filepath: data/08_reporting/model_shap_summary_plot.png
     save_args:
       format: png
   <<: *artifact_args
 
-shap_summary_plot:
+calibrator.shap_summary_plot:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/shap_summary_plot.png
+    filepath: data/08_reporting/calibrator_shap_summary_plot.png
     save_args:
       format: png
   <<: *artifact_args
 
-feature_importance:
+model.feature_importance:
   data_set:
     type: json.JSONDataSet
-    filepath: data/08_reporting/feature_importance.json
+    filepath: data/08_reporting/model_feature_importance.json
   <<: *artifact_args
 
-partial_dependence_plots:
+calibrator.feature_importance:
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/08_reporting/calibrator_feature_importance.json
+  <<: *artifact_args
+
+model.partial_dependence_plots:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/partial_dependence_plots
+    filepath: data/08_reporting/model_partial_dependence_plots
+    overwrite: True
+    save_args:
+      format: png
+  <<: *artifact_args
+
+calibrator.partial_dependence_plots:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/calibrator_partial_dependence_plots
     overwrite: True
     save_args:
       format: png
