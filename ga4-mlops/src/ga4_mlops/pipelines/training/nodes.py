@@ -5,11 +5,14 @@ generated using Kedro 0.18.4
 import logging
 from typing import Any, Callable, Tuple
 
+import matplotlib.lines as mlines
+import matplotlib.pyplot as plt
 import mlflow
 import optuna
 import pandas as pd
 import xgboost as xgb
-from sklearn.calibration import CalibratedClassifierCV
+from matplotlib.figure import Figure
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.metrics import roc_auc_score
 from xgboost import XGBClassifier
 
@@ -197,6 +200,61 @@ def log_metric(metric_value: float, subset_alias: str, model_alias: str) -> None
     logger.info(f"Logging {subset_alias} metric value for {model_alias}...")
 
     mlflow.log_metric(f"{model_alias}_{subset_alias}_metric_value", metric_value)
+
+
+def create_calibration_plot(
+    abt_test: pd.DataFrame, model: Any, calibrator: CalibratedClassifierCV
+) -> Figure:
+    """Create a model calibration plot on a test subset.
+
+    Args:
+        abt_test (pd.DataFrame): test ABT (not used in training/validation)
+        model (Any): any model with `predict_proba` method
+        calibrator (CalibratedClassifierCV): calibrated model
+
+    Returns:
+        Figure: calibration plot
+    """
+    logger.info("Creating calibraion plot...")
+
+    _, _, _, target_col = extract_column_names(abt_test)
+
+    raw_scores = score_abt(abt_test, model)
+    calibrated_scores = score_abt(abt_test, calibrator)
+
+    raw_calibration_curve = calibration_curve(
+        abt_test[target_col], raw_scores, strategy="quantile", n_bins=25
+    )
+    calibrated_calibration_curve = calibration_curve(
+        abt_test[target_col], calibrated_scores, strategy="quantile", n_bins=25
+    )
+
+    fig, ax = plt.subplots()
+    plt.plot(
+        raw_calibration_curve[0],
+        raw_calibration_curve[1],
+        marker="o",
+        linewidth=1,
+        label="raw",
+    )
+    plt.plot(
+        calibrated_calibration_curve[0],
+        calibrated_calibration_curve[1],
+        marker="o",
+        linewidth=1,
+        label="calibrated",
+    )
+
+    ax.add_line(mlines.Line2D([0, 1], [0, 1], color="black"))
+    fig.suptitle("Calibration plot (on test subset)")
+    ax.set_xlabel("Predicted probability")
+    ax.set_ylabel("Fraction od positives")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    calibration_plot = plt.gcf()
+
+    return calibration_plot
 
 
 def _get_eval_fn(eval_metric: str) -> Callable:
