@@ -7,6 +7,7 @@ from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import (
+    create_calibration_plot,
     evaluate_model,
     fit_calibrator,
     log_metric,
@@ -52,6 +53,16 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:calibration_method",
                 ],
                 outputs="fitted.calibrator",
+            ),
+            node(
+                name="create_calibration_plot_node",
+                func=create_calibration_plot,
+                inputs=[
+                    "test.abt",
+                    "fitted.model",
+                    "fitted.calibrator",
+                ],
+                outputs="calibration_plot",
             ),
         ]
     )

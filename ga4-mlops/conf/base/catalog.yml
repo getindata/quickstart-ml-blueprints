@@ -19,7 +19,7 @@ _artifact_args: &artifact_args
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
 
 _stored_modeling_artifacts_args: &stored_modeling_artifacts_args
-  run_id: 311ca41b609c4810a6d2cf44710c5790
+  run_id: 2d03a1515f7d468fbd63184929892a59
 
 # RAW DATA
 
@@ -265,7 +265,7 @@ model_config:
 calibration_plot:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/calibration_plot.png
+    filepath: data/06_models/calibration_plot.png
     save_args:
       format: png
   <<: *artifact_args
