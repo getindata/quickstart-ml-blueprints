@@ -14,6 +14,7 @@ from sklearn.metrics import roc_auc_score
 from xgboost import XGBClassifier
 
 from ..data_preparation_utils import extract_column_names
+from ..modeling_utils import score_abt
 
 logger = logging.getLogger(__name__)
 
@@ -177,10 +178,10 @@ def evaluate_model(abt: pd.DataFrame, model: Any, eval_metric: str = "auc") -> f
     logger.info("Testing model performance on the test set...")
 
     eval_fn = _get_eval_fn(eval_metric)
-    _, num_cols, cat_cols, target_col = extract_column_names(abt)
+    _, _, _, target_col = extract_column_names(abt)
 
-    preds = model.predict_proba(abt[num_cols + cat_cols])[:, 1]
-    metric_value = eval_fn(abt[target_col], preds)
+    scores = score_abt(abt, model)
+    metric_value = eval_fn(abt[target_col], scores)
 
     return metric_value
 
