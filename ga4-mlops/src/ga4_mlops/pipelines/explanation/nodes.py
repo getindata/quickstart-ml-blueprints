@@ -97,32 +97,32 @@ def create_explanations(
     """
     logger.info("Creating and logging model explanations...")
 
-    shap_summary_plot = _create_shap_summary_plot(shap_values, abt_sample)
+    _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
+    features_sample = abt_sample[num_cols + cat_cols]
+
+    shap_summary_plot = _create_shap_summary_plot(shap_values, features_sample)
     feature_importance = _calculate_feature_importance(
-        shap_values, abt_sample, output_form="dict"
+        shap_values, features_sample, output_form="dict"
     )
     partial_dependence_plots = _create_partial_dependence_plots(
-        shap_values, abt_sample, model, pdp_top_n
+        shap_values, features_sample, model, pdp_top_n
     )
 
     return shap_summary_plot, feature_importance, partial_dependence_plots
 
 
 def _create_shap_summary_plot(
-    shap_values: List[np.ndarray], abt_sample: pd.DataFrame
+    shap_values: List[np.ndarray], features_sample: pd.DataFrame
 ) -> Figure:
     """Create SHAP summary plot.
 
     Args:
         shap_values (List[np.ndarray]): SHAP values
-        abt_sample (pd.DataFrame): ABT sample
+        features_sample (pd.DataFrame): features (num_cols and cat_cols) extracted from ABT sample
 
     Returns:
         Figure: SHAP summary plot
     """
-    _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
-    features_sample = abt_sample[num_cols + cat_cols]
-
     shap.summary_plot(
         shap_values, features=features_sample, plot_size=(10, 10), show=False
     )
@@ -132,13 +132,15 @@ def _create_shap_summary_plot(
 
 
 def _calculate_feature_importance(
-    shap_values: List[np.ndarray], abt_sample: pd.DataFrame, output_form: str = "dict"
+    shap_values: List[np.ndarray],
+    features_sample: pd.DataFrame,
+    output_form: str = "dict",
 ) -> Union[dict, pd.DataFrame]:
     """Calculate percentage of mean SHAP value-based feature importance.
 
     Args:
         shap_values (List[np.ndarray]): SHAP values
-        abt_sample (pd.DataFrame): ABT sample
+        features_sample (pd.DataFrame): features (num_cols and cat_cols) extracted from ABT sample
         output_form (str, optional): One of 'dict', 'data_frame'. Defaults to "dict".
 
     Returns:
@@ -148,9 +150,6 @@ def _calculate_feature_importance(
     assert (
         output_form in allowed_output
     ), f"Parameter output_form should be one of {allowed_output}"
-
-    _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
-    features_sample = abt_sample[num_cols + cat_cols]
 
     vals = np.abs(shap_values).mean(0)
     sum_vals = sum(vals)
@@ -177,7 +176,7 @@ def _calculate_feature_importance(
 
 def _create_partial_dependence_plots(
     shap_values: List[np.ndarray],
-    abt_sample: pd.DataFrame,
+    features_sample: pd.DataFrame,
     model: Any,
     pdp_top_n: int = 5,
 ) -> Dict[str, Figure]:
@@ -185,19 +184,15 @@ def _create_partial_dependence_plots(
 
     Args:
         shap_values (List[np.ndarray]): SHAP values
-        abt_sample (pd.DataFrame): ABT sample
+        features_sample (pd.DataFrame): features (num_cols and cat_cols) extracted from ABT sample
         model (Any): any fitted model with `predict_proba` method
         pdp_top_n (int, optional): any fitted model with `predict_proba` method. Defaults to 5.
 
     Returns:
         Dict[str, Figure]: a dictionary of partial dependence plots
     """
-
-    _, num_cols, cat_cols, _ = extract_column_names(abt_sample)
-    features_sample = abt_sample[num_cols + cat_cols]
-
     feature_importance = _calculate_feature_importance(
-        shap_values, abt_sample, output_form="data_frame"
+        shap_values, features_sample, output_form="data_frame"
     )
 
     top_n_feaures = feature_importance.index[:pdp_top_n].to_list()
