@@ -69,12 +69,6 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                 "sampling_seed": "sampling_seed",
                 "pdp_top_n": "pdp_top_n",
             },
-            outputs={
-                f"{model}.shap_values": f"{model}.shap_values",
-                f"{model}.shap_summary_plot": f"{model}.shap_summary_plot",
-                f"{model}.feature_importance": f"{model}.feature_importance",
-                f"{model}.partial_dependence_plots": f"{model}.partial_dependence_plots",
-            },
             namespace=namespace,
         )
 
