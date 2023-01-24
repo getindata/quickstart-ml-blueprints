@@ -19,7 +19,7 @@ _artifact_args: &artifact_args
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
 
 _stored_modeling_artifacts_args: &stored_modeling_artifacts_args
-  run_id: 291203b7f47145e4a41452859f4a3aeb
+  run_id: b5b286d7b40c40ab95394e22209a8a3f
 
 # RAW DATA
 
@@ -236,17 +236,38 @@ fitted.model:
     filepath: data/06_models/model.pkl
   <<: *artifact_args
 
+stored.model:
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/model.pkl
+  <<: *stored_modeling_artifacts_args
+  <<: *artifact_args
+
+fitted.calibrator:
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/calibrator.pkl
+  <<: *artifact_args
+
+stored.calibrator:
+  data_set:
+    type: pickle.PickleDataSet
+    filepath: data/06_models/calibrator.pkl
+  <<: *stored_modeling_artifacts_args
+  <<: *artifact_args
+
 model_config:
   data_set:
     type: json.JSONDataSet
     filepath: data/06_models/model_config.json
   <<: *artifact_args
 
-stored.model:
+calibration_plot:
   data_set:
-    type: pickle.PickleDataSet
-    filepath: data/06_models/model.pkl
-  <<: *stored_modeling_artifacts_args
+    type: matplotlib.MatplotlibWriter
+    filepath: data/06_models/calibration_plot.png
+    save_args:
+      format: png
   <<: *artifact_args
 
 # MODEL OUTPUT
@@ -258,70 +279,47 @@ predictions:
 
 # REPORTING
 
-train.shap_summary_plot:
+model.shap_summary_plot:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/train_shap_summary_plot.png
+    filepath: data/08_reporting/model_shap_summary_plot.png
     save_args:
       format: png
   <<: *artifact_args
 
-train.feature_importance:
-  data_set:
-    type: json.JSONDataSet
-    filepath: data/08_reporting/train_feature_importance.json
-  <<: *artifact_args
-
-train.partial_dependence_plots:
+calibrator.shap_summary_plot:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/train_partial_dependence_plots
+    filepath: data/08_reporting/calibrator_shap_summary_plot.png
+    save_args:
+      format: png
+  <<: *artifact_args
+
+model.feature_importance:
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/08_reporting/model_feature_importance.json
+  <<: *artifact_args
+
+calibrator.feature_importance:
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/08_reporting/calibrator_feature_importance.json
+  <<: *artifact_args
+
+model.partial_dependence_plots:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/model_partial_dependence_plots
     overwrite: True
     save_args:
       format: png
   <<: *artifact_args
 
-valid.shap_summary_plot:
+calibrator.partial_dependence_plots:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/valid_shap_summary_plot.png
-    save_args:
-      format: png
-  <<: *artifact_args
-
-valid.feature_importance:
-  data_set:
-    type: json.JSONDataSet
-    filepath: data/08_reporting/valid_feature_importance.json
-  <<: *artifact_args
-
-valid.partial_dependence_plots:
-  data_set:
-    type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/valid_partial_dependence_plots
-    overwrite: True
-    save_args:
-      format: png
-  <<: *artifact_args
-
-test.shap_summary_plot:
-  data_set:
-    type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/test_shap_summary_plot.png
-    save_args:
-      format: png
-  <<: *artifact_args
-
-test.feature_importance:
-  data_set:
-    type: json.JSONDataSet
-    filepath: data/08_reporting/test_feature_importance.json
-  <<: *artifact_args
-
-test.partial_dependence_plots:
-  data_set:
-    type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/test_partial_dependence_plots
+    filepath: data/08_reporting/calibrator_partial_dependence_plots
     overwrite: True
     save_args:
       format: png
