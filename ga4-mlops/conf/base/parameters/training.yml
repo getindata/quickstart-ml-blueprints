@@ -9,3 +9,11 @@ optim_time: 60  # in seconds
 objective: binary:logistic
 eval_metric: auc
 direction: maximize
+calibration_method: isotonic  # either "isotonic" or "sigmoid"
+
+train_name: train
+valid_name: valid
+test_name: test
+
+model_name: model
+calibrator_name: calibrator
