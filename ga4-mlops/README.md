@@ -28,8 +28,10 @@ Data is retrieved directly from BigQuery public data by running parametrized SQL
 ## Pipelines:
 
 Currently there are 2 end to end  pipelines implemented and tested locally:
-- `end_to_end_training` - for batch training. It consists of 3 consecutive sub-pipelines: `data_preprocessing_train`, `feature_engineering_train`, `training`
+- `end_to_end_training` - for batch training. It consists of 3 consecutive sub-pipelines: `data_preprocessing_train_valid_test`, `feature_engineering_train_valid_test`, `training`
 - `end_to_end_prediction` - for batch predictions. It consists of: `data_preprocessing_predict`, `feature_engineering_predict`, `prediction`
+
+There is also one additional pipeline `explanation_{subset}` in three variations for different subsets: `train`, `valid` and `test` that applies some global XAI techniques and logs results to MLflow.
 
 ## Creating a new use case <a name="new-use-case"></a>
 
