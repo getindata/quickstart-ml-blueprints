@@ -258,24 +258,70 @@ predictions:
 
 # REPORTING
 
-shap_summary_plot:
+train.shap_summary_plot:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/shap_summary_plot.png
+    filepath: data/08_reporting/train_shap_summary_plot.png
     save_args:
       format: png
   <<: *artifact_args
 
-feature_importance:
+train.feature_importance:
   data_set:
     type: json.JSONDataSet
-    filepath: data/08_reporting/feature_importance.json
+    filepath: data/08_reporting/train_feature_importance.json
   <<: *artifact_args
 
-partial_dependence_plots:
+train.partial_dependence_plots:
   data_set:
     type: matplotlib.MatplotlibWriter
-    filepath: data/08_reporting/partial_dependence_plots
+    filepath: data/08_reporting/train_partial_dependence_plots
+    overwrite: True
+    save_args:
+      format: png
+  <<: *artifact_args
+
+valid.shap_summary_plot:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/valid_shap_summary_plot.png
+    save_args:
+      format: png
+  <<: *artifact_args
+
+valid.feature_importance:
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/08_reporting/valid_feature_importance.json
+  <<: *artifact_args
+
+valid.partial_dependence_plots:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/valid_partial_dependence_plots
+    overwrite: True
+    save_args:
+      format: png
+  <<: *artifact_args
+
+test.shap_summary_plot:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/test_shap_summary_plot.png
+    save_args:
+      format: png
+  <<: *artifact_args
+
+test.feature_importance:
+  data_set:
+    type: json.JSONDataSet
+    filepath: data/08_reporting/test_feature_importance.json
+  <<: *artifact_args
+
+test.partial_dependence_plots:
+  data_set:
+    type: matplotlib.MatplotlibWriter
+    filepath: data/08_reporting/test_partial_dependence_plots
     overwrite: True
     save_args:
       format: png
