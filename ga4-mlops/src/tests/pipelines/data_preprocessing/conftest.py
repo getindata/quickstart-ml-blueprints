@@ -9,9 +9,7 @@ def gbq_data_record():
         FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_20210131`
         WHERE event_timestamp = 1612069510766593 AND event_name = "page_view"
     """
+    gbq_data_set = GBQQueryDataSet(sql)
+    df = gbq_data_set.load()
 
-    data_set = GBQQueryDataSet(sql)
-
-    sql_data = data_set.load()
-
-    return sql_data
+    return df

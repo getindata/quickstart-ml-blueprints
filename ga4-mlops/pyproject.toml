@@ -36,6 +36,7 @@ kedro-viz = "^5.1.1"
 shap = "^0.41.0"
 matplotlib = "^3.6.3"
 pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^3.5.1"
