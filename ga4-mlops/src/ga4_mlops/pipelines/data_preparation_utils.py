@@ -25,7 +25,8 @@ def extract_column_names(df: pd.DataFrame) -> Tuple[list, list, list, str]:
     info_cols = [item for item in df.columns if re.compile("^i_").match(item)]
     num_cols = [item for item in df.columns if re.compile("^n_").match(item)]
     cat_cols = [item for item in df.columns if re.compile("^c_").match(item)]
-    target_col = [item for item in df.columns if re.compile("^y_").match(item)][0]
+    target_col = [item for item in df.columns if re.compile("^y_").match(item)]
+    target_col = target_col[0] if len(target_col) > 0 else None
 
     return info_cols, num_cols, cat_cols, target_col
 
