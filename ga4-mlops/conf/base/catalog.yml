@@ -19,7 +19,7 @@ _artifact_args: &artifact_args
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
 
 _stored_modeling_artifacts_args: &stored_modeling_artifacts_args
-  run_id: 759ba417c7fa444d90d1ba63e5fb08e6
+  run_id: 7639c61c77b840f78ee423dc0f342b7d
 
 # RAW DATA
 
@@ -184,26 +184,6 @@ stored.feature_encoders:
     type: pickle.PickleDataSet
   <<: *stored_modeling_artifacts_args
   <<: *artifact_args
-
-train.df_fe:
-  filepath: data/04_feature/df_train_fe.csv
-  layer: feature
-  <<: *data_args
-
-valid.df_fe:
-  filepath: data/04_feature/df_valid_fe.csv
-  layer: feature
-  <<: *data_args
-
-test.df_fe:
-  filepath: data/04_feature/df_test_fe.csv
-  layer: feature
-  <<: *data_args
-
-predict.df_fe:
-  filepath: data/04_feature/df_predict_fe.csv
-  layer: feature
-  <<: *data_args
 
 # MODEL INPUT DATA (AFTER: MANUAL FEATURE SELECTION)
 

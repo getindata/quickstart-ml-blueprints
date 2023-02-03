@@ -34,6 +34,21 @@ class TestEngineerFeatures:
         assert df.sort_index(axis=1).equals(expected_df.sort_index(axis=1))
 
 
+class TestExcludeFeatures:
+    def test_exclude_features(self, exclusion_sample):
+        features_to_exclude = ["n_col_to_exclude", "c_col_to_exclude"]
+        df = exclude_features(exclusion_sample, features_to_exclude)
+        expected_df = pd.DataFrame(
+            {
+                "i_id_col": [1, 2, 3, 4, 5],
+                "n_col_to_use": [3.2, 2.1, 9.8, 0.3, 3.1],
+                "c_col_to_use": ["cat1", "cat2", "cat3", "cat1", "cat2"],
+            }
+        )
+
+        assert df.equals(expected_df)
+
+
 class TestImputation:
     def test_fit_and_apply_imputers(self, imputation_sample):
         imputation_strategies = {
@@ -87,22 +102,6 @@ class TestEncoding:
                 "c_cat_col_for_onehot_cat2": [0, 1, 0, 0, 1],
                 "c_cat_col_for_onehot_cat3": [0, 0, 1, 1, 0],
                 "c_cat_col_for_ordinal": [1, 2, 3, 1, 2],
-            }
-        )
-
-        assert df.equals(expected_df)
-
-
-class TestExcludeFeatures:
-    def test_exclude_features(self, exclusion_sample):
-        features_to_exclude = ["c_first_col_to_exclude", "c_second_col_to_exclude"]
-        df = exclude_features(exclusion_sample, features_to_exclude)
-        expected_df = pd.DataFrame(
-            {
-                "i_id_col": [1, 2, 3, 4, 5],
-                "n_col_to_use": [3.2, 2.1, 9.8, 0.3, 3.1],
-                "c_col_to_use_0": [0, 1, 0, 0, 0],
-                "c_col_to_use_1": [1, 0, 1, 1, 1],
             }
         )
 

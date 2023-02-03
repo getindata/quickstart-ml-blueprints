@@ -24,6 +24,21 @@ def engineer_features_sample():
 
 
 @pytest.fixture
+def exclusion_sample():
+    df = pd.DataFrame(
+        {
+            "i_id_col": [1, 2, 3, 4, 5],
+            "n_col_to_use": [3.2, 2.1, 9.8, 0.3, 3.1],
+            "c_col_to_use": ["cat1", "cat2", "cat3", "cat1", "cat2"],
+            "n_col_to_exclude": [4, 7, 3, 1, 2],
+            "c_col_to_exclude": ["cat1", "cat1", "cat1", "cat2", "cat3"],
+        }
+    )
+
+    return df
+
+
+@pytest.fixture
 def imputation_sample():
     df = pd.DataFrame(
         {
@@ -48,24 +63,6 @@ def encoding_sample():
             "c_cat_col_for_binary": ["0", "0", "1", "0", "1"],
             "c_cat_col_for_onehot": ["cat1", "cat2", "cat3", "cat3", "cat2"],
             "c_cat_col_for_ordinal": ["cat3", "cat2", "cat1", "cat3", "cat2"],
-        }
-    )
-
-    return df
-
-
-@pytest.fixture
-def exclusion_sample():
-    df = pd.DataFrame(
-        {
-            "i_id_col": [1, 2, 3, 4, 5],
-            "n_col_to_use": [3.2, 2.1, 9.8, 0.3, 3.1],
-            "c_col_to_use_0": [0, 1, 0, 0, 0],
-            "c_col_to_use_1": [1, 0, 1, 1, 1],
-            "c_first_col_to_exclude": [1, 3, 2, 1, 2],
-            "c_second_col_to_exclude_cat1": [1, 1, 0, 0, 0],
-            "c_second_col_to_exclude_cat2": [0, 0, 1, 1, 0],
-            "c_second_col_to_exclude_cat3": [0, 0, 0, 0, 1],
         }
     )
 
