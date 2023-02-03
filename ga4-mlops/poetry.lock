@@ -2,7 +2,7 @@
 name = "aiofiles"
 version = "0.6.0"
 description = "File support for asyncio."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -46,7 +46,7 @@ yaml = ["pyyaml"]
 name = "anyio"
 version = "3.6.2"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6.2"
 
@@ -71,7 +71,7 @@ python-versions = "*"
 name = "appnope"
 version = "0.1.3"
 description = "Disable App Nap on macOS >= 10.9"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -121,7 +121,7 @@ python-dateutil = ">=2.7.0"
 name = "asgiref"
 version = "3.6.0"
 description = "ASGI specs, helper code, and adapters"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -165,7 +165,7 @@ pytz = ">=2015.7"
 name = "backcall"
 version = "0.2.0"
 description = "Specifications for callback functions passed in to an API"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -518,7 +518,7 @@ python-versions = ">=3.7"
 name = "decorator"
 version = "5.1.1"
 description = "Decorators for Humans"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.5"
 
@@ -589,7 +589,7 @@ test = ["pytest (>=6)"]
 name = "fastapi"
 version = "0.66.1"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -878,7 +878,7 @@ grpc = ["grpcio (>=1.44.0,<2.0.0dev)"]
 name = "graphql-core"
 version = "3.2.3"
 description = "GraphQL implementation for Python, a port of GraphQL.js, the JavaScript reference implementation for GraphQL."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6,<4"
 
@@ -939,7 +939,7 @@ tornado = ["tornado (>=0.2)"]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -947,7 +947,7 @@ python-versions = ">=3.7"
 name = "httptools"
 version = "0.5.0"
 description = "A collection of framework independent HTTP protocol utils."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.5.0"
 
@@ -1034,7 +1034,7 @@ typing = ["mypy (>=0.990)"]
 name = "ipython"
 version = "7.34.0"
 description = "IPython: Productive Interactive Computing"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -1094,7 +1094,7 @@ python-versions = ">=3.7"
 name = "jedi"
 version = "0.18.2"
 description = "An autocompletion tool for Python that can be used for text editors."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -1461,7 +1461,7 @@ test = ["black (==22.12.0)", "flake8 (==5.0.4)", "isort (==5.11.1)", "pytest (>=
 name = "kedro-viz"
 version = "5.1.1"
 description = "Kedro-Viz helps visualise Kedro data and analytics pipelines"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7, <3.11"
 
@@ -1543,7 +1543,7 @@ setuptools_scm = ">=7"
 name = "matplotlib-inline"
 version = "0.1.6"
 description = "Inline Matplotlib backend for Jupyter"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.5"
 
@@ -1712,7 +1712,7 @@ python-versions = ">=3.5"
 name = "networkx"
 version = "3.0"
 description = "Python package for creating and manipulating graphs and networks"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
 
@@ -1892,7 +1892,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 name = "parso"
 version = "0.8.3"
 description = "A Python Parser"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -1938,7 +1938,7 @@ tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 name = "pexpect"
 version = "4.8.0"
 description = "Pexpect allows easy control of interactive console applications."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -1949,7 +1949,7 @@ ptyprocess = ">=0.5"
 name = "pickleshare"
 version = "0.7.5"
 description = "Tiny 'shelve'-like database with concurrency support"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -2016,7 +2016,7 @@ test = ["appdirs (==1.4.4)", "pytest (>=7.2)", "pytest-cov (>=4)", "pytest-mock 
 name = "plotly"
 version = "5.11.0"
 description = "An open-source, interactive data visualization library for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -2076,7 +2076,7 @@ prometheus-client = "*"
 name = "prompt-toolkit"
 version = "3.0.36"
 description = "Library for building powerful interactive command lines in Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6.2"
 
@@ -2120,7 +2120,7 @@ test = ["enum34", "ipaddress", "mock", "pywin32", "wmi"]
 name = "ptyprocess"
 version = "0.7.0"
 description = "Run a subprocess in a pseudo terminal"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -2308,7 +2308,7 @@ six = ">=1.5"
 name = "python-dotenv"
 version = "0.21.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -2327,7 +2327,7 @@ python-versions = ">=3.5"
 name = "python-multipart"
 version = "0.0.5"
 description = "A streaming multipart parser for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -2551,7 +2551,7 @@ numpy = ">=1.17.3,<1.25.0"
 name = "semver"
 version = "2.13.0"
 description = "Python helper for Semantic Versioning (http://semver.org/)"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -2653,7 +2653,7 @@ python-versions = ">=3.6"
 name = "sniffio"
 version = "1.3.0"
 description = "Sniff out which async library your code is running under"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -2709,7 +2709,7 @@ python-versions = ">=3.5"
 name = "starlette"
 version = "0.14.2"
 description = "The little ASGI library that shines."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -2754,7 +2754,7 @@ pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 name = "strawberry-graphql"
 version = "0.127.0"
 description = "A library for creating GraphQL APIs"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 
@@ -2794,7 +2794,7 @@ widechars = ["wcwidth"]
 name = "tenacity"
 version = "8.1.0"
 description = "Retry code until it succeeds"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -2902,7 +2902,7 @@ telegram = ["requests"]
 name = "traitlets"
 version = "5.7.1"
 description = "Traitlets Python configuration system"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -2948,7 +2948,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 name = "uvicorn"
 version = "0.17.6"
 description = "The lightning-fast ASGI server."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -2971,7 +2971,7 @@ standard = ["PyYAML (>=5.1)", "colorama (>=0.4)", "httptools (>=0.4.0)", "python
 name = "uvloop"
 version = "0.17.0"
 description = "Fast implementation of asyncio event loop on top of libuv"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -2996,7 +2996,7 @@ testing = ["coverage (>=5.0)", "pytest", "pytest-cover"]
 name = "watchgod"
 version = "0.8.2"
 description = "Simple, modern file watching and code reload in python."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -3044,7 +3044,7 @@ test = ["websockets"]
 name = "websockets"
 version = "10.4"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -3108,7 +3108,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8.12"
-content-hash = "e0cf366d6b4906fe3c675a079e9e17c9e4d14e749eedc67415da53cfdc014d0c"
+content-hash = "e490211a4b7873e976a776c6c871a08cf0e7ae6c1c8bb87eedbc3afc97f2c296"
 
 [metadata.files]
 aiofiles = [
