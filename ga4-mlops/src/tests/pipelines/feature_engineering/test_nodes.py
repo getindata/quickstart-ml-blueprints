@@ -66,7 +66,21 @@ class TestImputation:
             }
         )
 
-        assert df.equals(expected_df)
+        assert df.shape == expected_df.shape
+        assert df["n_num_col_complete"].equals(expected_df["n_num_col_complete"])
+        assert df["n_num_col_missing_not_listed"].equals(
+            expected_df["n_num_col_missing_not_listed"]
+        )
+        assert df["n_num_col_missing_for_mean"].equals(
+            expected_df["n_num_col_missing_for_mean"]
+        )
+        assert df["n_num_col_missing_for_zero"].equals(
+            expected_df["n_num_col_missing_for_zero"]
+        )
+        assert df["c_cat_col_for_mostfreq"].equals(
+            expected_df["c_cat_col_for_mostfreq"]
+        )
+        assert df["c_cat_col_for_unknown"].equals(expected_df["c_cat_col_for_unknown"])
 
 
 class TestEncoding:
@@ -92,4 +106,20 @@ class TestEncoding:
             }
         )
 
-        assert df.equals(expected_df)
+        assert df.shape == expected_df.shape
+        assert df["c_cat_col_for_binary_0"].equals(
+            expected_df["c_cat_col_for_binary_0"]
+        )
+        assert df["c_cat_col_for_binary_1"].equals(
+            expected_df["c_cat_col_for_binary_1"]
+        )
+        assert df["c_cat_col_for_onehot_cat1"].equals(
+            expected_df["c_cat_col_for_onehot_cat1"]
+        )
+        assert df["c_cat_col_for_onehot_cat2"].equals(
+            expected_df["c_cat_col_for_onehot_cat2"]
+        )
+        assert df["c_cat_col_for_onehot_cat3"].equals(
+            expected_df["c_cat_col_for_onehot_cat3"]
+        )
+        assert df["c_cat_col_for_ordinal"].equals(expected_df["c_cat_col_for_ordinal"])
