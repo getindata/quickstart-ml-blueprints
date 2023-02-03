@@ -2,7 +2,6 @@
 import re
 from typing import Tuple
 
-import numpy as np
 import pandas as pd
 
 
@@ -25,7 +24,10 @@ def extract_column_names(df: pd.DataFrame) -> Tuple[list, list, list, str]:
     info_cols = [item for item in df.columns if re.compile("^i_").match(item)]
     num_cols = [item for item in df.columns if re.compile("^n_").match(item)]
     cat_cols = [item for item in df.columns if re.compile("^c_").match(item)]
-    target_col = [item for item in df.columns if re.compile("^y_").match(item)][0]
+    target_col = [item for item in df.columns if re.compile("^y_").match(item)]
+
+    assert len(target_col) <= 1, "There is more than one target column in the dataset"
+    target_col = target_col[0] if len(target_col) > 0 else None
 
     return info_cols, num_cols, cat_cols, target_col
 
@@ -43,10 +45,8 @@ def ensure_column_types(
     Returns:
         pd.DataFrame: data frame with correct column types
     """
-    df[num_cols] = df[num_cols].astype(float)
-    df[cat_cols] = np.where(
-        pd.isnull(df[cat_cols]), df[cat_cols], df[cat_cols].astype(str)
-    )
+    df[num_cols] = df[num_cols].apply(lambda x: pd.to_numeric(x, errors="coerce"))
+    df[cat_cols] = df[cat_cols].astype("category")
 
     return df
 

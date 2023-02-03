@@ -32,12 +32,15 @@ xgboost = "^1.7.2"
 category-encoders = "^2.5.1.post0"
 kedro-mlflow = "^0.11.5"
 optuna = "^3.0.5"
-kedro-viz = "^5.1.1"
 shap = "^0.41.0"
 matplotlib = "^3.6.3"
+pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^3.5.1"
+pytest = "^7.2.1"
+kedro-viz = "^5.1.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

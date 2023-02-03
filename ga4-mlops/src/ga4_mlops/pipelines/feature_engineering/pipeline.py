@@ -34,15 +34,21 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                 outputs="train.df_fe_temp",
             ),
             node(
+                name="train.exclude_features_node",
+                func=exclude_features,
+                inputs=["train.df_fe_temp", "params:features_to_exclude"],
+                outputs="train.df_excl_temp",
+            ),
+            node(
                 name="train.imputers_fitting_node",
                 func=fit_imputers,
-                inputs=["train.df_fe_temp", "params:imputation_strategies"],
+                inputs=["train.df_excl_temp", "params:imputation_strategies"],
                 outputs="fitted.imputers",
             ),
             node(
                 name="train.imputers_application_node",
                 func=apply_imputers,
-                inputs=["train.df_fe_temp", "fitted.imputers"],
+                inputs=["train.df_excl_temp", "fitted.imputers"],
                 outputs="train.df_imp_temp",
             ),
             node(
@@ -55,12 +61,6 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                 name="train.encoders_application_node",
                 func=apply_encoders,
                 inputs=["train.df_imp_temp", "fitted.feature_encoders"],
-                outputs="train.df_fe",
-            ),
-            node(
-                name="train.exclude_features_node",
-                func=exclude_features,
-                inputs=["train.df_fe", "params:features_to_exclude"],
                 outputs="train.abt",
             ),
         ]
@@ -77,9 +77,15 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                 outputs=f"{subset}.df_fe_temp",
             ),
             node(
+                name=f"{subset}.exclude_features_node",
+                func=exclude_features,
+                inputs=[f"{subset}.df_fe_temp", "params:features_to_exclude"],
+                outputs=f"{subset}.df_excl_temp",
+            ),
+            node(
                 name=f"{subset}.imputers_application_node",
                 func=apply_imputers,
-                inputs=[f"{subset}.df_fe_temp", f"{transformations_source}.imputers"],
+                inputs=[f"{subset}.df_excl_temp", f"{transformations_source}.imputers"],
                 outputs=f"{subset}.df_imp_temp",
             ),
             node(
@@ -89,12 +95,6 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                     f"{subset}.df_imp_temp",
                     f"{transformations_source}.feature_encoders",
                 ],
-                outputs=f"{subset}.df_fe",
-            ),
-            node(
-                name=f"{subset}.exclude_features_node",
-                func=exclude_features,
-                inputs=[f"{subset}.df_fe", "params:features_to_exclude"],
                 outputs=f"{subset}.abt",
             ),
         ]

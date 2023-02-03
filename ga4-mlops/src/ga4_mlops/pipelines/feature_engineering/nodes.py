@@ -3,7 +3,6 @@ This is a boilerplate pipeline 'feature_engineering'
 generated using Kedro 0.18.4
 """
 import logging
-import re
 
 import category_encoders as ce
 import pandas as pd
@@ -33,6 +32,24 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df["c_visit_start_hour"] = pd.to_datetime(
         df["i_visit_start_time"], unit="us"
     ).dt.hour
+
+    return df
+
+
+def exclude_features(df: pd.DataFrame, features_to_exclude: list) -> pd.DataFrame:
+    """Exclude manually selected features.
+
+    Args:
+        df (pd.DataFrame): data frame after feature encoding
+        features_to_exclude (list): list of features to exclude
+
+    Returns:
+        pd.DataFrame: data frame with selected features excluded
+    """
+    logger.info(f"Excluding selected features: {features_to_exclude}")
+
+    preserved_features = [col for col in df.columns if col not in features_to_exclude]
+    df = df.loc[:, preserved_features]
 
     return df
 
@@ -151,27 +168,6 @@ def apply_encoders(df: pd.DataFrame, feature_encoders: dict) -> pd.DataFrame:
     df = feature_encoders["ordinal"].transform(df)
 
     df = clean_column_names(df)
-
-    return df
-
-
-def exclude_features(df: pd.DataFrame, features_to_exclude: list) -> pd.DataFrame:
-    """Exclude manually selected features.
-
-    Args:
-        df (pd.DataFrame): data frame after feature encoding
-        features_to_exclude (list): list of features to exclude
-
-    Returns:
-        pd.DataFrame: data frame with selected features excluded
-    """
-    logger.info(f"Excluding selected features: {features_to_exclude}")
-
-    for feature in features_to_exclude:
-        feature_list = [
-            item for item in df.columns if re.compile(f"^{feature}").match(item)
-        ]
-        df = df.drop(feature_list, axis=1)
 
     return df
 
