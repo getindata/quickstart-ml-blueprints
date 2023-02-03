@@ -70,7 +70,7 @@ class TestImputation:
         expected_df = pd.DataFrame(
             {
                 "i_id_col": [1, 2, 3, 4, 5],
-                "n_num_col_complete": [4.0, 2.0, 6.0, 1.0, 0.0],
+                "n_num_col_complete": [4, 2, 6, 1, 0],
                 "n_num_col_missing_not_listed": [4.0, np.nan, 2.1, 3.2, np.nan],
                 "n_num_col_missing_for_mean": [2.0, 5.0, 5.0, 5.0, 8.0],
                 "n_num_col_missing_for_zero": [0.0, 9.3, -1.2, 0.0, 0.0],

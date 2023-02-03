@@ -1,4 +1,4 @@
-from numpy import dtype
+from pandas.api.types import is_categorical_dtype, is_numeric_dtype
 
 from ga4_mlops.pipelines.data_preparation_utils import (
     clean_column_names,
@@ -20,14 +20,39 @@ class TestDataPreparationUtils:
         assert all(df.columns == expected_colnames)
 
     def test_ensure_column_types(self, wrong_column_types_sample):
-        num_cols = ["n_second_good_colname", "n_second_bad_colname"]
-        cat_cols = ["c_first_good_colname", "c_first_bad_colname"]
+        num_cols = [
+            "n_second_good_coltype",
+            "n_fourth_good_coltype",
+            "n_sixth_good_coltype",
+            "n_third_bad_coltype",
+            "n_fourth_bad_coltype",
+            "n_fifth_bad_coltype",
+            "n_seventh_bad_coltype",
+        ]
+        cat_cols = [
+            "c_first_good_coltype",
+            "c_third_good_coltype",
+            "c_fifth_good_coltype",
+            "c_first_bad_coltype",
+            "c_second_bad_coltype",
+            "c_sixth_bad_coltype",
+        ]
+
         df = ensure_column_types(wrong_column_types_sample, num_cols, cat_cols)
 
-        assert df["c_first_good_colname"].dtype == dtype("O")
-        assert df["n_second_good_colname"].dtype == dtype("float64")
-        assert df["c_first_bad_colname"].dtype == dtype("O")
-        assert df["n_second_bad_colname"].dtype == dtype("float64")
+        assert is_numeric_dtype(df["n_second_good_coltype"])
+        assert is_numeric_dtype(df["n_fourth_good_coltype"])
+        assert is_numeric_dtype(df["n_sixth_good_coltype"])
+        assert is_numeric_dtype(df["n_third_bad_coltype"])
+        assert is_numeric_dtype(df["n_fourth_bad_coltype"])
+        assert is_numeric_dtype(df["n_fifth_bad_coltype"])
+        assert is_numeric_dtype(df["n_seventh_bad_coltype"])
+        assert is_categorical_dtype(df["c_first_good_coltype"])
+        assert is_categorical_dtype(df["c_third_good_coltype"])
+        assert is_categorical_dtype(df["c_fifth_good_coltype"])
+        assert is_categorical_dtype(df["c_first_bad_coltype"])
+        assert is_categorical_dtype(df["c_second_bad_coltype"])
+        assert is_categorical_dtype(df["c_sixth_bad_coltype"])
 
     def test_extract_column_names(self, column_names_sample):
         info_cols, num_cols, cat_cols, target_col = extract_column_names(

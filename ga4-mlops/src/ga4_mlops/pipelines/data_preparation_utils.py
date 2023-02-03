@@ -2,7 +2,6 @@
 import re
 from typing import Tuple
 
-import numpy as np
 import pandas as pd
 
 
@@ -46,10 +45,9 @@ def ensure_column_types(
     Returns:
         pd.DataFrame: data frame with correct column types
     """
-    df[num_cols] = df[num_cols].astype(float)
-    df[cat_cols] = np.where(
-        pd.isnull(df[cat_cols]), df[cat_cols], df[cat_cols].astype(str)
-    )
+    for num_col in num_cols:
+        df[num_col] = pd.to_numeric(df[num_col])
+    df[cat_cols] = df[cat_cols].astype("category")
 
     return df
 
