@@ -26,6 +26,8 @@ def extract_column_names(df: pd.DataFrame) -> Tuple[list, list, list, str]:
     num_cols = [item for item in df.columns if re.compile("^n_").match(item)]
     cat_cols = [item for item in df.columns if re.compile("^c_").match(item)]
     target_col = [item for item in df.columns if re.compile("^y_").match(item)]
+
+    assert len(target_col) <= 1, "There is more than one target column in the dataset"
     target_col = target_col[0] if len(target_col) > 0 else None
 
     return info_cols, num_cols, cat_cols, target_col
