@@ -23,9 +23,11 @@ class TestDataPreparationUtils:
         num_cols = ["n_second_good_colname", "n_second_bad_colname"]
         cat_cols = ["c_first_good_colname", "c_first_bad_colname"]
         df = ensure_column_types(wrong_column_types_sample, num_cols, cat_cols)
-        expected_types = [dtype("O"), dtype("float64"), dtype("O"), dtype("float64")]
 
-        assert df.dtypes.to_list() == expected_types
+        assert df["c_first_good_colname"].dtype == dtype("O")
+        assert df["n_second_good_colname"].dtype == dtype("float64")
+        assert df["c_first_bad_colname"].dtype == dtype("O")
+        assert df["n_second_bad_colname"].dtype == dtype("float64")
 
     def test_extract_column_names(self, column_names_sample):
         info_cols, num_cols, cat_cols, target_col = extract_column_names(
