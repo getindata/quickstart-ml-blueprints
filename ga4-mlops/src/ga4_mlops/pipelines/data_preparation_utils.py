@@ -45,8 +45,7 @@ def ensure_column_types(
     Returns:
         pd.DataFrame: data frame with correct column types
     """
-    for num_col in num_cols:
-        df[num_col] = pd.to_numeric(df[num_col])
+    df[num_cols] = df[num_cols].apply(lambda x: pd.to_numeric(x, errors="coerce"))
     df[cat_cols] = df[cat_cols].astype("category")
 
     return df
