@@ -42,18 +42,34 @@ short-term preference and character of users and items, respectively.
 
 ![dgsr_architecture](https://user-images.githubusercontent.com/32554595/205959876-25f6e4fa-4a32-4a79-9cff-77e8f5656077.png)
 
-## Local Setup
 
-### Data
 
-You can download `Otto` dataset with optimized memory footprint in parquet format from [here](Otto Full Optimized Memory Footprint).
+## Data
+
+You can download `Otto` dataset with optimized memory footprint in parquet format from [here](https://www.kaggle.com/datasets/radek1/otto-full-optimized-memory-footprint).
 Four downloaded files should be placed in `recommender_gnn/data/02_intermediate/otto` directory.
 
 You can also use `H&M` dataset, which preprocessed samples can be found [here](https://drive.google.com/drive/folders/11FR_jIBbBkGeNvU1RvVzlcm5O3wKclpw?usp=share_link).
 Three downloaded files containing data already in **ACT** format should be placed in `recommender_gnn/data/03_primary/hm` directory.
-### Docker
 
-...
+## Local Setup
+
+### Local Setup using VSCode devcontainers (recommended)
+This approach facilitates use of [VSCode devcontainers](https://code.visualstudio.com/docs/devcontainers/containers). It is the easiest way to set up the development environment. 
+
+Prerequisites:
+* [VSCode](https://code.visualstudio.com/) with [Remote development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension
+* [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop > Preferences > Resources > File Sharing`
+
+Setting up:
+1. Clone this repository and [open it in a container](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container).
+2. To use kedro vertexai properly you need to set up gcloud:
+    ```
+    gcloud auth login --update-adc
+    gcloud config set project gid-ml-framework
+    gcloud auth configure-docker europe-west4-docker.pkg.dev
+    ```
+3. You're good to go!
 
 ## Kedro Pipelines
 

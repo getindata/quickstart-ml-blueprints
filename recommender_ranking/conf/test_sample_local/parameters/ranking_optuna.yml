@@ -1,7 +1,7 @@
 train_optuna_ranking:
   dataset:
     val_size: 0.15
-    downsampling: true
+    downsampling: false
     neg_samples: 1_000_000
   training:
     k: 12

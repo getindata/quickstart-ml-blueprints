@@ -1,5 +1,5 @@
 feature_engineering_manual:
   articles:
   customers:
-    n_days: [7, 30, null]
+    n_days: [7, null]
   customers_prod_group:

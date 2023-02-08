@@ -1,6 +1,8 @@
 ARG BASE_IMAGE=nvidia/cuda:11.3.0-runtime-ubuntu20.04
 
 FROM $BASE_IMAGE
+# Change the above line for the one below to enable emulated ARM64 (Apple M1/M2) support
+# FROM --platform=linux/amd64 $BASE_IMAGE
 
 RUN apt-get update && apt-get upgrade -y
 
@@ -42,8 +44,7 @@ RUN conda create --name gnns --file conda-linux-64.lock && conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
     && find /opt/conda/ -follow -type f -name '*.js.map' -delete
-SHELL ["conda", "run", "-n", "gnns", "/bin/bash", "-c"]
-RUN poetry install && rm -rf ${HOME}/.cache/pypoetry
+RUN conda init && . ~/.bashrc && conda activate gnns && poetry install && rm -rf ${HOME}/.cache/pypoetry
 
 COPY . .
 
