@@ -1,20 +1,20 @@
 global_candidate_generation:
   global_articles:
-    n_days: [7, 30, null]
-    top_n: [100, 50, 25]
+    n_days: [7, null]
+    top_n: [100, 25]
 segment_candidate_generation:
   segment_articles:
     no_segments: 5
-    n_days: [7, 30, null]
-    top_n: [50, 25, 15]
+    n_days: [7, null]
+    top_n: [50, 15]
 prev_bought_candidate_generation:
 closest_image_embeddings_candidate_generation:
   image_embeddings:
-    n_last_bought: 5
-    k_closest: 5
+    n_last_bought: 3
+    k_closest: 3
     name: closest_image_embeddings
 closest_text_embeddings_candidate_generation:
   text_embeddings:
-    n_last_bought: 5
-    k_closest: 5
+    n_last_bought: 3
+    k_closest: 3
     name: closest_text_embeddings

@@ -15,7 +15,11 @@ GetInData ML Framework use case covering the following areas:
 - Deployment in different environments (GCP, AWS, Azure, Kubeflow)
 
 Example how to create a new project (use case) locally on MacOS:  
-[Creating a new use case](#new-use-case)
+- [GetInData ML Framework: Google Analytics 4 Use Case](#getindata-ml-framework-google-analytics-4-use-case)
+  - [Data](#data)
+  - [Pipelines:](#pipelines)
+  - [Creating a new use case using VSCode devcontainers (recommended) ](#creating-a-new-use-case-using-vscode-devcontainers-recommended-)
+  - [Creating a new use case manually ](#creating-a-new-use-case-manually-)
 
 ## Data
 
@@ -33,11 +37,27 @@ Currently there are 2 end to end  pipelines implemented and tested locally:
 
 There is also one additional pipeline `explanation_{subset}` in three variations for different subsets: `train`, `valid` and `test` that applies some global XAI techniques and logs results to MLflow.
 
-## Creating a new use case <a name="new-use-case"></a>
+## Creating a new use case using VSCode devcontainers (recommended) <a name="new-use-case-devcontainers"></a>
+
+This approach facilitates use of [VSCode devcontainers](https://code.visualstudio.com/docs/devcontainers/containers). It is the easiest way to set up the development environment. 
+
+Prerequisites:
+* [VSCode](https://code.visualstudio.com/) with [Remote development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension
+* [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop > Preferences > Resources > File Sharing`
+
+Setting up:
+1. Clone this repository and [open it in a container](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container).
+2. To use kedro vertexai properly you need to set up gcloud:
+    ```
+    gcloud auth login --update-adc
+    ```
+3. You're good to go!
+
+## Creating a new use case manually <a name="new-use-case-manually"></a>
 
 Locally on MacOS with `zsh`:
 
-0. Clone ML Framework Repo and create a branch for new use case:
+1. Clone ML Framework Repo and create a branch for new use case:
 ```
 git clone git@gitlab.com:getindata/aa-labs/coe/gid-ml-framework.git
 git checkout -b <branch-name>

@@ -1,7 +1,7 @@
 [tool.kedro]
 package_name = "gid_ml_framework"
 project_name = "GetInData ML Framework"
-project_version = "0.18.2"
+project_version = "0.18.4"
 
 [tool.isort]
 multi_line_output = 3
@@ -15,6 +15,9 @@ known_third_party = "kedro"
 addopts = """
 --cov-report term-missing \
 --cov src/gid_ml_framework -ra"""
+pythonpath = [
+  "./src",
+]
 
 [tool.coverage.report]
 fail_under = 0
@@ -28,42 +31,43 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "3.8.12"
-kedro = {version = "0.18.2", extras = ["pandas.ExcelDataSet", "pandas.ParquetDataSet", "pandas.CSVDataSet"]}
-kedro-mlflow = "0.11.2"
-kedro-telemetry = "0.2.1"
-pandas = "1.4.4"
-matplotlib = "3.5.2"
+python = "~3.8.1"
+kedro = {version = "^0.18", extras = ["pandas.ExcelDataSet", "pandas.ParquetDataSet", "pandas.CSVDataSet"]}
+kedro-mlflow = "^0.11"
+kedro-telemetry = "^0.2"
+pandas = "^1.5"
+matplotlib = "^3.6"
 openpyxl = "^3.0.6"
-scikit-learn = "~=1.0"
-pytorch-lightning = "1.6.5"
+scikit-learn = "^1.0"
+pytorch-lightning = "^1.6.5"
 Pillow = "^9.2.0"
 pyarrow = "^6.0.1"
-pip = "^22.1.2"
+pip = "^22.1"
 sentence-transformers = "^2.2.2"
 featuretools = "^1.12.1"
 lightgbm = "^3.3.2"
-kedro-vertexai = "0.7.0"
-kedro-docker = "0.3.0"
-google-cloud-aiplatform = "1.15.0"
-optuna = "^3.0.0"
+kedro-vertexai = "^0.8.1"
+kedro-docker = "^0.3.0"
+google-cloud-aiplatform = "^1.20.0"
+optuna = "^3.0.5"
+torch = "~1.12.1"
 
 [tool.poetry.dev-dependencies]
-black = "21.5b1"
-flake8 = "^3.7.9"
-ipython = "^7.31.1"
-isort = "~=5.0"
-jupyter = "~=1.0"
-jupyter-client = ">=5.1,<7.0"
-jupyterlab = "~=3.0"
-kedro-viz = "5.0.1"
-notebook = "6.5.2"
-nbstripout = "~=0.4"
-pandas-profiling = "^3.2.0"
-pytest = "~=6.2"
-pytest-cov = "~=3.0"
-pytest-mock = "^1.7.1"
-pre-commit = "^2.20.0"
+black = "^22.12"
+flake8 = "^6.0"
+ipython = "^7"
+isort = "^5"
+jupyter = "^1.0"
+jupyter-client = "^7"
+jupyterlab = "^3"
+kedro-viz = "^5"
+notebook = "^6.5.2"
+nbstripout = "^0.6"
+pandas-profiling = "^3.6"
+pytest = "^7.2"
+pytest-cov = "^4.0"
+pytest-mock = "^3.10"
+pre-commit = "^2.21.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

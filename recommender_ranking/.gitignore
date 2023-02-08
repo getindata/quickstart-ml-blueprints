@@ -32,8 +32,11 @@ lightning_logs/**
 out/
 .idea_modules/
 
-#Vscode
+# VSCode
 .vscode
+
+# Fleet
+.fleet
 
 ### macOS
 *.DS_Store

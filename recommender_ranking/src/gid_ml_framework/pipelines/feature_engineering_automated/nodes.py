@@ -5,7 +5,7 @@ import featuretools as ft
 import pandas as pd
 from woodwork.logical_types import (
     AgeNullable,
-    Boolean,
+    BooleanNullable,
     Categorical,
     Double,
     NaturalLanguage,
@@ -62,8 +62,8 @@ def _create_entity_set(
         index="customer_id",
         logical_types={
             "customer_id": Categorical,
-            "FN": Boolean,
-            "Active": Boolean,
+            "FN": BooleanNullable,
+            "Active": BooleanNullable,
             "club_member_status": Categorical,
             "fashion_news_frequency": Categorical,
             "age": AgeNullable,

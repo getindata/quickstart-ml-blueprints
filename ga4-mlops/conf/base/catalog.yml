@@ -19,7 +19,7 @@ _artifact_args: &artifact_args
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
 
 _stored_modeling_artifacts_args: &stored_modeling_artifacts_args
-  run_id: fbfbeea4e5834009a6245ed6d33cfa99
+  run_id: 03618dbc857043c4b263192e0f1b86d6
 
 # RAW DATA
 

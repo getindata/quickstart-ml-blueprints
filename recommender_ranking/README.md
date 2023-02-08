@@ -134,9 +134,7 @@ pytest src/tests/
 
 ---
 
-## Local Setup
-
-### Data
+## Data
 You can download data from multiple sources:
 - Easiest way to download data is by creating Kaggle account and downloading data from [here](https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations/data)
 - [Google Cloud Storage - all data](https://console.cloud.google.com/storage/browser/gid-ml-framework-hm-data;tab=objects?project=gid-ml-framework&prefix=&forceOnObjectsSortingFiltering=false)
@@ -146,13 +144,34 @@ Sample data is located here:
 
 *Remember to rename the sample data files, so they match the ones in the data catalog.*
 
+---
+
+## Local Setup using VSCode devcontainers (recommended)
+This approach facilitates use of [VSCode devcontainers](https://code.visualstudio.com/docs/devcontainers/containers). It is the easiest way to set up the development environment. 
+
+Prerequisites:
+* [VSCode](https://code.visualstudio.com/) with [Remote development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension
+* [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop > Preferences > Resources > File Sharing`
+
+Setting up:
+1. Clone this repository and [open it in a container](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container).
+2. To use kedro vertexai properly you need to set up gcloud:
+    ```
+    gcloud auth login --update-adc
+    gcloud config set project gid-ml-framework
+    gcloud auth configure-docker europe-west4-docker.pkg.dev
+    ```
+3. You're good to go!
+
+## Local Manual Setup
+
 ### Python version management
 
 The project is using pyenv Python version management. It lets you easily install and switch between multiple versions of Python. To install pyenv, follow [these steps](https://github.com/pyenv/pyenv#installation=) for your operating system. You may also use other alternatives like [conda](https://stackoverflow.com/questions/70851048/does-it-make-sense-to-use-conda-poetry).
 
 To install a specific Python version use this command:
 ```bash
-pyenv install <version> # 3.8.12
+pyenv install <version> # 3.8.16
 ```
 
 ### How to install dependencies with Poetry
