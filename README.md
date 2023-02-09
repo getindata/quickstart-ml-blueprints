@@ -36,7 +36,7 @@ To achieve the above goals, we do not aim to create any ML platform or any speci
 
 Apart from materializing best development practices and standardizing problem solving approach, the motivation for creating GID ML Framework results from observation, that many business problems that are solved using machine learning can be described as an interconnected collection of repeatable building blocks. If you pre-define and implement those building blocks on some real-life examples and do so in a well-structured modular way, those elements will become easily reusable in different, similar use cases that you may encounter. Reusing existing building blocks with a minimum modifications should make **prototyping of new solutions much more efficient, and also facilitate creating a well-structured, documented and tested production grade code from the very beginning of the project**.
 
-![A generic modular scheme of a machine learning prototype solution fitting 99% of typical business use cases](./docs/img/main/generic_scheme.png)
+![A generic modular scheme of a machine learning prototype solution fitting 99% of typical business use cases](./docs/img/generic_scheme.png)
 
 ## Use cases <a name="usecases"></a>
 
@@ -54,13 +54,13 @@ More use cases are either in works or in plans.
 
 Existing use cases are implemented in modular, modifiable and extensible way. When creating a new ML solution, example building blocks from other, similar use cases can be used to various extent. In some cases, even small modifications to existing examples can be sufficient to obtain first working prototypes. For example, if the user is facing a problem of predicting churn and plans to approach it using classification algorithms, he can basically take [ga4-mlops - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/ga4-mlops) as a blueprint, change configuration files to use his datasets, modify data preprocessing code and run the rest of the pipeline as is. Since both the flavor of input data (tables with binary target per observation) and problem solving approach (binary classification) is similar, all automatic feature encoding, data imputation, modeling and model explanation steps should be applicable to this new problem - at least in a first iteration. More about the way of working with GID ML Framework and pre-implemented use cases can be foung in [this section](#wayofwork).
 
-![From generic scheme to specific use cases](./docs/img/main/use_cases.png)
+![From generic scheme to specific use cases](./docs/img/use_cases.png)
 
 ## Technologies <a name="technologies"></a>
 
 To materialize ML development best practices as concrete working examples we use a modern technology stack. **Our main assumption is to stick to the state of the art, well-proven open source tooling.** We want the GID ML Framework to be applicable and adjustable to any MLOps architecture, so we avoid using commercial or proprietary software for essential functionalities.
 
-![Technologies used so far](./docs/img/main/technologies.png)
+![Technologies used so far](./docs/img/technologies.png)
 
 Excerpt of the technologies used so far in existing examples:
 - [Kedro](https://kedro.org/), which is the very core upon which the solutions are built. It introduces many essential features like appropriate project structure, modular node/pipeline architecture, well-organized configuration, customizable data catalog with connectors to many data sources, a wide variety of extensions and plugins that allow for integration with other tools and more.
@@ -81,6 +81,8 @@ The best way to create a new project is to use GID ML Framework starter. The rep
 ### Running existing project locally <a name="howtostart-local"></a>
 
 #### Recommended way using VSCode and Dev Containers <a name="howtostart-local-vsc"></a>
+
+
 
 #### Alternative ways of manual environment creation <a name="howtostart-local-alt"></a>
 
