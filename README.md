@@ -5,8 +5,8 @@ GetInData Machine Learning Framework is a set of complete blueprints for solving
 ## Contents
 
 - [Overview](#overview)
-- [Technologies](#technologies)
 - [Use cases](#usecases)
+- [Technologies](#technologies)
 - [How to start](#howtostart)
     - [Creating a new project](#howtostart-new)
     - [Running existing project locally](#howtostart-local)
@@ -16,7 +16,6 @@ GetInData Machine Learning Framework is a set of complete blueprints for solving
     - [Running existing project on GCP (VertexAI)](#howtostart-gcp)
     - [Running existing project on other full-scale environments](#howtostart-other)
 - [Working with GID ML Framework](#wayofwork)
-
 
 ## Overview <a name="overview"></a>
 
@@ -35,9 +34,31 @@ To achieve the above goals, we do not aim to create any ML platform or any speci
 - Comprehensive documentation and test coverage
 - Predefined, standard use cases (blueprints)
 
-## Technologies <a name="technologies"></a>
+Apart from materializing best development practices and standardizing problem solving approach, the motivation for creating GID ML Framework results from observation, that many business problems that are solved using machine learning can be described as an interconnected collection of repeatable building blocks. If you pre-define and implement those building blocks on some real-life examples and do so in a well-structured modular way, those elements will become easily reusable in different, similar use cases that you may encounter. Reusing existing building blocks with a minimum modifications should make **prototyping of new solutions much more efficient, and also facilitate creating a well-structured, documented and tested production grade code from the very beginning of the project**.
+
+![A generic modular scheme of a machine learning prototype solution fitting 99% of typical business use cases](./docs/img/main/generic_scheme.png)
 
 ## Use cases <a name="usecases"></a>
+
+GID ML Framework is a set of complete **use cases** that involve:
+- a definition of a business problem that is being solved
+- a specific machine learning approach to solve this problem
+- example datasets to work with
+
+So far the following use cases have been implemented:
+- propensity-to-by classification model ([ga4-mlops - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/ga4-mlops))
+- retail recommender system on multimodal data (tabular, images, natural language descriptions) using ranking gradient boosting models ([recommender_ranking - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/recommender_ranking))
+- e-commerce recommender system on sequential data using Graph Neural Networks ([recommender_gnn - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/recommender_gnn))
+
+More use cases are either in works or in plans.
+
+Existing use cases are implemented in modular, modifiable and extensible way. When creating a new ML solution, example building blocks from other, similar use cases can be used to various extent. In some cases, even small modifications to existing examples can be sufficient to obtain first working prototypes. For example, if the user is facing a problem of predicting churn and plans to approach it using classification algorithms, he can basically take [ga4-mlops - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/ga4-mlops) as a blueprint, change configuration files to use his datasets, modify data preprocessing code and run the rest of the pipeline as is. Since both the flavor of input data (tables with binary target per observation) and problem solving approach (binary classification) is similar, all automatic feature encoding, data imputation, modeling and model explanation steps should be applicable to this new problem - at least in a first iteration. More about the way of working with GID ML Framework and pre-implemented use cases can be foung in [this section](#wayofwork).
+
+![From generic scheme to specific use cases](./docs/img/main/use_cases.png)
+
+## Technologies <a name="technologies"></a>
+
+![Technologies used so far](./docs/img/main/technologies.png)
 
 ## How to start <a name="howtostart"></a>
 
