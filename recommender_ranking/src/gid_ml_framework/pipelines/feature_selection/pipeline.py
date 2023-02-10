@@ -5,7 +5,6 @@ from .nodes import feature_selection
 
 
 def create_pipeline(**kwargs) -> Pipeline:
-
     feature_selection_pipeline = pipeline(
         [
             node(
