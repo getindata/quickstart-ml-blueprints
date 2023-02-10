@@ -9,7 +9,8 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive TZ=Europe/Warsaw apt-get install -y git make build-essential libssl-dev zlib1g-dev \
         libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
-        libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+        libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev locales && \
+        locale-gen en_US.UTF-8
 
 # add kedro user
 ARG KEDRO_UID=1000
