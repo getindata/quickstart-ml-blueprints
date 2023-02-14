@@ -2,6 +2,8 @@
 
 GetInData Machine Learning Framework is a set of complete blueprints for solving typical machine learning problems. It leverages best-in-class open source technologies and materializes best practices for structuring and developing machine learning solutions.
 
+By releasing this repo of reusable examples we aim to help data scientists and machine learning engineers to prototype their solutions faster using well-proven tooling and keep the highest quality and maintainability of the code.
+
 ## Contents
 
 - [Overview](#overview)
@@ -11,8 +13,8 @@ GetInData Machine Learning Framework is a set of complete blueprints for solving
     - [Creating a new project](#howtostart-new)
     - [Running existing project locally](#howtostart-local)
         - [Recommended way using VSCode and Dev Containers](#howtostart-local-vsc)
+        - [Remarks on some technologies/setups/operating systems](#howtostart-local-remarks)
         - [Alternative ways of manual environment creation](#howtostart-local-alt)
-        - [Remarks on some technologies/operating systems](#howtostart-local-remarks)
     - [Running existing project on GCP (VertexAI)](#howtostart-gcp)
     - [Running existing project on other full-scale environments](#howtostart-other)
 - [Working with GID ML Framework](#wayofwork)
@@ -70,7 +72,7 @@ Excerpt of the technologies used so far in existing examples:
 - [MLflow](https://mlflow.org/) as an experiment tracker and model repository
 - A set of linters and code quality tools ([flake8](https://flake8.pycqa.org/en/latest/), [Black](https://black.readthedocs.io/en/stable/), [isort](https://pycqa.github.io/isort/), [pre-commit](https://pre-commit.com/))
 - [Pytest](https://docs.pytest.org/) framework for writing and executing unit/integration tests
-- A collection of Python packages for automated exploratory analysis ([Pandas Profiling](https://ydata-profiling.ydata.ai/docs/master/index.html), [Featuretools](https://www.featuretools.com/)), modeling ([LightGBM](https://lightgbm.readthedocs.io/), [PyTorch](https://pytorch.org/) and more), hyperprameter tuning ([Optuna](https://optuna.org/)) adn other purposes
+- A collection of Python packages for automated exploratory analysis ([Pandas Profiling](https://ydata-profiling.ydata.ai/docs/master/index.html), [Featuretools](https://www.featuretools.com/)), modeling ([LightGBM](https://lightgbm.readthedocs.io/), [PyTorch](https://pytorch.org/) and more), hyperprameter tuning ([Optuna](https://optuna.org/)) and many more
 
 ## How to start <a name="howtostart"></a>
 
@@ -80,16 +82,33 @@ The best way to create a new project is to use GID ML Framework starter. The rep
 
 ### Running existing project locally <a name="howtostart-local"></a>
 
+GID ML Framework tries to address the challenge of building reproducible working environments that should be consistent, easy to establish and portable allowing data scientist to create small-scale prototypes locally and then seamlessly move their development to full-scale platforms, either in the cloud (VertexAI, Sagemaker, AzureML) or in on-premises setups (using Kubeflow). We use a combination of Pyenv, Poetry and Docker and leverage Visual Studio Code's Dev Containers to create a recommended development setup, but keeping in mind that there can be always some platform specific nuances (see for example a note from our experience [here](#howtostart-local-remarks)) we leave the freedom of adjusting way-of-work to the specific needs.
+
 #### Recommended way using VSCode and Dev Containers <a name="howtostart-local-vsc"></a>
 
+VSCode's [Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) and [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) features brought together create quite unique opportunity to encapsulate your working environment inside a Docker container and connect to it from VSCode IDE no matter where the container is deployed. Following our approach, you can build a working environment just by opening your locally stored project folder inside a container, and later do exactly the same, but this time with the same container built not on your local machine but e.g. on a virtual machine in the cloud. The way you work doesn't change at all - you have your local IDE with all settings and favorite plugins, you just connect to a different backend. All technicalities like re-building the container if you update you working environment or port forwarding for in-project services like [MLflow](https://mlflow.org/) or [Kedro-Viz](https://kedro.readthedocs.io/en/stable/visualisation/kedro-viz_visualisation.html) is handled by VSCode.
 
+The steps to run existing or newly created project are as follows:
 
-#### Alternative ways of manual environment creation <a name="howtostart-local-alt"></a>
+1. Get prerequisites:
+    - [VSCode](https://code.visualstudio.com/) with [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension
+    - [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop > Preferences > Resources > File Sharing`
 
-#### Remarks on some technologies/operating systems <a name="howtostart-local-remarks"></a>
+2. Either create a new project using our [Kedro starter](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter) or clone `gid-ml-framework` repository and open folder with selected use case in VSCode.
 
+3. If Docker is running, VSCode should should ask to ["Reopen Folder in a Container"]((https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container)). You can also bring it up manually by clicking on the blue arrows icon in the bottom-left corner in VSCode.
+
+4. After reopening the project folder in a container, the Dev Container will be built. It might take a few minutes at first attempt, later cache should be used if there is a need to rebuild a containers. As you work on the project, you can modify your environment configuration files (e.g. `poetry.toml`, `pyproject.toml`, `Dockerfile`, `devcontainer.json` etc.). You can do it either from inside or outside of the container - changes will be detected and VSCode will suggest to rebuild the container.
+ 
+5. From now on, you can develop inside the container and modify and add files the usual way as you would work 100% locally. However, since the container is an isolated environment, you will need to configure git (e.g. SSH keys) or cloud connection (for projects transferrable to cloud) form inside of the container.
+
+#### Remarks on some technologies/setups/operating systems <a name="howtostart-local-remarks"></a>
+
+- corporate environments (user-managed notebooks, SSH, downloading data locally)
 - ARM64
 - Windows
+
+#### Alternative ways of manual environment creation <a name="howtostart-local-alt"></a>
 
 ### Running existing project on GCP (VertexAI) <a name="howtostart-gcp"></a>
 
