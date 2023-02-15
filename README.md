@@ -58,6 +58,41 @@ Existing use cases are implemented in modular, modifiable and extensible way. Wh
 
 ![From generic scheme to specific use cases](./docs/img/use_cases.png)
 
+Excerpt of what aspects or building blocks can be retrieved and reused from current use cases:
+- all:
+    - project structure
+    - environment setup
+    - documentation discipline
+    - testing framework
+    - configuration arrangement
+    - going from small-scale local prototypes to full-scale training in cloud
+    - GPU utilization (except `ga4-mlops`)
+    - automated hyperparameter optimization (except `recommender_gnn`)
+- `ga4-mlops`:
+    - training, evaluating and using binary classification models (and after small modification also regresssion or multiclass)
+    - propensity-to-buy problem approach
+    - batch scoring
+    - parametrized SQL-query data retrieval
+    - feature encoding
+    - missing data imputation
+    - predictions explainability
+    - [in-development]: data drift and model drift monitoring
+    - [in-development]: automated model retraining
+    - [in-roadmap]: AutoML packages utilization
+    - [in-roadmap]: online scoring on streaming data
+- `recommender_ranking`:
+    - building two-stage recommendation systems on transactional data with supplementary multimodal data
+    - candidate generation
+    - extracting embeddings from images
+    - extracting embeddings from texts
+    - automated exploratory data analysis
+    - automated feature engineering
+- `recommender_gnn`:
+    - building recommendation systems on sequential data
+    - using Graph Neural Networks
+    - structuring data as graphs
+    - modifying blueprints for different datasets
+
 ## Technologies <a name="technologies"></a>
 
 To materialize ML development best practices as concrete working examples we use a modern technology stack. **Our main assumption is to stick to the state of the art, well-proven open source tooling.** We want the GID ML Framework to be applicable and adjustable to any MLOps architecture, so we avoid using commercial or proprietary software for essential functionalities.
@@ -100,15 +135,35 @@ The steps to run existing or newly created project are as follows:
 
 4. After reopening the project folder in a container, the Dev Container will be built. It might take a few minutes at first attempt, later cache should be used if there is a need to rebuild a containers. As you work on the project, you can modify your environment configuration files (e.g. `poetry.toml`, `pyproject.toml`, `Dockerfile`, `devcontainer.json` etc.). You can do it either from inside or outside of the container - changes will be detected and VSCode will suggest to rebuild the container.
  
-5. From now on, you can develop inside the container and modify and add files the usual way as you would work 100% locally. However, since the container is an isolated environment, you will need to configure git (e.g. SSH keys) or cloud connection (for projects transferrable to cloud) form inside of the container.
+5. From now on, you can develop inside the container and modify and add files the usual way as you do working 100% locally. However, since the container is an isolated environment, you will need to configure git (e.g. SSH keys) and cloud connection (for projects transferrable to cloud) form inside of the container.
 
 #### Remarks on some technologies/setups/operating systems <a name="howtostart-local-remarks"></a>
 
-- corporate environments (user-managed notebooks, SSH, downloading data locally)
-- ARM64
-- Windows
+##### Running Dev Containers on Apple M1/M2 processors (ARM64 architecture)
+
+Unfortunately, at the moment some of Dev Containers' dependencies do not have native support for Apple Silicon processors. There is an easy way to emulate AMD64 architecture using [QEMU](https://www.qemu.org/) emulator on Mac's with M1/M2 chips. However it has to be noted, that this approach might be not suitable for comfortable development, since executing any command in such emulated environment will be much slower. Our tests showed that while working in Dev Containers on Windows, Linux or Mac with Intel chips all execution times are comparable to respective environments built manually without Dev Containers. On Macs with M1 chips with QEMU emulation, those execution times are over 10x longer.
+
+Currently our suggestion for Mac M1/M2 users is to build the local working environment manually without Dev Containers
+
+##### Running Dev Containers on Windows
+
+- WSL2
+
+##### Enterprise environments
+Our recommended approach to working with transferrable, containerized environments can show the full potential when the user has a decent amount of freedom when interacting with tools, data and infrastructure. We realize that many enterprise setups, especially in big organizations, often come with some limitations in this area. Those limitation can affect for instance:
+
+- installing software of your choice
+- downloading data locally from data warehouses
+- using user-managed notebooks in cloud
+- connecting to remote machines via SSH
+- creating project-specific instances of services like MLflow
+- forwarding ports or even using open Internet connection and more.
+
+While the philosophy of GID ML Framework's best practices remains unchanged, in corporate setup, all described technical details might need some customization. If you are interested in adjusting technical aspects of out data science way of work to your organization, please check our [Knowledge Base](https://getindata.com/knowledge-base/), [GitHub repository](https://github.com/getindata) of open-source tools and **don't hesitate to [ask for free consultation](https://consultation.getindata.com/mlops-data-platform-streaming-analytics-data-driven) on any data-related topic**.
 
 #### Alternative ways of manual environment creation <a name="howtostart-local-alt"></a>
+
+
 
 ### Running existing project on GCP (VertexAI) <a name="howtostart-gcp"></a>
 
