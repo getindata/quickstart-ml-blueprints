@@ -69,7 +69,7 @@ Excerpt of what aspects or building blocks can be retrieved and reused from curr
     - GPU utilization (except `ga4-mlops`)
     - automated hyperparameter optimization (except `recommender_gnn`)
 - `ga4-mlops`:
-    - training, evaluating and using binary classification models (and after small modification also regresssion or multiclass)
+    - training, evaluating and using binary classification models with probability calibration (and after small modification also regresssion or multiclass)
     - propensity-to-buy problem approach
     - batch scoring
     - parametrized SQL-query data retrieval
@@ -78,8 +78,8 @@ Excerpt of what aspects or building blocks can be retrieved and reused from curr
     - predictions explainability
     - [in-development]: data drift and model drift monitoring
     - [in-development]: automated model retraining
+    - [in-development]: online scoring on streaming data
     - [in-roadmap]: AutoML packages utilization
-    - [in-roadmap]: online scoring on streaming data
 - `recommender_ranking`:
     - building two-stage recommendation systems on transactional data with supplementary multimodal data
     - candidate generation
@@ -125,17 +125,17 @@ VSCode's [Remote Development](https://code.visualstudio.com/docs/remote/remote-o
 
 The steps to run existing or newly created project are as follows:
 
-1. Get prerequisites:
+1. **Get prerequisites**:
     - [VSCode](https://code.visualstudio.com/) with [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension
     - [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop > Preferences > Resources > File Sharing`
 
-2. Either create a new project using our [Kedro starter](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter) or clone `gid-ml-framework` repository and open folder with selected use case in VSCode.
+2. Either **create a new project** using our [Kedro starter](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter) or **clone `gid-ml-framework` repository** and open folder with selected use case in VSCode.
 
-3. If Docker is running, VSCode should should ask to ["Reopen Folder in a Container"]((https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container)). You can also bring it up manually by clicking on the blue arrows icon in the bottom-left corner in VSCode.
+3. If Docker is running, VSCode should should ask to [**"Reopen Folder in a Container"**]((https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container)). You can also bring it up manually by clicking on the blue arrows icon in the bottom-left corner in VSCode.
 
-4. After reopening the project folder in a container, the Dev Container will be built. It might take a few minutes at first attempt, later cache should be used if there is a need to rebuild a containers. As you work on the project, you can modify your environment configuration files (e.g. `poetry.toml`, `pyproject.toml`, `Dockerfile`, `devcontainer.json` etc.). You can do it either from inside or outside of the container - changes will be detected and VSCode will suggest to rebuild the container.
+4. After reopening the project folder in a container, the **Dev Container will be built**. It might take a few minutes at first attempt, later cache should be used if there is a need to rebuild a containers. As you work on the project, you can modify your environment configuration files (e.g. `poetry.toml`, `pyproject.toml`, `Dockerfile`, `devcontainer.json` etc.). You can do it either from inside or outside of the container - changes will be detected and VSCode will suggest to rebuild the container.
  
-5. From now on, you can develop inside the container and modify and add files the usual way as you do working 100% locally. However, since the container is an isolated environment, you will need to configure git (e.g. SSH keys) and cloud connection (for projects transferrable to cloud) form inside of the container.
+5. From now on, **you can develop inside the container** and modify and add files the usual way as you do working 100% locally. However, since the container is an isolated environment, you will need to configure git (e.g. SSH keys) and cloud connection (for projects transferrable to cloud) form inside of the container. Before you start, you can run `pytest` command to run tests that will show if everything is set up correctly.
 
 #### Remarks on some technologies/setups/operating systems <a name="howtostart-local-remarks"></a>
 
@@ -143,11 +143,68 @@ The steps to run existing or newly created project are as follows:
 
 Unfortunately, at the moment some of Dev Containers' dependencies do not have native support for Apple Silicon processors. There is an easy way to emulate AMD64 architecture using [QEMU](https://www.qemu.org/) emulator on Mac's with M1/M2 chips. However it has to be noted, that this approach might be not suitable for comfortable development, since executing any command in such emulated environment will be much slower. Our tests showed that while working in Dev Containers on Windows, Linux or Mac with Intel chips all execution times are comparable to respective environments built manually without Dev Containers. On Macs with M1 chips with QEMU emulation, those execution times are over 10x longer.
 
-Currently our suggestion for Mac M1/M2 users is to build the local working environment manually without Dev Containers
+Currently our suggestion for Mac M1/M2 users is to **build the local working environment manually without Dev Containers for the purpose of active development and then use Dev Containers only to run local tests before moving to the cloud** to ensure the consistency of local setup after that move and minimize the risk of any redevelopment when working already in full-scale.
+
+To run your project inside a Dev Container on local machine with Apple M1/M2 using QEMU you have to add some additional steps before you try to "Reopen folder in a container" ([Step 3 above](#howtostart-local-vsc)):
+
+1.  Install [Rosetta 2](https://support.apple.com/en-gb/HT211861):
+```bash
+softwareupdate --install-rosetta --agree-to-license
+```
+
+2. In `.devcontainer/devcontainer.json` uncomment `RunArgs` related to AMD64 emulation:
+```json
+	"runArgs": [
+		"--init"
+
+		// Uncomment for  emulated ARM64 (Apple M1/M2) support
+		,"--platform=linux/amd64"
+
+		// Uncomment to add NVIDIA GPU support
+		// ,"--gpus"
+		// ,"all"
+	],
+```
+
+3. In `Dockerfile` add `platform` parameter: 
+```dockerfile
+# FROM $BASE_IMAGE
+# Change the above line for the one below to enable emulated ARM64 (Apple M1/M2) support
+FROM --platform=linux/amd64 $BASE_IMAGE
+```
+
+4. Rebuild the Dev Container by clicking on bottom-left arrows icon in VSCode and selecting "Rebuild Container"
+
+Presented workaround is based on [this article](https://www.kenmuse.com/blog/forcing-dev-container-to-use-amd64/).
 
 ##### Running Dev Containers on Windows
 
-- WSL2
+To run Dev Containers on Windows 10/11, it is needed to install Linux distribution within your base OS using [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) feature and configure [Docker Desktop](https://docs.docker.com/desktop/install/windows-install/) to use it. Recommended steps based on [this example](https://docs.docker.com/desktop/windows/wsl/) are:
+
+1. Go to Docker Desktop settings and make sure it is using WSL2 backend:
+```
+Settings -> General -> Use WSL 2 based engine
+```
+
+2. Then go to the Windows console (e.g. using PowerShell) and set default version of WSL to 2:
+```powershell
+wsl.exe --set-default-version 2
+```
+
+3. Ensure that needed WSL features are enabled:
+```powershell
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
+
+4. Install Linux subsystem (it can be default Ubuntu):
+```
+wsl --install -d Ubuntu
+```
+5. Set installed subsystem as default and restart Docker Desktop if needed:
+```
+wsl --set-default ubuntu
+```
 
 ##### Enterprise environments
 Our recommended approach to working with transferrable, containerized environments can show the full potential when the user has a decent amount of freedom when interacting with tools, data and infrastructure. We realize that many enterprise setups, especially in big organizations, often come with some limitations in this area. Those limitation can affect for instance:
@@ -163,7 +220,52 @@ While the philosophy of GID ML Framework's best practices remains unchanged, in 
 
 #### Alternative ways of manual environment creation <a name="howtostart-local-alt"></a>
 
+If for some of the reasons described in previous section it is more convenient to build working environment manually on your local machine instead of using Dev Containers, it is recommended that you follow some steps to preserve consistency between your local manual setup and what you get out of a Dev Container, since you may still want to use it later when you transfer your work to cloud. In short, you need to put together manually some tools that are normally installed in Dev Container when building the Docker image. The list of tools is the same regardless the operating system, however the installation and configuration procedure may vary, therefore below we provide a general procedure of preparing environment manually while the OS-specific details can be found in each tool's documentation that is linked.
 
+The example of creating environment manually is shown for an existing project. If you are starting a new project, first follow the instructions for [setting up a new project using Kedro starter - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter/-/blob/main/README.md).
+
+1. [Install pyenv](https://github.com/pyenv/pyenv#installation). If you are on Windows, you might consider using [pyenv-win](https://github.com/pyenv-win/pyenv-win)
+
+2. [Install Poetry](https://python-poetry.org/docs/)
+
+3. Add Poetry and pyenv to `PATH` for convenience
+
+4. Install appropriate Python version that is specified in `pyproject.toml` uning pyenv and set this Python version as global for your system
+```bash
+pyenv install 3.8.16
+pyenv global 3.8.16
+```
+
+5. **Go to your project folder** and create virtual environment with Poetry inside your project. **Note that creating a `.venv` inside the project is happening only when working locally, to not mess up your global Python installation**. In Dev Container, dependencies are installed globally, since they are already encapsulated by the container itself.
+
+    - make Poetry use your pyenv Python installation:
+    ``` bash
+    poetry env use <path_to_your_pyenv_installation>/.pyenv/versions/3.8.16/bin/python3
+    ```
+
+    - change configurations to force Poetry to create a virtual environment inside your project. If you decide to **go back working with Dev Containers, you will need to revert these settings**, since in Dev Containers there is no need to you virtual environments:
+    ```bash
+    poetry config virtualenvs.in-project true --local
+    poetry config virtualenvs.create true --local
+    poetry config virtualenvs.in-project true
+    ```
+
+    - If you are not already there, `cd` to your project folder and initialize Poetry there:
+    ```bash
+    poetry init
+    ```
+
+    - Later, keep working with your poetry with standard Poetry commands:
+        - `poetry shell` to activate your environment from command line
+        - `poetry install` to install dependencies form your `poetry.lock` file
+        - `poetry add` to add and install new dependencies
+        - `poetry add -D` to add and install dev-only dependencies
+        - `poetry lock` to update the `poetry.lock` file
+
+6. From inside your project Poetry environment install `pre-commit` hooks that will help you keep top quality of your code checking it automatically before each commit:
+```bash
+pre-commit install
+```
 
 ### Running existing project on GCP (VertexAI) <a name="howtostart-gcp"></a>
 
