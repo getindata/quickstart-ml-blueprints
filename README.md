@@ -92,6 +92,7 @@ Excerpt of what aspects or building blocks can be retrieved and reused from curr
     - using Graph Neural Networks
     - structuring data as graphs
     - modifying blueprints for different datasets
+    - building environment using conda instead of pyenv to ensure CUDA support
 
 ## Technologies <a name="technologies"></a>
 
@@ -183,7 +184,7 @@ To run Dev Containers on Windows 10/11, it is needed to install Linux distributi
 
 1. Go to Docker Desktop settings and make sure it is using WSL2 backend:
 ```
-Settings -> General -> Use WSL 2 based engine
+Settings > General > Use WSL 2 based engine
 ```
 
 2. Then go to the Windows console (e.g. using PowerShell) and set default version of WSL to 2:
@@ -224,16 +225,20 @@ If for some of the reasons described in previous section it is more convenient t
 
 The example of creating environment manually is shown for an existing project. If you are starting a new project, first follow the instructions for [setting up a new project using Kedro starter - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter/-/blob/main/README.md).
 
+##### Default approach - pyenv and Poetry
+
+The easiest and most lightweight way of creating the environment manually is described below - it features a pyenv/Poetry combo. However, there are some known issues (like [here](https://github.com/python-poetry/poetry/issues/4231) or [here](https://github.com/python-poetry/poetry/issues/4704)) with using Poetry when it comes to CUDA-dependent packages. Please refer to the next section to see recommended workaround, if those issues arise.
+
 1. [Install pyenv](https://github.com/pyenv/pyenv#installation). If you are on Windows, you might consider using [pyenv-win](https://github.com/pyenv-win/pyenv-win)
 
 2. [Install Poetry](https://python-poetry.org/docs/)
 
-3. Add Poetry and pyenv to `PATH` for convenience
+3. Add `poetry` and `pyenv` to `PATH` for convenience
 
-4. Install appropriate Python version that is specified in `pyproject.toml` uning pyenv and set this Python version as global for your system
+4. Install appropriate Python version (for example `3.8.12`) that is specified in `pyproject.toml` using pyenv and set this Python version as global for your system
 ```bash
-pyenv install 3.8.16
-pyenv global 3.8.16
+pyenv install 3.8.12
+pyenv global 3.8.12
 ```
 
 5. **Go to your project folder** and create virtual environment with Poetry inside your project. **Note that creating a `.venv` inside the project is happening only when working locally, to not mess up your global Python installation**. In Dev Container, dependencies are installed globally, since they are already encapsulated by the container itself.
@@ -263,6 +268,82 @@ pyenv global 3.8.16
         - `poetry lock` to update the `poetry.lock` file
 
 6. From inside your project Poetry environment install `pre-commit` hooks that will help you keep top quality of your code checking it automatically before each commit:
+```bash
+pre-commit install
+```
+
+##### Approach addressing CUDA-related issues - conda and Poetry
+
+As mentioned in the previous section, installing some packages that utilize GPU and CUDA library may cause issues for Poetry, when only a clean pyenv Python installation is used as a basis for Poetry. These problems are related mostly to handling different package distribution channels and the need of compiling CUDA libraries written in C. Unless any of such problems arise it is recommended to proceed with the standard way of creating the environment form previous section (or even more preferably [using Dev Containers](#howtostart-local-vsc)), but if they do arise, one of the ways to mitigate them is to add [conda](https://docs.conda.io/en/latest/) to the environment preparation stack instead of pyenv. This, however, makes the process a bit more complicated as shown below.
+
+From the existing GID ML Framework blueprints, the one utilizing GNNs ([`recommender_gnn` - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/recommender_gnn)) required above-mentioned change, that is also reflected in `Dockerfile` used to build a Dev Container for that use case. This file, as well as other configuration files in this use case can be used as a reference for similar cases.
+
+1. [Install Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+
+2. [Install Poetry](https://python-poetry.org/docs/)
+
+3. Add `poetry` and `conda` to `PATH` for convenience
+
+4. **Go to your project folder** and create virtual environment with conda:
+
+    - if they don't exist, create two configuration files for conda: `environment.yml` and `virtual-packages.yml`. Examples of contents of such files taken form `recommender_gnn` blueprint are shown below. **Note that those files, as well as generated `.lock` file are OS-specific**. The example is shown for `linux-64` OS name, but it may need to be changed depending on the platform that your working on.
+
+    ```yaml
+    # environment.yml
+
+    name: gnns
+    channels:
+    - pytorch
+    - dglteam
+    - conda-forge
+    # We want to have a reproducible setup, so we don't want default channels,
+    # which may be different for different users. All required channels should
+    # be listed explicitly here.
+    - nodefaults
+    dependencies:
+    - python=3.8.12
+    - mamba
+    - pip  # pip must be mentioned explicitly, or conda-lock will fail
+    - pytorch::pytorch=1.12.1
+    - pytorch::torchaudio=0.12.1
+    - pytorch::torchvision=0.13.1
+    - dglteam::dgl-cuda11.3
+
+    # Non-standard section listing target platforms for conda-lock:
+    platforms:
+    - linux-64
+    ```
+
+    ```yaml
+    # virtual-packages.yml
+
+    subdirs:
+    linux-64:
+        packages:
+        __cuda: 11.3
+    ```
+
+    - create temporary conda environment in order to generate `.lock` file that will be used to create target environment:
+    ```bash
+    conda create -n temp -c conda-forge mamba conda-lock poetry='1.*' python='3.8.12'
+    conda activate temp
+    conda-lock -k explicit --conda mamba
+    conda activate base
+    conda env remove -n temp
+    ```
+
+    - create and activate target conda environment out of previously generate `.lock` file. This file should be named like `conda-<os_name>.lock`, in this particular example: `conda-linux-64.lock`:
+    ```bash
+    conda create --name <env_name> --file conda-linux-64.lock
+    conda activate <env_name>
+    ```
+
+    - install dependencies using Poetry:
+    ```bash
+    poetry install
+    ```
+
+5. From inside your project Poetry environment install `pre-commit` hooks that will help you keep top quality of your code checking it automatically before each commit:
 ```bash
 pre-commit install
 ```
