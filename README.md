@@ -286,7 +286,7 @@ From the existing GID ML Framework blueprints, the one utilizing GNNs ([`recomme
 
 4. **Go to your project folder** and create virtual environment with conda:
 
-    - if they don't exist, create two configuration files for conda: `environment.yml` and `virtual-packages.yml`. Examples of contents of such files taken form `recommender_gnn` blueprint are shown below. **Note that those files, as well as generated `.lock` file are OS-specific**. The example is shown for `linux-64` OS name, but it may need to be changed depending on the platform that your working on.
+    - if they don't exist, create two configuration files for conda: `environment.yml` and `virtual-packages.yml`. Examples of contents of such files taken form `recommender_gnn` blueprint are shown below. **Note that those files, as well as generated `.lock` file are OS-specific**. The example is shown for `linux-64` OS name, but you may need to be changed depending on the platform that your working on.
 
     ```yaml
     # environment.yml
