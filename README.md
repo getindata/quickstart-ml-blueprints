@@ -128,7 +128,7 @@ The steps to run existing or newly created project are as follows:
 
 1. **Get prerequisites**:
     - [VSCode](https://code.visualstudio.com/) with [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension
-    - [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop > Preferences > Resources > File Sharing`
+    - [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop → Preferences → Resources → File Sharing`
 
 2. Either **create a new project** using our [Kedro starter](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter) or **clone `gid-ml-framework` repository** and open folder with selected use case in VSCode.
 
@@ -184,7 +184,7 @@ To run Dev Containers on Windows 10/11, it is needed to install Linux distributi
 
 1. Go to Docker Desktop settings and make sure it is using WSL2 backend:
 ```
-Settings > General > Use WSL 2 based engine
+Settings → General → Use WSL 2 based engine
 ```
 
 2. Then go to the Windows console (e.g. using PowerShell) and set default version of WSL to 2:
@@ -350,8 +350,110 @@ pre-commit install
 
 ### Running existing project on GCP (VertexAI) <a name="howtostart-gcp"></a>
 
+Thanks to Dev Containers and [GetInData Kedro plugins](https://github.com/getindata) preparing environments and working on virtual machines in cloud is exactly the same experience as working on a local machine. Using [VSCode's Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) feature the user is able to connect to the machine in cloud from local IDE, build Dev Container there and develop the code in the same manner as locally.
+
+If you follow the recommended way of work, you will probably face the need of transferring an existing local prototype into the cloud environment, however both recreating existing project environment and setting up a new project is exactly [the same as in local setup](#howtostart-local-vsc) (except installing Docker Desktop - in cloud Docker should be an integral part of your VM image).
+
+To be able to start working as described, you just need to configure your cloud account and project. Below is the list of prerequisites and steps to take to create a working environment on Google Cloud's VertexAI in order to be able to build Dev Container there and connect to it via your local IDE.
+
+**Prerequisites for GCP Admin:**
+
+1. VertexAI API enabled
+2. VPC network created
+3. Cloud NAT setup
+4. Firewall setup:
+
+![GCP Firewall setup](./docs/img/gcp_settings.png)
+
+    - Ingress for ssh 22 (35.235.240.0/20)
+    - Egress for outcoming traffic
+
+5. IAM rules for users:
+```
+Artifact Registry Administrator
+BigQuery User
+***Compute Admin***
+Dataproc Editor
+***IAP-secured Tunnel User***
+Logs Viewer
+Notebooks Admin
+Storage Admin
+Vertex AI User
+```
+
+**Prerequisites for the User**
+
+1. [VSCode](https://code.visualstudio.com/) with [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension installed
+2. [`gcloud` CLI](https://cloud.google.com/sdk/docs/install) installed
+
+**Setup procedure**
+
+Presented list of steps assumes that a GCP project called `gid-ml-framework` exists (the name is just an example). If not, it has to be created.
+
+1. Create a [User-Managed Vertex AI Notebook](https://cloud.google.com/vertex-ai/docs/workbench/user-managed/introduction) using a basic Python 3 environment in appropriate region that allows for Networking (for Europe it can be `europe-west4`):
+    - choose either Python3 image or Python3 with CUDA Toolkit if you want to use GPUs
+    - under the Permission tab change ownership from ServiceAccount to your account (this way only you will have access to the machine)
+    - disable external IP - we will connect to the machine via IAP (a more secure way). The option is available under "Networking" section
+
+2. In your local terminal login to your Google Cloud account:
+```bash
+gcloud auth login --update-adc
+```
+
+3. Set your working GCP project:
+```bash
+gcloud config set project gid-ml-framework
+```
+
+4. SSH to your machine to autogenerate the correct ssh keys (fill in the name and the zone). **Close the session afterwards**
+```bash
+gcloud compute ssh <workbench-name> --project gid-ml-framework --zone <zone> --tunnel-through-iap
+```
+
+5. Optionally, speed up TCP tunnelling [as shown here](https://cloud.google.com/iap/docs/using-tcp-forwarding#increasing_the_tcp_upload_bandwidth)
+
+6. Add the `--dry-run` to the previous command to generate full ssh command that will utilize IAP Tunneling:
+```bash
+gcloud compute ssh <workbench-name> --project gid-ml-framework --zone <zone> --tunnel-through-iap --dry-run
+```
+
+7. Copy the generated command: 
+    - for Linux/MacOS: startins from `ssh ...` (without e.g. `/usr/bin/`). It should look something like:
+    ```bash
+    ssh -t -i /Users/<home>/.ssh/google_compute_engine -o CheckHostIP=no -o HashKn...`
+    ```
+    - for Windows: copy the entire command
+
+8. Use the Remote Development extension to log into your workbench: click on the arrows icon in the bottom left corner in VSCode and then:
+```
+Connect to host → Add new ssh host → Paste in the generated command → Save it in your user’s config 
+```
+    - For Linux/MacOs: now you should be able to just connect to the saved host
+    - For Windows: you need to edit the saved config manually. It should look similar to this (be careful with path slashes, quotes and spaces. You may also need to change `%port` to `%p`):
+    ```
+    Host my-workbench
+    HostName compute.<compute_id>
+    IdentityFile C:\Users\<user>\.ssh\google_compute_engine
+    ProxyCommand "C:\\Users\\<user>\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\platform\\bundledpython\\python.exe" "-S" "C:\\Users\\<user>\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\lib\\gcloud.py" compute start-iap-tunnel my-workbench %p --listen-on-stdin --project=gid-ml-framework --zone=<zone> --verbosity=warning
+    User <gcp_user>
+    ```
+    Next, connect to the saved host.
+
+9. Add your user to the docker group: `sudo usermod -aG docker $USER` should be sufficient. Re-log to the machine for the changes to take effect.
+
+You are already set up! From this point on you can clone the repository (as usual, you will need to set up Git SSH keys etc. first) and open the repository in a Dev Container [as you would locally](howtostart-local-vsc)).
+
+**Notes**
+
+Sometimes Git refuses to work because of the user mismatch. You can fix that:  
+- in a VSCode popup:
+
+![GCP Firewall setup](./docs/img/vsc_popup.png)
+
+- or using `git config --global --add safe.directory /workspaces/gid-ml-framework`
+
 ### Running existing project on other full-scale environments <a name="howtostart-other"></a>
 
-Work on testing other full-scale environments (AWS, Azure, Kubeflow) is in progress.
+Work on testing other full-scale environments (AWS Sagemaker, AzureML, Kubeflow) is in progress.
 
 ## Working with GID ML Framework <a name="wayofwork"></a>
