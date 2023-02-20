@@ -323,7 +323,7 @@ From the existing GID ML Framework blueprints, the one utilizing GNNs ([`recomme
         __cuda: 11.3
     ```
 
-    - create temporary conda environment in order to generate `.lock` file that will be used to create target environment:
+    - create temporary conda environment in order to generate `.lock` file that will be used to create target environment. These commands should be run in the directory where the `environment.yml` and `virtual-packages.yml` files are located:
     ```bash
     conda create -n temp -c conda-forge mamba conda-lock poetry='1.*' python='3.8.12'
     conda activate temp
@@ -332,7 +332,7 @@ From the existing GID ML Framework blueprints, the one utilizing GNNs ([`recomme
     conda env remove -n temp
     ```
 
-    - create and activate target conda environment out of previously generate `.lock` file. This file should be named like `conda-<os_name>.lock`, in this particular example: `conda-linux-64.lock`:
+    - create and activate target conda environment out of previously generated `.lock` file. This file should be named like `conda-<os_name>.lock`, in this particular example: `conda-linux-64.lock`:
     ```bash
     conda create --name <env_name> --file conda-linux-64.lock
     conda activate <env_name>
