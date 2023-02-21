@@ -458,3 +458,65 @@ Sometimes Git refuses to work because of the user mismatch. You can fix that:
 Work on testing other full-scale environments (AWS Sagemaker, AzureML, Kubeflow) is in progress.
 
 ## Working with GID ML Framework <a name="wayofwork"></a>
+
+GID ML Framework is a collection of solved use cases structured as modular Kedro pipelines, which are nothing more than well organized Python functions. It leverages many features from Kedro like: [Cookiecutter project structure](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project), [layered data engineering convention](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project), [data catalog](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project) with many dataset abstractions and different data warehousing technologies connectors, thoughtful organization of [configuration files](https://kedro.readthedocs.io/en/stable/kedro_project_setup/configuration.html), [node](https://kedro.readthedocs.io/en/stable/nodes_and_pipelines/nodes.html)/[pipeline](https://kedro.readthedocs.io/en/stable/nodes_and_pipelines/pipeline_introduction.html) functional approach to structuring solutions and more. It also adds much more than just being a collection of Kedro showcases: transferrable working environments using [pyenv](https://github.com/pyenv/pyenv), [Poetry](https://python-poetry.org/), [conda](https://docs.conda.io/en/latest/) for some CUDA-dependent edge cases and [VSCode's Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers), support for running Kedro pipelines in cloud, experiment tracking and model registry with [MLflow](https://mlflow.org/) and many examples how to efficiently implement different parts of machine learning solutions like data preparation, feature engineering, hyperparameter optimization, artifact storage, model explanations etc. All this means basically three things:
+
+- We do our best to make our blueprints complete and comprehensive with all building blocks to be reusable, but
+- You are free to take from them just as much as you need, with the freedom to modify everything according to your needs, keeping in mind that
+- Documentations of all tools that we use, [especially Kedro](https://kedro.readthedocs.io/en/stable/index.html), are your best friends.
+
+Typical procedure of working with GID ML Framework could be presented as follows:
+
+1. Start a new project using [GID ML Framework Kedro Starter](https://github.com/getindata/gid-ml-framework-starter).
+2. Sample your data to reduce its size and speed up initial prototyping.
+3. Study examples from [GID ML Framework repository](https://github.com/getindata/gid-ml-framework) and decide what is to be taken as is for your solution and what should be adjusted or developed from scratch.
+4. Build a containerized working environment on your local machine and add packages you need to get started.
+5. Iterate, iterate, iterate - modify environment, build pipelines, document your work, write tests, track experiments until your solution architecture looks OK.
+6. Transfer your work along with the environment into the cloud and run it on full-scale infrastructure and on complete data. Develop your codebase further if needed and when the results are satisfying, enjoy having a production-grade ML system that is ready to be deployed.
+
+![Typical Way of Work](./docs/img/wow.png)
+
+### A handful of tips
+
+#### Updating the environment
+
+No matter if you [work in a Dev Container](#howtostart-local-vsc), [create your environment manually](#howtostart-local-alt) or use conda instead of pyenv to handle CUDA-specific dependencies, the main tool that is in charge of your Python environment's consistency and reproducibility is Poetry. You will probably need nothing more than these 4 commands:
+
+- `poetry install` to install dependencies form your `poetry.lock` file
+- `poetry add` to add and install new dependencies
+- `poetry add -D` to add and install dev-only dependencies
+- `poetry lock` to update the `poetry.lock` file
+
+You can also edit configuration file `pyproject.toml` manually do add dependencies and then run `poetry install` and `poetry lock`.
+
+Also remember, that when using Dev Containers there is no need to create any additional isolation layer other than Docker container itself, so Poetry and all dependencies are installed "globally" (which means directly in the container in this case). If you create your environment manually, you will need to [create a virtual environment with Poetry or conda](#howtostart-local-alt) and then activate it either with `poetry shell` or `conda activate <env_name>`.
+
+#### Running in-browser tools
+
+Kedro can be integrated with many other tools and services that have web UIs available via browser. Also, thanks to utilizing Dev Containers in GID ML Framework, **all these services are accessible in the same way (with local browser) no matter if you work in manually created environment, Dev Container, locally or in cloud**. To access them in the mode that is already tied to your Kedro project, you just need to initialize them as you would do usually, but with typical commands preceeded with `kedro ...`. By default, through the GID ML Framework Kedro starter, there are several tools available:
+
+##### MLflow
+
+Which serves as experiment tracker and artifact and model storage, so it is essential for prototyping your ML models. To run MLflow UI, type in a new console window:
+
+```bash
+kedro mlflow ui
+```
+
+##### Kedro-Viz
+
+Kedro-Viz is a very useful Kedro plugin, that visualizes your pipelines that are defined as code. It helps to share and explain the architecture of your solution without creating any visualizations by hand.
+
+```bash
+kedro viz
+```
+
+##### Jupyter
+
+If you are used to working with Jupyter Lab, Jupyter Notebooks or iPython interfaces, you can also bring those services up. However, if you want to use those interactive consoles at all, we recommend trying [VSCode plugin for Jupyter](https://code.visualstudio.com/docs/datascience/jupyter-notebooks) which is pretty handy.
+
+```bash
+kedro jupyter lab
+kedro jupyter notebook
+kedro ipython
+```
