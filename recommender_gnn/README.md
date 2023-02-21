@@ -1,4 +1,4 @@
-# GetInData ML Framework - Graph Neural Networks For Sequential Recommendations
+# Graph Neural Networks for Sequential Recommendations
 
 ## Overview
 

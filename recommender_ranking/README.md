@@ -1,4 +1,4 @@
-# GetInData ML Framework
+# Ranking Models for Transactional Data Rcommenders
 
 ## Overview
 
