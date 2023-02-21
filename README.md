@@ -22,11 +22,12 @@ By releasing this repo of reusable examples we aim to help data scientists and m
 ## Overview <a name="overview"></a>
 
 A brief summary of why GID ML Framework was brought to life:
-- to decrease time-to-market by enabling faster PoCs
+- to decrease Time-to-Market by enabling faster PoCs
 - to share best practices for developing ML products
 - to organize and standardize Way-of-Work for data scientists
 
 To achieve the above goals, we do not aim to create any ML platform or any specific code package. On the other hand, we also do not want to only share theoretical insights about way-of-work or describe our project experience. Instead, we are creating a **library of solved machine learning use cases that implement ML code development best practices using modern open-source technology stack.** Some of the most important features tha our GID ML Framework provides are:
+- Well-proved open source technology stack
 - Transferable environments (local/cloud)
 - Production quality code from the start
 - Well-organized configuration
@@ -101,7 +102,7 @@ To materialize ML development best practices as concrete working examples we use
 ![Technologies used so far](./docs/img/technologies.png)
 
 Excerpt of the technologies used so far in existing examples:
-- [Kedro](https://kedro.org/), which is the very core upon which the solutions are built. It introduces many essential features like appropriate project structure, modular node/pipeline architecture, well-organized configuration, customizable data catalog with connectors to many data sources, a wide variety of extensions and plugins that allow for integration with other tools and more.
+- [Kedro](https://kedro.org/) which is the very core upon which solution architectures are built. It introduces many essential features like appropriate project structure, modular node/pipeline architecture, well-organized configuration, customizable data catalog with connectors to many data sources, a wide variety of extensions and plugins that allow for integration with other tools and more.
 - Visual Studio Code with [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) powered by Docker that enable creating encapsulated working environments with all necessary tooling that can be run and used in the same way no matter when they are deployed (access from local IDE to the working environment set up locally or in the cloud)
 - [Pyenv](https://github.com/pyenv/pyenv) and [Poetry](https://python-poetry.org/) for Python dependency management
 - GetInData Kedro plugins for running Kedro pipelines in different environments ([GCP](https://github.com/getindata/kedro-vertexai), [AWS](https://github.com/getindata/kedro-sagemaker), [Azure](https://github.com/getindata/kedro-azureml), [Kubeflow](https://github.com/getindata/kedro-kubeflow))
