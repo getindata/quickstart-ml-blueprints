@@ -73,7 +73,7 @@ Excerpt of what aspects or building blocks can be retrieved and reused from curr
     - training, evaluating and using binary classification models with probability calibration (and after small modification also regresssion or multiclass)
     - propensity-to-buy problem approach
     - batch scoring
-    - parametrized SQL-query data retrieval
+    - parameterized SQL-query data retrieval
     - feature encoding
     - missing data imputation
     - predictions explainability
@@ -244,21 +244,15 @@ pyenv global 3.8.12
 
 5. **Go to your project folder** and create virtual environment with Poetry inside your project. **Note that creating a `.venv` inside the project is happening only when working locally, to not mess up your global Python installation**. In Dev Container, dependencies are installed globally, since they are already encapsulated by the container itself.
 
-    - make Poetry use your pyenv Python installation:
+    - Make Poetry use your pyenv Python installation:
     ``` bash
     poetry env use <path_to_your_pyenv_installation>/.pyenv/versions/3.8.16/bin/python3
     ```
 
-    - change configurations to force Poetry to create a virtual environment inside your project. If you decide to **go back working with Dev Containers, you will need to revert these settings**, since in Dev Containers there is no need to you virtual environments:
+    - **`cd` to your project folder**, then create and activate the virtual environment within:
     ```bash
-    poetry config virtualenvs.in-project true --local
-    poetry config virtualenvs.create true --local
-    poetry config virtualenvs.in-project true
-    ```
-
-    - If you are not already there, `cd` to your project folder and initialize Poetry there:
-    ```bash
-    poetry init
+    python -m venv venv
+    source ./venv/bin/activate
     ```
 
     - Later, keep working with your poetry with standard Poetry commands:
@@ -508,7 +502,7 @@ kedro mlflow ui
 Kedro-Viz is a very useful Kedro plugin, that visualizes your pipelines that are defined as code. It helps to share and explain the architecture of your solution without creating any visualizations by hand.
 
 ```bash
-kedro viz
+kedro viz  --autoreload
 ```
 
 ##### Jupyter

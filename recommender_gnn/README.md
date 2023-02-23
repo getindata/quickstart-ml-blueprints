@@ -1,4 +1,4 @@
-# Graph Neural Networks for Sequential Recommendations
+# Graph Neural Networks for sequential data recommendations
 
 ## Overview
 

@@ -1,4 +1,4 @@
-# Ranking Models for Transactional Data Rcommenders
+# Two-stage recommendation system on transactional data with ranking models
 
 ## Overview
 

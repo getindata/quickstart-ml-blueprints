@@ -1,4 +1,4 @@
-# Propensity Models on Google Analytics 4 data with Classification Algorithms
+# Propensity model on Google Analytics 4 data with classification algorithms
 
 GetInData ML Framework use case covering the following areas:
 - Usage of Google Analytics 4 data
