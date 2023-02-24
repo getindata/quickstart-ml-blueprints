@@ -1,38 +1,37 @@
-# Propensity model on Google Analytics 4 data with classification algorithms
+#   Propensity model on Google Analytics 4 data with classification algorithms
 
-GetInData ML Framework use case covering the following areas:
-- Usage of Google Analytics 4 data
-- Standard classification models (with scores calibration)
-- Batch scoring and online scoring
-- Automated Exploratory Data Analysis
-- Automated model explanations
-- Data Imputation
-- AutoML packages utilization
-- Model ensembling
-- Algorithm performance comparisons and reporting
-- Automated retraining
-- Automated monitoring
-- Deployment in different environments (GCP, AWS, Azure, Kubeflow)
+## Overview
 
-Example how to create a new project (use case) locally on MacOS:  
-- [GetInData ML Framework: Google Analytics 4 Use Case](#getindata-ml-framework-google-analytics-4-use-case)
-  - [Data](#data)
-  - [Pipelines:](#pipelines)
-  - [Creating a new use case using VSCode devcontainers (recommended) ](#creating-a-new-use-case-using-vscode-devcontainers-recommended-)
-  - [Creating a new use case manually ](#creating-a-new-use-case-manually-)
+This GID ML Framework use case is supposed to serve as a basic example of a typical straightforward application of a ML model to some customer or user data that is gathered on a constant basis and collected as daily snapshot of user activity. This particular showcase features predicting the probability of a customer to add a product to a shopping cart during a session on the site and it is based on [Google Analytics](https://analytics.google.com/analytics/web/provision/#/provision) data. From the perspective of modeling approach this example can be easily translated to other problems, especially in **customer analytics area**, that involve estimating propensity to take some action based on the behavior, e.g.:
+
+- churn prediction in telco,
+- propensity-to-buy models in e-commerce,
+- probability of default in banking,
+- and many more.
+
+This blueprint also shows example how to cover if your solution:
+- data extraction with parametrized SQL queries and Kedro data catalog
+- missing data imputation
+- feature encoding
+- automated hyperparameter optimization
+- probability calibration
+- selected model explanations with SHAP values
+
+## Business context
+
+Google Analytics is a popular web service used by companies to get insights about the traffic on their websites. It offers dashboarding capabilities out-of-the box which can be helpful to quickly get some insights, but much more can be done when we access the underlying data directly and apply advanced analytics, headed by machine learning, on our own.
+
+The example presents using a sample data from the newest iteration of the tool (Google Analytics 4) to predict **the probability of adding an item to the shopping cart during an online user session based on the data gathered during that session**.
+
+Full business potential of such model could be revealed in the online inference setup in which the batch-trained model would be served to compute predictions in real time. This way, some other mechanisms could developed on top of propensity prediction that would automatically take some actions (e.g. presenting some additional incentives to the user) during the ongoing session. The basic example that we provide includes only batch scoring on sessions data that were already collected in daily snapshots, so it doesn't support real time actions, however it is still valuable in many ways:
+
+- it shows batch training and scoring workflows that can be easily translated to different business problems and datasets, especially in customer analytics area
+- even when your ultimate goal is to deploy the model for online inference, you will still need to implement pipelines in batch version to be able to evaluate your model
+- batch scoring is also the basis for explaining the model using eXplainable AI technique
+- thanks to keeping solution modular transforming inference pipeline into online inference version is pretty straightforward if data engineering mechanisms are ready for this type of deployment
+
+We plan to include an online inference demo on data streams as an extension of this use case in the future.
 
 ## Data
 
-[Google Analytics 4 Dataset](https://developers.google.com/analytics/bigquery/web-ecommerce-demo-dataset)
-
-[Data schema](https://support.google.com/analytics/answer/7029846?hl=en)
-
-Data is retrieved directly from BigQuery public data by running parametrized SQL queries within `data_preprocessing_train` and `data_preprocessing_predict` , there is no need to create any local samples by hand.
-
-## Pipelines:
-
-Currently there are 2 end to end  pipelines implemented and tested locally:
-- `end_to_end_training` - for batch training. It consists of 3 consecutive sub-pipelines: `data_preprocessing_train_valid_test`, `feature_engineering_train_valid_test`, `training`
-- `end_to_end_prediction` - for batch predictions. It consists of: `data_preprocessing_predict`, `feature_engineering_predict`, `prediction`
-
-There is also one additional pipeline `explanation_{subset}` in three variations for different subsets: `train`, `valid` and `test` that applies some global XAI techniques and logs results to MLflow.
+## Nodes and Pipelines
