@@ -1,6 +1,18 @@
 #   Propensity model on Google Analytics 4 data with classification algorithms
 
-## Overview
+- [Overview](#overview)
+- [Business context](#business-context)
+- [Data](#data)
+- [Nodes and Pipelines](#nodes-and-pipelines)
+  - [Data Preprocessing](#dataprep)
+  - [Feature Engineering](#features)
+  - [Training](#training)
+  - [Prediction](#prediction)
+  - [Explanation](#explanation)
+  - [End to End Procedures](#e2e)
+- [How to start](#howtostart)
+
+## Overview <a name="overview"></a>
 
 This GID ML Framework use case is supposed to serve as a basic example of a typical straightforward application of a ML model to some customer or user data that is gathered on a constant basis and collected as daily snapshot of user activity. This particular showcase features predicting the probability of a customer to add a product to a shopping cart during a session on the site and it is based on [Google Analytics](https://analytics.google.com/analytics/web/provision/#/provision) data. From the perspective of modeling approach this example can be easily translated to other problems, especially in **customer analytics area**, that involve estimating propensity to take some action based on the behavior, e.g.:
 
@@ -17,7 +29,7 @@ This blueprint also shows example how to cover if your solution:
 - probability calibration
 - selected model explanations with SHAP values
 
-## Business context
+## Business context <a name="business-context"></a>
 
 Google Analytics is a popular web service used by companies to get insights about the traffic on their websites. It offers dashboarding capabilities out-of-the box which can be helpful to quickly get some insights, but much more can be done when we access the underlying data directly and apply advanced analytics, headed by machine learning, on our own.
 
@@ -32,7 +44,7 @@ Full business potential of such model could be revealed in the online inference 
 
 We plan to include an online inference demo on data streams as an extension of this use case in the future.
 
-## Data
+## Data <a name="data"></a>
 
 This blueprint is using the [Google Merchandise Store dataset](https://developers.google.com/analytics/bigquery/web-ecommerce-demo-dataset) that is built with [Google Analytics 4](https://developers.google.com/analytics/devguides/collection/ga4) standard and is publicly available to use and explore. Data schema is available [here](https://support.google.com/analytics/answer/7029846?hl=en).
 
@@ -58,7 +70,7 @@ gcloud config set project <your_gcp_project_name>
 
 For just downloading and using GCP's public data the last step is not mandatory, but if the project is not set you will get a lot of annoying warnings about GCP not being able to determine quota for your data processing.
 
-## Nodes and Pipelines
+## Nodes and Pipelines <a name="nodes-and-pipelines"></a>
 
 `ga4_mlops` use case currently consists of 5 main steps that include concrete pipelines:
 - Data Preprocessing
@@ -79,7 +91,7 @@ There are also some common auxiliary functions abstracted outside pipelines fold
 - `data_preparation_utils.py`, which contains functions for extracting column names based on naming convention, ensuring data types or correcting variable names to contain only allowed characters,
 - `modeling_utils.py` that contain at the moment a generic function to score a given preprocessed and engineered dataset with a given ML model.
 
-### Data Preprocessing
+### Data Preprocessing <a name="dataprep"></a>
 
 Data Preprocessing step consists of only one pipeline in four different versions that preprocess different subsets:
 - `data_preprocessing_train` - for training data 
@@ -106,7 +118,7 @@ Within SQL query there is also a **strict naming convention** implemented, that 
 
 Produced data frames are saved as CSV in Primary data layer (`data/03_primary` folder).
 
-### Feature Engineering
+### Feature Engineering <a name="features"></a>
 
 Analogously to `data_preprocessing_*` pipelines, Feature Engineering step is also divided by subset, so there are 4 versions of `feature_engineering_*` pipeline with `train`, `valid`, `test` and `predict` suffixes, supplemented with aggregate `feature_engineering_train_valid_test` pipeline. Unlike Data Preprocessing, there are some differences in `train` version of the Feature Engineering pipeline compared to other versions. It results from the fact of using `scikit-learn` based imputer and feature encoder objects, that in `valid`, `test` and `predict` pipelines are only applied, but for that to be possible the have to be first fit within `train` pipeline on the training subset.
 
@@ -132,7 +144,7 @@ This distinction is practically used in the following way:
 
 To use `stored` versions of imputers or encoders, in Data Catalog user needs to provide an additional parameter `run_id` within `_stored_modeling_artifacts_args` group, which is a MLflow Run ID of the run that produced these artifacts.
 
-### Training
+### Training <a name="training"></a>
 
 Training procedure currently uses XGBoost model which hyperparameters are optimized using [Optuna](https://optuna.org/) package. In short, the optimization procedure takes training subset, fits many models within given time limit and chooses the best set of hyperparameters based on validation subset. Then, the final model with the best hyperparameters is trained and stored in MLflow. Also, since XGBoost produces uncalibrated scores, there is also [probability calibration](https://scikit-learn.org/stable/modules/calibration.html) step added which involves fitting and storing a calibrator model using selected method (either logistic regression or isotonic regression).
 
@@ -164,7 +176,7 @@ Example of calibration curves in MLflow:
 
 ![Example of calibration curves](./docs/img/training_calibration.png)
 
-### Prediction
+### Prediction <a name="prediction"></a>
 
 Prediction pipeline is pretty straightforward and consists of 3 nodes:
 - two consecutive `score_abt` nodes that score given prediction Analytical Base Tables (`predict.abt` from Data Catalog) with main model and calibration model, respectively
@@ -178,7 +190,7 @@ Example of models' predictions:
 
 ![Example of models' predictions](./docs/img/predictions.png)
 
-### Explanation
+### Explanation <a name="explanation"></a>
 
 This pipeline uses some of the global [XAI](https://christophm.github.io/interpretable-ml-book/) (currently with [SHAP](https://shap.readthedocs.io/en/latest/index.html) values and Partial Dependence Plots). There are three versions of Explanation pipeline registered in `pipeline_registry.py` for each of the subset that contains ground truth variable: `train`, `valid` and `test`. Also, all explanations are each time calculated for both models - the main model and the calibrator.
 
@@ -207,7 +219,7 @@ Example of a Partial Dependence Plot in MLflow:
 
 ![Example of a Partial Dependence Plot](./docs/img/explanation_pdp.png)
 
-### End to End Procedures
+### End to End Procedures <a name="e2e"></a>
 
 There are two aggregate pipelines to run End to End Training and Prediction procedures that include Data Preprocessing, Feature Engineering and either Training or Prediction. Technically, they are the following sums of component pipelines:
 
@@ -238,7 +250,7 @@ Summary of executed End to End pipelines in Mlflow along with Explanation pipeli
 
 ![Summary of executed End to End pipelines](./docs/img/summary.png)
 
-## How to run
+## How to run <a name="howtostart"></a>
 
 To run the example as is, you need to:
 
