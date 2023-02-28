@@ -87,7 +87,7 @@ The order of running those parts for the first time should be pretty straightfor
 - artifacts and metadata stored in MLflow,
 - configuration files and Kedro Data Catalog,
 
-which means for example that once you perform Data Preprocessing and Feature Engineering, you can use artifacts that they produce to run Training multiple times to iterate towards the best model. Details of each workflow parts and the concrete pipelines that can be run (check out the [pipeline registry - TO BE UPDATED]() for this Kedro project) are listed and explained below.
+which means for example that once you perform Data Preprocessing and Feature Engineering, you can use artifacts that they produce to run Training multiple times to iterate towards the best model. Details of each workflow parts and the concrete pipelines that can be run (check out the [pipeline registry](https://github.com/getindata/gid-ml-framework/blob/main/ga4-mlops/src/ga4_mlops/pipeline_registry.py) for this Kedro project) are listed and explained below.
 
 There are also some common auxiliary functions abstracted outside pipelines folders and gathered within two files:
 - `data_preparation_utils.py`, which contains functions for extracting column names based on naming convention, ensuring data types or correcting variable names to contain only allowed characters,
@@ -256,7 +256,7 @@ Summary of executed End to End pipelines in Mlflow along with Explanation pipeli
 
 To run this example as is (without changing any configuration), you need to:
 
-1. Create the working environment according to [instructions given in the GID ML Framework documentation - TO BE UPDATED]()
+1. Create the working environment according to [instructions given in the main GID ML Framework documentation](https://github.com/getindata/gid-ml-framework)
 
 2. Set up GCP project [as shown in "Data" section](#gcp_setup) of this README
 
