@@ -1,5 +1,7 @@
 #   Propensity model on Google Analytics 4 data with classification algorithms
 
+## Contents
+
 - [Overview](#overview)
 - [Business context](#business-context)
 - [Data](#data)
