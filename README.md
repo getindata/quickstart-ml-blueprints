@@ -26,7 +26,7 @@ A brief summary of why GID ML Framework was brought to life:
 - to share best practices for developing ML products
 - to organize and standardize Way-of-Work for data scientists
 
-To achieve the above goals, we do not aim to create any ML platform or any specific code package. On the other hand, we also do not want to only share theoretical insights about way-of-work or describe our project experience. Instead, we are creating a **library of solved machine learning use cases that implement ML code development best practices using modern open-source technology stack.** Some of the most important features tha our GID ML Framework provides are:
+To achieve the above goals, we do not aim to create any ML platform or any specific code package. On the other hand, we also do not want to only share theoretical insights about way-of-work or just describe our project experience. Instead, we are creating a **library of solved machine learning use cases that implement ML code development best practices using modern open-source technology stack**. Some of the most important features that our GID ML Framework provides are:
 - Well-proved open source technology stack
 - Transferable environments (local/cloud)
 - Production quality code from the start
@@ -37,7 +37,7 @@ To achieve the above goals, we do not aim to create any ML platform or any speci
 - Comprehensive documentation and test coverage
 - Predefined, standard use cases (blueprints)
 
-Apart from materializing best development practices and standardizing problem solving approach, the motivation for creating GID ML Framework results from observation, that many business problems that are solved using machine learning can be described as an interconnected collection of repeatable building blocks. If you pre-define and implement those building blocks on some real-life examples and do so in a well-structured modular way, those elements will become easily reusable in different, similar use cases that you may encounter. Reusing existing building blocks with a minimum modifications should make **prototyping of new solutions much more efficient, and also facilitate creating a well-structured, documented and tested production grade code from the very beginning of the project**.
+Apart from materializing best development practices and standardizing problem solving approach, the motivation for creating GID ML Framework results from observation, that many business problems that are solved using machine learning can be described as an interconnected collection of repeatable building blocks. If you pre-define and implement those building blocks on some real-life examples and do so in a well-structured modular way, those elements will become easily reusable in different, similar use cases that you may encounter. Reusing existing building blocks with a minimum modifications should make **prototyping of new solutions much more efficient, and also facilitate creating well-structured, documented and tested production grade code from the very beginning of the project**.
 
 ![A generic modular scheme of a machine learning prototype solution fitting 99% of typical business use cases](./docs/img/generic_scheme.png)
 
@@ -55,7 +55,7 @@ So far the following use cases have been implemented:
 
 More use cases are either in works or in plans, including comprehensive time series modeling examples, reinforcement learning, Bayesian models, online ML on data streams and more.
 
-Existing use cases are implemented in modular, modifiable and extensible way. When creating a new ML solution, example building blocks from other, similar use cases can be used to various extent. In some cases, even small modifications to existing examples can be sufficient to obtain first working prototypes. For example, if the user is facing a problem of predicting churn and plans to approach it using classification algorithms, he can basically take [ga4-mlops - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/ga4-mlops) as a blueprint, change configuration files to use his datasets, modify data preprocessing code and run the rest of the pipeline as is. Since both the flavor of input data (tables with binary target per observation) and problem solving approach (binary classification) is similar, all automatic feature encoding, data imputation, modeling and model explanation steps should be applicable to this new problem - at least in a first iteration. More about the way of working with GID ML Framework and pre-implemented use cases can be foung in [this section](#wayofwork).
+Existing use cases are implemented in a modular, modifiable and extensible way. When creating a new ML solution, example building blocks from other, similar use cases can be used to various extent. In some cases, even small modifications to existing examples can be sufficient to obtain first working prototypes. For example, if the user is facing a problem of predicting churn and plans to approach it using classification algorithms, he can basically take [`ga4-mlops` example - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/ga4-mlops) as a blueprint, change configuration files to use his datasets, modify data preprocessing code and run the rest of the pipeline as is. Since both the flavor of input data (tables with binary target per observation) and problem solving approach (binary classification) are similar, all automatic feature encoding, data imputation, modeling and model explanation steps should be applicable to this new problem - at least in the first iteration. More about the way of working with GID ML Framework and pre-implemented use cases can be found in [this section](#wayofwork).
 
 ![From generic scheme to specific use cases](./docs/img/use_cases.png)
 
@@ -79,7 +79,7 @@ Excerpt of what aspects or building blocks can be retrieved and reused from curr
     - predictions explainability
     - [in-development]: data drift and model drift monitoring
     - [in-development]: automated model retraining
-    - [in-development]: online scoring on streaming data
+    - [in-roadmap]: online scoring on streaming data
     - [in-roadmap]: AutoML packages utilization
 - `recommender_ranking`:
     - building two-stage recommendation systems on transactional data with supplementary multimodal data
@@ -109,7 +109,7 @@ Excerpt of the technologies used so far in existing examples:
 - [MLflow](https://mlflow.org/) as an experiment tracker and model repository
 - A set of linters and code quality tools ([flake8](https://flake8.pycqa.org/en/latest/), [Black](https://black.readthedocs.io/en/stable/), [isort](https://pycqa.github.io/isort/), [pre-commit](https://pre-commit.com/))
 - [Pytest](https://docs.pytest.org/) framework for writing and executing unit/integration tests
-- A collection of Python packages for automated exploratory analysis ([Pandas Profiling](https://ydata-profiling.ydata.ai/docs/master/index.html), [Featuretools](https://www.featuretools.com/)), modeling ([LightGBM](https://lightgbm.readthedocs.io/), [PyTorch](https://pytorch.org/) and more), hyperprameter tuning ([Optuna](https://optuna.org/)) and many more
+- A collection of Python packages for automated exploratory analysis ([Pandas Profiling](https://ydata-profiling.ydata.ai/docs/master/index.html), [Featuretools](https://www.featuretools.com/)), modeling ([LightGBM](https://lightgbm.readthedocs.io/), [PyTorch](https://pytorch.org/) and more), hyperprameter tuning ([Optuna](https://optuna.org/)), model explanations([SHAP](https://shap.readthedocs.io/en/latest/)) and many more
 
 ## How to start <a name="howtostart"></a>
 
@@ -119,11 +119,11 @@ The best way to create a new project is to use GID ML Framework starter. The rep
 
 ### Running existing project locally <a name="howtostart-local"></a>
 
-GID ML Framework tries to address the challenge of building reproducible working environments that should be consistent, easy to establish and portable allowing data scientist to create small-scale prototypes locally and then seamlessly move their development to full-scale platforms, either in the cloud (VertexAI, Sagemaker, AzureML) or in on-premises setups (using Kubeflow). We use a combination of Pyenv, Poetry and Docker and leverage Visual Studio Code's Dev Containers to create a recommended development setup, but keeping in mind that there can be always some platform specific nuances (see for example a note from our experience [here](#howtostart-local-remarks)) we leave the freedom of adjusting way-of-work to the specific needs.
+GID ML Framework tries to address the challenge of building reproducible working environments that should be consistent, easy to establish and portable allowing data scientist to create small-scale prototypes locally and then seamlessly move their development to full-scale platforms, either in the cloud (VertexAI, Sagemaker, AzureML) or in on-premises setups (using Kubeflow). We use a combination of Pyenv, Poetry and Docker and leverage Visual Studio Code's Dev Containers to create a recommended development setup, but keeping in mind that there can be always some platform specific nuances (see for example a note from our experience [here](#howtostart-local-remarks)), we leave the freedom of adjusting way-of-work to the specific needs.
 
 #### Recommended way using VSCode and Dev Containers <a name="howtostart-local-vsc"></a>
 
-VSCode's [Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) and [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) features brought together create quite unique opportunity to encapsulate your working environment inside a Docker container and connect to it from VSCode IDE no matter where the container is deployed. Following our approach, you can build a working environment just by opening your locally stored project folder inside a container, and later do exactly the same, but this time with the same container built not on your local machine but e.g. on a virtual machine in the cloud. The way you work doesn't change at all - you have your local IDE with all settings and favorite plugins, you just connect to a different backend. All technicalities like re-building the container if you update you working environment or port forwarding for in-project services like [MLflow](https://mlflow.org/) or [Kedro-Viz](https://kedro.readthedocs.io/en/stable/visualisation/kedro-viz_visualisation.html) is handled by VSCode.
+VSCode's [Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) and [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) features brought together create quite unique opportunity to encapsulate your working environment inside a Docker container and connect to it from local VSCode IDE no matter where the container is deployed. Following our approach, you can build a working environment just by opening your locally stored project folder inside a container, and later do exactly the same, but this time with the same container built not on your local machine but e.g. on a virtual machine in the cloud. The way you work doesn't change at all - you have your local IDE with all settings and favorite plugins, you just connect to a different backend. All technicalities like re-building the container if you update you working environment or port forwarding for in-project services like [MLflow](https://mlflow.org/) or [Kedro-Viz](https://kedro.readthedocs.io/en/stable/visualisation/kedro-viz_visualisation.html) is handled by VSCode.
 
 The steps to run existing or newly created project are as follows:
 
@@ -137,13 +137,13 @@ The steps to run existing or newly created project are as follows:
 
 4. After reopening the project folder in a container, the **Dev Container will be built**. It might take a few minutes at first attempt, later cache should be used if there is a need to rebuild a containers. As you work on the project, you can modify your environment configuration files (e.g. `poetry.toml`, `pyproject.toml`, `Dockerfile`, `devcontainer.json` etc.). You can do it either from inside or outside of the container - changes will be detected and VSCode will suggest to rebuild the container.
  
-5. From now on, **you can develop inside the container** and modify and add files the usual way as you do working 100% locally. However, since the container is an isolated environment, you will need to configure git (e.g. SSH keys) and cloud connection (for projects transferrable to cloud) form inside of the container. Before you start, you can run `pytest` command to run tests that will show if everything is set up correctly.
+5. From now on, **you can develop inside the container** and modify and add files the usual way as you do working 100% locally. However, since the container is an isolated environment, you will need to configure git (e.g. SSH keys) and cloud connection (for projects transferrable to cloud) form inside the container. Before you start, you can run `pytest` command to run tests that will show if everything is set up correctly.
 
 #### Remarks on some technologies/setups/operating systems <a name="howtostart-local-remarks"></a>
 
 ##### Running Dev Containers on Apple M1/M2 processors (ARM64 architecture)
 
-Unfortunately, at the moment some of Dev Containers' dependencies do not have native support for Apple Silicon processors. There is an easy way to emulate AMD64 architecture using [QEMU](https://www.qemu.org/) emulator on Mac's with M1/M2 chips. However it has to be noted, that this approach might be not suitable for comfortable development, since executing any command in such emulated environment will be much slower. Our tests showed that while working in Dev Containers on Windows, Linux or Mac with Intel chips all execution times are comparable to respective environments built manually without Dev Containers. On Macs with M1 chips with QEMU emulation, those execution times are over 10x longer.
+Unfortunately, at the moment some of Dev Containers' dependencies do not have native support for Apple Silicon processors. There is an easy way to emulate AMD64 architecture using [QEMU](https://www.qemu.org/) emulator on Macs with M1/M2 chips. However it has to be noted, that this approach might be not suitable for comfortable development, since executing any command in such emulated environment will be much slower. Our tests showed that while working in Dev Containers on Windows, Linux or Mac with Intel chips all execution times are comparable to respective environments built manually without Dev Containers. On Macs with M1 chips with QEMU emulation, those execution times can be over 10x longer.
 
 Currently our suggestion for Mac M1/M2 users is to **build the local working environment manually without Dev Containers for the purpose of active development and then use Dev Containers only to run local tests before moving to the cloud** to ensure the consistency of local setup after that move and minimize the risk of any redevelopment when working already in full-scale.
 
@@ -209,7 +209,7 @@ wsl --set-default ubuntu
 ```
 
 ##### Enterprise environments
-Our recommended approach to working with transferrable, containerized environments can show the full potential when the user has a decent amount of freedom when interacting with tools, data and infrastructure. We realize that many enterprise setups, especially in big organizations, often come with some limitations in this area. Those limitation can affect for instance:
+Our recommended approach to working with transferrable, containerized environments can show its full potential when the user has a decent amount of freedom when interacting with tools, data and infrastructure. We realize that many enterprise setups, especially in big organizations, often come with some limitations in this area. Those limitation can affect for instance:
 
 - installing software of your choice
 - downloading data locally from data warehouses
@@ -218,7 +218,7 @@ Our recommended approach to working with transferrable, containerized environmen
 - creating project-specific instances of services like MLflow
 - forwarding ports or even using open Internet connection and more.
 
-While the philosophy of GID ML Framework's best practices remains unchanged, in corporate setup, all described technical details might need some customization. If you are interested in adjusting technical aspects of out data science way of work to your organization, please check our [Knowledge Base](https://getindata.com/knowledge-base/), [GitHub repository](https://github.com/getindata) of open-source tools and **don't hesitate to [ask for free consultation](https://consultation.getindata.com/mlops-data-platform-streaming-analytics-data-driven) on any data-related topic**.
+While the philosophy of GID ML Framework's best practices remains unchanged, in corporate setup, all described technical details might require some customization. If you are interested in adjusting technical aspects of out data science way of work to your organization, please check our [Knowledge Base](https://getindata.com/knowledge-base/), [GitHub repository](https://github.com/getindata) of open-source tools and **don't hesitate to [ask for free consultation](https://consultation.getindata.com/mlops-data-platform-streaming-analytics-data-driven) on any data-related topic**.
 
 #### Alternative ways of manual environment creation <a name="howtostart-local-alt"></a>
 
@@ -347,7 +347,7 @@ pre-commit install
 
 Thanks to Dev Containers and [GetInData Kedro plugins](https://github.com/getindata) preparing environments and working on virtual machines in cloud is exactly the same experience as working on a local machine. Using [VSCode's Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) feature the user is able to connect to the machine in cloud from local IDE, build Dev Container there and develop the code in the same manner as locally.
 
-If you follow the recommended way of work, you will probably face the need of transferring an existing local prototype into the cloud environment, however both recreating existing project environment and setting up a new project is exactly [the same as in local setup](#howtostart-local-vsc) (except installing Docker Desktop - in cloud Docker should be an integral part of your VM image).
+If you follow the recommended way of work, you will probably face the need of transferring an existing local prototype into the cloud environment, however both recreating existing project environment and setting up a new project is exactly [the same as in local setup](#howtostart-local-vsc) (except installing Docker Desktop - in cloud Docker should be a part of your VM image).
 
 To be able to start working as described, you just need to configure your cloud account and project. Below is the list of prerequisites and steps to take to create a working environment on Google Cloud's VertexAI in order to be able to build Dev Container there and connect to it via your local IDE.
 
@@ -453,7 +453,7 @@ Work on testing other full-scale environments (AWS Sagemaker, AzureML, Kubeflow)
 
 ## Working with GID ML Framework <a name="wayofwork"></a>
 
-GID ML Framework is a collection of solved use cases structured as modular Kedro pipelines, which are nothing more than well organized Python functions. It leverages many features from Kedro like: [Cookiecutter project structure](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project), [layered data engineering convention](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project), [data catalog](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project) with many dataset abstractions and different data warehousing technologies connectors, thoughtful organization of [configuration files](https://kedro.readthedocs.io/en/stable/kedro_project_setup/configuration.html), [node](https://kedro.readthedocs.io/en/stable/nodes_and_pipelines/nodes.html)/[pipeline](https://kedro.readthedocs.io/en/stable/nodes_and_pipelines/pipeline_introduction.html) functional approach to structuring solutions and more. It also adds much more than just being a collection of Kedro showcases: transferrable working environments using [pyenv](https://github.com/pyenv/pyenv), [Poetry](https://python-poetry.org/), [conda](https://docs.conda.io/en/latest/) for some CUDA-dependent edge cases and [VSCode's Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers), support for running Kedro pipelines in cloud, experiment tracking and model registry with [MLflow](https://mlflow.org/) and many examples how to efficiently implement different parts of machine learning solutions like data preparation, feature engineering, hyperparameter optimization, artifact storage, model explanations etc. All this means basically three things:
+GID ML Framework is a collection of solved use cases structured as modular Kedro pipelines, which are nothing more than well organized Python functions. It leverages many features from Kedro like: [Cookiecutter project structure](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project), [layered data engineering convention](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project), [data catalog](https://kedro.readthedocs.io/en/stable/faq/architecture_overview.html#kedro-project) with many dataset abstractions and different data warehousing technologies connectors, thoughtful organization of [configuration files](https://kedro.readthedocs.io/en/stable/kedro_project_setup/configuration.html), [node](https://kedro.readthedocs.io/en/stable/nodes_and_pipelines/nodes.html)/[pipeline](https://kedro.readthedocs.io/en/stable/nodes_and_pipelines/pipeline_introduction.html) functional approach to structuring solutions and more. It also adds much more than just being a collection of Kedro showcases: transferrable working environments using [pyenv](https://github.com/pyenv/pyenv), [Poetry](https://python-poetry.org/), [conda](https://docs.conda.io/en/latest/) for some CUDA-dependent edge cases and [VSCode's Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers), support for running Kedro pipelines in cloud, experiment tracking and model registry with [MLflow](https://mlflow.org/) and many examples presenting how to efficiently implement different parts of machine learning solutions like data preparation, feature engineering, hyperparameter optimization, artifact storage, model explanations etc. All this means basically three things:
 
 - We do our best to make our blueprints complete and comprehensive with all building blocks to be reusable, but
 - You are free to take from them just as much as you need, with the freedom to modify everything according to your needs, keeping in mind that
@@ -487,7 +487,7 @@ Also remember, that when using Dev Containers there is no need to create any add
 
 #### Running in-browser tools
 
-Kedro can be integrated with many other tools and services that have web UIs available via browser. Also, thanks to utilizing Dev Containers in GID ML Framework, **all these services are accessible in the same way (with local browser) no matter if you work in manually created environment, Dev Container, locally or in cloud**. To access them in the mode that is already tied to your Kedro project, you just need to initialize them as you would do usually, but with typical commands preceeded with `kedro ...`. By default, through the GID ML Framework Kedro starter, there are several tools available:
+Kedro can be integrated with many other tools and services that have web UIs available via browser. Also, thanks to utilizing Dev Containers in GID ML Framework, **all these services are accessible in the same way (with local browser) no matter if you work locally or in cloud**. To access them in the mode that is already tied to your Kedro project, you just need to initialize them as you would do usually, but with typical commands preceeded with `kedro ...`. By default, through the GID ML Framework Kedro starter, there are several tools available:
 
 ##### MLflow
 
@@ -499,7 +499,7 @@ kedro mlflow ui
 
 ##### Kedro-Viz
 
-Kedro-Viz is a very useful Kedro plugin, that visualizes your pipelines that are defined as code. It helps to share and explain the architecture of your solution without creating any visualizations by hand.
+Kedro-Viz is a very useful Kedro plugin, that visualizes your pipelines that are defined as a code. It helps to share and explain the architecture of your solution without creating any visualizations by hand.
 
 ```bash
 kedro viz  --autoreload
