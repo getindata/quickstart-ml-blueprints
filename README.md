@@ -49,13 +49,13 @@ GID ML Framework is a set of complete **use cases** that involve:
 - example datasets to work with
 
 So far the following use cases have been implemented:
-- propensity-to-buy classification model on Google Analytics 4 data with additional MLOps components ([ga4-mlops - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/ga4-mlops))
-- retail recommender system on multimodal data (tabular, images, natural language descriptions) using ranking gradient boosting models ([recommender_ranking - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/recommender_ranking))
-- e-commerce recommender system on sequential data using Graph Neural Networks ([recommender_gnn - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/recommender_gnn))
+- propensity-to-buy classification model on Google Analytics 4 data with additional MLOps components ([ga4-mlops](https://github.com/getindata/gid-ml-framework/tree/main/ga4-mlops))
+- retail recommender system on multimodal data (tabular, images, natural language descriptions) using ranking gradient boosting models ([recommender_ranking](https://github.com/getindata/gid-ml-framework/tree/main/recommender_ranking))
+- e-commerce recommender system on sequential data using Graph Neural Networks ([recommender_gnn](https://github.com/getindata/gid-ml-framework/tree/main/recommender_gnn))
 
 More use cases are either in works or in plans, including comprehensive time series modeling examples, reinforcement learning, Bayesian models, online ML on data streams and more.
 
-Existing use cases are implemented in a modular, modifiable and extensible way. When creating a new ML solution, example building blocks from other, similar use cases can be used to various extent. In some cases, even small modifications to existing examples can be sufficient to obtain first working prototypes. For example, if the user is facing a problem of predicting churn and plans to approach it using classification algorithms, he can basically take [`ga4-mlops` example - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/ga4-mlops) as a blueprint, change configuration files to use his datasets, modify data preprocessing code and run the rest of the pipeline as is. Since both the flavor of input data (tables with binary target per observation) and problem solving approach (binary classification) are similar, all automatic feature encoding, data imputation, modeling and model explanation steps should be applicable to this new problem - at least in the first iteration. More about the way of working with GID ML Framework and pre-implemented use cases can be found in [this section](#wayofwork).
+Existing use cases are implemented in a modular, modifiable and extensible way. When creating a new ML solution, example building blocks from other, similar use cases can be used to various extent. In some cases, even small modifications to existing examples can be sufficient to obtain first working prototypes. For example, if the user is facing a problem of predicting churn and plans to approach it using classification algorithms, he can basically take [`ga4-mlops` example](https://github.com/getindata/gid-ml-framework/tree/main/ga4-mlops) as a blueprint, change configuration files to use his datasets, modify data preprocessing code and run the rest of the pipeline as is. Since both the flavor of input data (tables with binary target per observation) and problem solving approach (binary classification) are similar, all automatic feature encoding, data imputation, modeling and model explanation steps should be applicable to this new problem - at least in the first iteration. More about the way of working with GID ML Framework and pre-implemented use cases can be found in [this section](#wayofwork).
 
 ![From generic scheme to specific use cases](./docs/img/use_cases.png)
 
@@ -111,7 +111,7 @@ Excerpt of the technologies used so far in existing examples:
 
 ### Creating a new project <a name="howtostart-new"></a>
 
-The best way to create a new project is to use GID ML Framework starter. The repository and instructions can be found [here - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter/-/tree/main). After creating a new project, follow the guidelines for existing projects.
+The best way to create a new project is to use GID ML Framework starter. The repository and instructions can be found [here](https://github.com/getindata/gid-ml-framework-starter). After creating a new project, follow the guidelines for existing projects.
 
 ### Running existing project locally <a name="howtostart-local"></a>
 
@@ -220,7 +220,7 @@ While the philosophy of GID ML Framework's best practices remains unchanged, in 
 
 If for some of the reasons described in previous section it is more convenient to build working environment manually on your local machine instead of using Dev Containers, it is recommended that you follow some steps to preserve consistency between your local manual setup and what you get out of a Dev Container, since you may still want to use it later when you transfer your work to cloud. In short, you need to put together manually some tools that are normally installed in Dev Container when building the Docker image. The list of tools is the same regardless the operating system, however the installation and configuration procedure may vary, therefore below we provide a general procedure of preparing environment manually while the OS-specific details can be found in each tool's documentation that is linked.
 
-The example of creating environment manually is shown for an existing project. If you are starting a new project, first follow the instructions for [setting up a new project using Kedro starter - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter/-/blob/main/README.md).
+The example of creating environment manually is shown for an existing project. If you are starting a new project, first follow the instructions for [setting up a new project using Kedro starter](https://github.com/getindata/gid-ml-framework-starter).
 
 ##### Default approach - pyenv and Poetry
 
@@ -267,7 +267,7 @@ pre-commit install
 
 As mentioned in the previous section, installing some packages that utilize GPU and CUDA library may cause issues for Poetry, when only a clean pyenv Python installation is used as a basis for Poetry. These problems are related mostly to handling different package distribution channels and the need of compiling CUDA libraries written in C. Unless any of such problems arise it is recommended to proceed with the standard way of creating the environment form previous section (or even more preferably [using Dev Containers](#howtostart-local-vsc)), but if they do arise, one of the ways to mitigate them is to add [conda](https://docs.conda.io/en/latest/) to the environment preparation stack instead of pyenv. This, however, makes the process a bit more complicated as shown below.
 
-From the existing GID ML Framework blueprints, the one utilizing GNNs ([`recommender_gnn` - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/tree/main/recommender_gnn)) required above-mentioned change, that is also reflected in `Dockerfile` used to build a Dev Container for that use case. This file, as well as other configuration files in this use case can be used as a reference for similar cases.
+From the existing GID ML Framework blueprints, the one utilizing GNNs ([`recommender_gnn`](https://github.com/getindata/gid-ml-framework/tree/main/recommender_gnn)) required above-mentioned change, that is also reflected in `Dockerfile` used to build a Dev Container for that use case. This file, as well as other configuration files in this use case can be used as a reference for similar cases.
 
 1. [Install Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
