@@ -17,7 +17,6 @@ from .nodes import (
 
 
 def create_pipeline(**kwargs) -> Pipeline:
-
     training_pipeline = pipeline(
         [
             node(

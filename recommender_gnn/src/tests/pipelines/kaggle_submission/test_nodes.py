@@ -28,9 +28,7 @@ class TestGenerateSubmission:
     ):
         item_columns = self.get_item_columns(small_predictions_custom)
         imputed_predcitions = _impute_missing_predictions(
-            small_predictions_custom.iloc[
-                1:,
-            ],
+            small_predictions_custom.iloc[1:,],
             small_users_custom,
             self.user_column,
             item_columns,
@@ -47,9 +45,7 @@ class TestGenerateSubmission:
         small_users_mapping_custom,
     ):
         submission_df = generate_submission(
-            small_predictions_custom.iloc[
-                1:,
-            ],
+            small_predictions_custom.iloc[1:,],
             small_users_custom,
             small_users_mapping_custom,
             small_items_mapping_custom,

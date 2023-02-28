@@ -19,7 +19,7 @@ _artifact_args: &artifact_args
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
 
 _stored_modeling_artifacts_args: &stored_modeling_artifacts_args
-  run_id: 03618dbc857043c4b263192e0f1b86d6
+  run_id: f33b2741b0ff42458a48b45622d956c4
 
 # RAW DATA
 
@@ -157,7 +157,7 @@ predict.df:
   layer: primary
   <<: *data_args
 
-# FEATURE DATA (AFTER: FEATURE ENGINEERING, IMPUTATION, ENCODING)
+# FEATURE DATA
 
 fitted.imputers:
   data_set:
@@ -185,7 +185,7 @@ stored.feature_encoders:
   <<: *stored_modeling_artifacts_args
   <<: *artifact_args
 
-# MODEL INPUT DATA (AFTER: MANUAL FEATURE SELECTION)
+# MODEL INPUT DATA (AFTER: FEATURE ENGINEERING, MANUAL FEATURE SELECTION, IMPUTATION, ENCODING)
 
 train.abt:
   filepath: data/05_model_input/abt_train.csv
