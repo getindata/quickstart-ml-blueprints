@@ -127,7 +127,7 @@ The steps to run existing or newly created project are as follows:
     - [VSCode](https://code.visualstudio.com/) with [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension
     - [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop → Preferences → Resources → File Sharing`
 
-2. Either **create a new project** using our [Kedro starter](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework-starter) or **clone `gid-ml-framework` repository** and open folder with selected use case in VSCode.
+2. Either **create a new project** using our [Kedro starter](https://github.com/getindata/gid-ml-framework-starter) or **clone `gid-ml-framework` repository** and open folder with selected use case in VSCode.
 
 3. If Docker is running, VSCode should should ask to [**"Reopen Folder in a Container"**]((https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container)). You can also bring it up manually by clicking on the blue arrows icon in the bottom-left corner in VSCode.
 
