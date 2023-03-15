@@ -1,0 +1,12 @@
+sync-with-github:
+  before_script:
+    - git config --global user.name "getindata-cicd"
+    - git config --global user.email "cicd@getindata.com"
+  script:
+    - git remote add github https://github.com/getindata/gid-ml-framework.git
+    - git fetch
+    - git checkout main
+    - git pull origin main
+    - git pull github main
+    - git status
+    - git push https://getindata-cicd:$PASSWORD@gitlab.com/getindata/aa-labs/coe/gid-ml-framework.git HEAD:main
