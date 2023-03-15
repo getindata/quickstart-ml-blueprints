@@ -242,7 +242,7 @@ pyenv global 3.8.12
 
     - Make Poetry use your pyenv Python installation:
     ``` bash
-    poetry env use <path_to_your_pyenv_installation>/.pyenv/versions/3.8.16/bin/python3
+    poetry env use <path_to_your_pyenv_installation>/.pyenv/versions/3.8.12/bin/python3
     ```
 
     - **`cd` to your project folder**, then create and activate the virtual environment within:

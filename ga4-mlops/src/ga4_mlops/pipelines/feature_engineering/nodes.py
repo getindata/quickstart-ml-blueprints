@@ -40,7 +40,7 @@ def exclude_features(df: pd.DataFrame, features_to_exclude: list) -> pd.DataFram
     """Exclude manually selected features.
 
     Args:
-        df (pd.DataFrame): data frame after feature encoding
+        df (pd.DataFrame): data frame after manual feature engineering
         features_to_exclude (list): list of features to exclude
 
     Returns:
@@ -58,7 +58,7 @@ def fit_imputers(df: pd.DataFrame, imputation_strategies: dict) -> dict:
     """Fit imputers for missing values using selected strategies.
 
     Args:
-        df (pd.DataFrame): data frame after feature engineering
+        df (pd.DataFrame): data frame after feature exclusion
         imputation_strategies (dict): dictionary of imputation strategies for different features
 
     Returns:
@@ -95,7 +95,7 @@ def apply_imputers(df: pd.DataFrame, imputers: dict) -> pd.DataFrame:
     """Apply fitted imputers on a data frame.
 
     Args:
-        df (pd.DataFrame): data frame after feature engineering
+        df (pd.DataFrame): data frame after feature exclusion
         imputers (dict): dictionary of imputer objects
 
     Returns:
@@ -175,14 +175,14 @@ def apply_encoders(df: pd.DataFrame, feature_encoders: dict) -> pd.DataFrame:
 def _imputer_fit(
     df: pd.DataFrame, imputation_strategies: dict, selected_strategy: str
 ) -> SimpleImputer:
-    """
+    """Fit imputers on a given data frame using selected imputation strategy.
 
     Args:
-        df (pd.DataFrame): _description_
-        selected_strategy (str): _description_
+        df (pd.DataFrame): data frame as a base for imputer fit
+        selected_strategy (str): selected imputation strategy
 
     Returns:
-        SimpleImputer: _description_
+        SimpleImputer: fitted imputer object
     """
     if selected_strategy == "mean":
         imputer = SimpleImputer(strategy="mean")
