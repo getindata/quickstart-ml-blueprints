@@ -1,0 +1,21 @@
+forecasting_with_exogenous_vars:
+  data_processing:
+    column_mapper:
+      Store: "unique_id"
+      Date: "ds"
+      Weekly_Sales: "y"
+    exo_columns:
+      - "IsHoliday"
+    no_test_periods: 12
+    test_run: false
+    date_cutoffs:
+      min_date: null
+      max_date: null
+  forecast_options:
+    horizon: 12
+    season_length: 1
+    frequency: 7D # see pandas' frequencies https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+    n_jobs: -1
+  exo_vars: # do not change
+    true_value: true
+    false_value: false

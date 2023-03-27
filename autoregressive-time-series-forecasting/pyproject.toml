@@ -1,0 +1,76 @@
+[tool.kedro]
+package_name = "autoregressive_forecasting"
+project_name = "autoregressive-forecasting"
+kedro_init_version = "0.18.5"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+known_third_party = "kedro"
+
+[tool.pytest.ini_options]
+addopts = """
+--cov-report term-missing \
+--cov src/autoregressive_forecasting \
+-ra \
+--strict-config \
+--strict-markers
+"""
+testpaths = "./src/tests/"
+pythonpath = [
+  "./src",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+markers = [
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
+omit = ["*/__main__.py", "*/__init__.py", "*/pipeline_registry.py"]
+
+[tool.poetry]
+name = "autoregressive-forecasting"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "3.10.10"
+pip = "^22.1"
+kedro = {version = "0.18.5", extras = ["pandas.ExcelDataSet", "pandas.ParquetDataSet", "pandas.CSVDataSet"]}
+kedro-mlflow = "0.11.8"
+mlflow = "2.1.1"
+kedro-docker = "0.3.1"
+statsforecast = "1.4.0"
+pandas = "1.5.3"
+datasetsforecast = "0.0.7"
+
+[tool.poetry.dev-dependencies]
+black = "^22.12"
+flake8 = "^6.0"
+ipython = "^7"
+isort = "^5"
+jupyter = "^1.0"
+jupyter-client = "^7"
+jupyterlab = "^3"
+kedro-viz = "^5"
+notebook = "^6.5.2"
+nbstripout = "^0.6"
+pytest = "^7.2"
+pytest-cov = "^4.0"
+pytest-mock = "^3.10"
+pytest-repeat = "^0.9.1"
+pre-commit = "^3.0.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,13 @@
+forecasting:
+  model:
+    name: AutoETS
+    parameters:
+      season_length: 1
+  fallback_model:
+    name: HistoricAverage
+    parameters:
+      {} # empty dict
+  forecast_options:
+    frequency: 7D # see pandas' frequencies https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+    horizon: 6 # 6 weeks
+    n_jobs: -1
