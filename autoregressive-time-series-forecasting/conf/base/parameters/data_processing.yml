@@ -1,0 +1,8 @@
+data_processing:
+  column_mapper:
+    Store: "unique_id"
+    Date: "ds"
+    Weekly_Sales: "y"
+  date_cutoffs:
+    min_date: "2010-01-01"
+    max_date: "2013-12-01"

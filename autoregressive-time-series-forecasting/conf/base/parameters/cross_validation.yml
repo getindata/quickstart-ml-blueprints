@@ -1,0 +1,11 @@
+cross_validation:
+  cv_options:
+    h: 4
+    step_size: 4
+    n_windows: 1
+    freq: 7D # see pandas' frequencies https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+    n_jobs: -1
+    verbose: true # works when n_jobs=1
+    test_run: false
+  model_params:
+    season_length: 1
