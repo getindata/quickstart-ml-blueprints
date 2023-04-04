@@ -5,10 +5,10 @@ sync-with-github:
   only:
     - main
   script:
-    - git remote add github https://github.com/getindata/gid-ml-framework.git
+    - git remote add github https://github.com/getindata/quickstart-ml-blueprints.git
     - git fetch
     - git checkout main
     - git pull origin main
     - git pull github main
     - git status
-    - git push https://getindata-cicd:$PASSWORD@gitlab.com/getindata/aa-labs/coe/gid-ml-framework.git HEAD:main
+    - git push https://getindata-cicd:$PASSWORD@gitlab.com/getindata/aa-labs/coe/quickstart-ml-blueprints.git HEAD:main
