@@ -42,13 +42,13 @@ def exclusion_sample():
 def imputation_sample():
     df = pd.DataFrame(
         {
-            "i_id_col": [1, 2, 3, 4, 5],
-            "n_num_col_complete": [4, 2, 6, 1, 0],
-            "n_num_col_missing_not_listed": [4.0, np.nan, 2.1, 3.2, np.nan],
-            "n_num_col_missing_for_mean": [2, np.nan, 5, np.nan, 8],
-            "n_num_col_missing_for_zero": [np.nan, 9.3, -1.2, np.nan, np.nan],
-            "c_cat_col_for_mostfreq": ["cat1", np.nan, "cat2", "cat1", "cat1"],
-            "c_cat_col_for_unknown": ["cat1", "cat2", np.nan, "cat3", "cat2"],
+            "i_id_col": [1, 2, 3, 4, 5, 6],
+            "n_num_col_complete": [4, 2, 6, 1, 0, 1],
+            "n_num_col_missing_not_listed": [4.0, np.nan, 2.1, 3.2, np.nan, np.nan],
+            "n_num_col_missing_for_mean": [2, np.nan, 5, np.nan, 8, np.nan],
+            "n_num_col_missing_for_zero": [np.nan, 9.3, -1.2, np.nan, np.nan, np.nan],
+            "c_cat_col_for_mostfreq": ["cat1", np.nan, "cat2", "cat1", "cat1", "cat1"],
+            "c_cat_col_for_unknown": ["cat1", "cat2", np.nan, "cat3", "cat2", pd.NA],
         }
     )
 

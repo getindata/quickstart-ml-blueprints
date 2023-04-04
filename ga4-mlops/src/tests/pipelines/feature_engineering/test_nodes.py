@@ -56,13 +56,27 @@ class TestImputation:
         df = apply_imputers(imputation_sample, imputers)
         expected_df = pd.DataFrame(
             {
-                "i_id_col": [1, 2, 3, 4, 5],
-                "n_num_col_complete": [4, 2, 6, 1, 0],
-                "n_num_col_missing_not_listed": [4.0, np.nan, 2.1, 3.2, np.nan],
-                "n_num_col_missing_for_mean": [2.0, 5.0, 5.0, 5.0, 8.0],
-                "n_num_col_missing_for_zero": [0.0, 9.3, -1.2, 0.0, 0.0],
-                "c_cat_col_for_mostfreq": ["cat1", "cat1", "cat2", "cat1", "cat1"],
-                "c_cat_col_for_unknown": ["cat1", "cat2", "UNKNOWN", "cat3", "cat2"],
+                "i_id_col": [1, 2, 3, 4, 5, 6],
+                "n_num_col_complete": [4, 2, 6, 1, 0, 1],
+                "n_num_col_missing_not_listed": [4.0, np.nan, 2.1, 3.2, np.nan, np.nan],
+                "n_num_col_missing_for_mean": [2.0, 5.0, 5.0, 5.0, 8.0, 5.0],
+                "n_num_col_missing_for_zero": [0.0, 9.3, -1.2, 0.0, 0.0, 0.0],
+                "c_cat_col_for_mostfreq": [
+                    "cat1",
+                    "cat1",
+                    "cat2",
+                    "cat1",
+                    "cat1",
+                    "cat1",
+                ],
+                "c_cat_col_for_unknown": [
+                    "cat1",
+                    "cat2",
+                    "UNKNOWN",
+                    "cat3",
+                    "cat2",
+                    "UNKNOWN",
+                ],
             }
         )
 
