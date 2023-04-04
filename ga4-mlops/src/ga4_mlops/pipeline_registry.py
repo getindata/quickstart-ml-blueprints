@@ -30,16 +30,16 @@ def register_pipelines() -> Dict[str, Pipeline]:
     )
 
     feature_engineering_train_pipeline = feature_engineering.create_pipeline(
-        subset="train"
+        subset="train", transformations_source="fitted"
     )
     feature_engineering_valid_pipeline = feature_engineering.create_pipeline(
-        subset="valid"
+        subset="valid", transformations_source="fitted"
     )
     feature_engineering_test_pipeline = feature_engineering.create_pipeline(
-        subset="test"
+        subset="test", transformations_source="fitted"
     )
     feature_engineering_predict_pipeline = feature_engineering.create_pipeline(
-        subset="predict"
+        subset="predict", transformations_source="stored"
     )
     explanation_train_pipeline = explanation.create_pipeline(subset="train")
     explanation_valid_pipeline = explanation.create_pipeline(subset="valid")

@@ -16,11 +16,16 @@ from .nodes import (
 )
 
 
-def create_pipeline(subset: str, **kwargs) -> Pipeline:
+def create_pipeline(
+    subset: str, transformations_source: str = "fitted", **kwargs
+) -> Pipeline:
     """Creates a parametrized pipeline feature engineering
 
     Args:
-        subset (str): data subset. Possible values: ["train", "valid", "test", "predict"].
+        subset (str): data subset. Possible values: ["train", "valid", "test",
+            "predict"].
+        transformations_source (str): where to take stored data transformation from:
+            ["stored", "fitted"], "stored" in mlflow, "fitted" is local.
     """
     possible_subsets = ["train", "valid", "test", "predict"]
     assert subset in possible_subsets, f"Subset should be one of: {possible_subsets}"
@@ -31,12 +36,12 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
                 name="train.feature_engineering_node",
                 func=engineer_features,
                 inputs=["train.df"],
-                outputs="train.df_fe_temp",
+                outputs="train.df_fe",
             ),
             node(
                 name="train.exclude_features_node",
                 func=exclude_features,
-                inputs=["train.df_fe_temp", "params:features_to_exclude"],
+                inputs=["train.df_fe", "params:features_to_exclude"],
                 outputs="train.df_excl_temp",
             ),
             node(
@@ -66,20 +71,18 @@ def create_pipeline(subset: str, **kwargs) -> Pipeline:
         ]
     )
 
-    transformations_source = "stored" if subset == "predict" else "fitted"
-
     trasnformations_application_pipeline = pipeline(
         [
             node(
                 name=f"{subset}.feature_engineering_node",
                 func=engineer_features,
                 inputs=[f"{subset}.df"],
-                outputs=f"{subset}.df_fe_temp",
+                outputs=f"{subset}.df_fe",
             ),
             node(
                 name=f"{subset}.exclude_features_node",
                 func=exclude_features,
-                inputs=[f"{subset}.df_fe_temp", "params:features_to_exclude"],
+                inputs=[f"{subset}.df_fe", "params:features_to_exclude"],
                 outputs=f"{subset}.df_excl_temp",
             ),
             node(

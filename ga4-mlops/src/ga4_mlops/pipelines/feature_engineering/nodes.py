@@ -191,7 +191,9 @@ def _imputer_fit(
     elif selected_strategy == "mostfreq":
         imputer = SimpleImputer(strategy="most_frequent")
     elif selected_strategy == "unknown":
-        imputer = SimpleImputer(strategy="constant", fill_value="UNKNOWN")
+        imputer = SimpleImputer(
+            strategy="constant", fill_value="UNKNOWN"
+        )
     else:
         imputer = None
 

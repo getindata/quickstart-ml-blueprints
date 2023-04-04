@@ -10,19 +10,19 @@ from ..modeling_utils import score_abt
 from .nodes import create_predictions
 
 
-def create_pipeline(**kwargs) -> Pipeline:
+def create_pipeline(artifacts_origin="stored", **kwargs) -> Pipeline:
     return pipeline(
         [
             node(
                 name="calculate_raw_scores_node",
                 func=score_abt,
-                inputs=["predict.abt", "stored.model"],
+                inputs=["predict.abt", f"{artifacts_origin}.model"],
                 outputs="raw_scores",
             ),
             node(
                 name="calculate_calibrated_scores_node",
                 func=score_abt,
-                inputs=["predict.abt", "stored.calibrator"],
+                inputs=["predict.abt", f"{artifacts_origin}.calibrator"],
                 outputs="calibrated_scores",
             ),
             node(
