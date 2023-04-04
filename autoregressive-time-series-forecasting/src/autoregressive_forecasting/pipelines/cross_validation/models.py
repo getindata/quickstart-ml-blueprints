@@ -52,6 +52,8 @@ class ForecastingModels:
             "AutoETS": AutoETS(season_length=self.season_length),
             "AutoTheta": AutoTheta(season_length=self.season_length),
             "IMAPA": IMAPA(),
+            # MSTL is disabled by default, because Walmart dataset uses weekly data,
+            # and MSTL works best for time-series with clear seasonal component
             # "MSTL": MSTL(
             #     season_length=self.season_length
             # ),  # can take Union[int, list[int]]

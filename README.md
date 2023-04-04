@@ -52,6 +52,7 @@ So far the following use cases have been implemented:
 - propensity-to-buy classification model on Google Analytics 4 data with additional MLOps components ([ga4-mlops](https://github.com/getindata/gid-ml-framework/tree/main/ga4-mlops))
 - retail recommender system on multimodal data (tabular, images, natural language descriptions) using ranking gradient boosting models ([recommender_ranking](https://github.com/getindata/gid-ml-framework/tree/main/recommender_ranking))
 - e-commerce recommender system on sequential data using Graph Neural Networks ([recommender_gnn](https://github.com/getindata/gid-ml-framework/tree/main/recommender_gnn))
+- time-series forecasting on sales data using fast and scalable autoregressive models ([autoregressive-time-series-forecasting](https://github.com/getindata/gid-ml-framework/tree/main/autoregressive-time-series-forecasting))
 
 More use cases are either in works or in plans, including comprehensive time series modeling examples, reinforcement learning, Bayesian models, online ML on data streams and more.
 
@@ -67,8 +68,8 @@ Excerpt of what aspects or building blocks can be retrieved and reused from curr
     - testing framework
     - configuration arrangement
     - going from small-scale local prototypes to full-scale training in cloud
-    - GPU utilization (except `ga4-mlops`)
-    - automated hyperparameter optimization (except `recommender_gnn`)
+    - GPU utilization (`recommender_gnn`)
+    - automated hyperparameter optimization (`ga4-mlops`, `recommender_ranking`)
 - `ga4-mlops`:
     - training, evaluating and using binary classification models with probability calibration (and after small modification also regresssion or multiclass)
     - propensity-to-buy problem approach
@@ -90,6 +91,10 @@ Excerpt of what aspects or building blocks can be retrieved and reused from curr
     - structuring data as graphs
     - modifying blueprints for different datasets
     - building environment using conda instead of pyenv to ensure CUDA support
+- `autoregressive-time-series-forecasting`:
+    - training fast and scalable autoregressive models
+    - running temporal cross-validation with multiple models
+    - forecasting with exogenous variables
 
 ## Technologies <a name="technologies"></a>
 
@@ -105,7 +110,7 @@ Excerpt of the technologies used so far in existing examples:
 - [MLflow](https://mlflow.org/) as an experiment tracker and model repository
 - A set of linters and code quality tools ([flake8](https://flake8.pycqa.org/en/latest/), [Black](https://black.readthedocs.io/en/stable/), [isort](https://pycqa.github.io/isort/), [pre-commit](https://pre-commit.com/))
 - [Pytest](https://docs.pytest.org/) framework for writing and executing unit/integration tests
-- A collection of Python packages for automated exploratory analysis ([Pandas Profiling](https://ydata-profiling.ydata.ai/docs/master/index.html), [Featuretools](https://www.featuretools.com/)), modeling ([LightGBM](https://lightgbm.readthedocs.io/), [PyTorch](https://pytorch.org/) and more), hyperprameter tuning ([Optuna](https://optuna.org/)), model explanations([SHAP](https://shap.readthedocs.io/en/latest/)) and many more
+- A collection of Python packages for automated exploratory analysis ([Pandas Profiling](https://ydata-profiling.ydata.ai/docs/master/index.html), [Featuretools](https://www.featuretools.com/)), modeling ([LightGBM](https://lightgbm.readthedocs.io/), [PyTorch](https://pytorch.org/) and more), hyperprameter tuning ([Optuna](https://optuna.org/)), model explanations ([SHAP](https://shap.readthedocs.io/en/latest/)), time-series forecasting ([StatsForecast](https://nixtla.github.io/statsforecast/)) and many more
 
 ## How to start <a name="howtostart"></a>
 
@@ -474,7 +479,7 @@ No matter if you [work in a Dev Container](#howtostart-local-vsc), [create your 
 
 - `poetry install` to install dependencies form your `poetry.lock` file
 - `poetry add` to add and install new dependencies
-- `poetry add -D` to add and install dev-only dependencies
+- `poetry add --group dev` to add and install dev-only dependencies
 - `poetry lock` to update the `poetry.lock` file
 
 You can also edit configuration file `pyproject.toml` manually do add dependencies and then run `poetry install` and `poetry lock`.
