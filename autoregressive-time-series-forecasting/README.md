@@ -1,96 +1,180 @@
-# autoregressive-forecasting
+# Autoregressive time-series forecasting
 
-This is your new Kedro project configured according to GID ML Framework principles. Modify this README as you develop your project, for now you will find here some basic info that you need to get started. For more detailed assistance please refer to the [Kedro documenation](https://kedro.readthedocs.io/en/stable/index.html) and [GID ML Framework documentation](https://github.com/getindata/gid-ml-framework).
+## Contents
 
-Additionally to a blank Kedro template it features technological stack used in GID ML Framework, such as:
-  - [Poetry](https://python-poetry.org/)
-  - [pre-commit](https://pre-commit.com/) hooks
-  - [Dockerfile](https://docs.docker.com/engine/reference/builder/) setup
-  - [VSCode Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) for ease of development
-  - [MLFlow integration](https://kedro-mlflow.readthedocs.io/en/stable/)
-  - [GCP VertexAI Kedro integration](https://github.com/getindata/kedro-vertexai) with integration to other platforms to be added
+- [Overview](#overview)
+- [Data](#data)
+- [Methods](#methods)
+- [Pipelines](#pipelines)
+  - [Data Preprocessing](#dataprep)
+  - [Forecasting](#forecasting)
+  - [Temporal Cross-Validation](#cross-validation)
+  - [Forecasting with exogenous variables](#forecasting-exo)
+  - [End-to-end pipelines](#end-to-end-pipelines)
+- [How to run](#how-to-run)
 
- Apart from that, there are no pre-implemented nodes or pipelines here. For blueprints showing different machine learning use cases, please go to the main [GID ML Framework](https://github.com/getindata/gid-ml-framework) repo and feel free to take as much as you need from our examples.
+## Overview <a name="overview"></a>
 
-# Rules and guidelines
+This GID ML Framework use case is supposed to serve as a basic example of a typical time-series forecasting application. This particular showcase features forecasting the sales of 45 stores in different regions and is based on [Walmart Stores Sales](https://www.kaggle.com/competitions/walmart-recruiting-store-sales-forecasting/overview) data.
 
-In order to get the best out of the template:
+Time-series forecasting enables businesses to make informed decisions based on future predictions of key metrics. It helps anticipate future trends, stay ahead of competition and adapt to changing market conditions. Ultimately, it can help improve efficiency, reduce costs, and increase revenue.
 
-* Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a [data engineering convention](https://kedro.readthedocs.io/en/stable/faq/faq.html#what-is-data-engineering-convention)
-* Don't commit data to your repository
-* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
+This use case uses `statsforecast` library, which offers a collection of popular univariate time series forecasting models optimized for high performance and scalability.
 
-# Setting up the project
+## Data <a name="data"></a>
 
-Below there are short instructions on how to get the environment for your new project up and running. Detailed version with some remarks and specific cases described are available in [GID ML Framework documentation - TO BE UPDATED](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/blob/docs-release/README.md).
+This blueprint is using the [Walmart Stores Sales](https://www.kaggle.com/competitions/walmart-recruiting-store-sales-forecasting/overview) from Kaggle. In order to use that data, you have to register on Kaggle website and accept the rules of competition.
 
-## Local Setup using VSCode devcontainers (recommended)
-This approach facilitates use of [VSCode devcontainers](https://code.visualstudio.com/docs/devcontainers/containers). It is the easiest way to set up the development environment. 
+The data consists of weekly sales from 45 Walmart stores from `2010-02-05` to `2012-10-26`.
 
-Prerequisites:
-* [VSCode](https://code.visualstudio.com/) with [Remote development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension
-* [Docker](https://www.docker.com/) with `/workspaces` entry in `Docker Desktop > Preferences > Resources > File Sharing`
+## Methods <a name="methods"></a>
 
-Setting up:
-1. Clone this repository and [open it in a container](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container).
-2. You're good to go!
+Why use autoregressive models?
+- [M5](https://www.sciencedirect.com/science/article/pii/S0169207021001874) is a competition whose purpose is to learn from empirical evidence how to improve forecasting performance and advance theory and practice of forecasting. The results showed that:
+  - only 7.5% teams managed to outperform the top performing benchmark (Exponential Smoothing with bottom-up reconciliation)
+  - among the teams (415) that managed to outperform all the benchmarks:
+	  - 5 obtained improvements greater than 20%
+	  - 42 greater than 15%
+	  - 106 greater than 10%
+	  - 249 greater than 5%
+- autoregressive models are off-the-shelf methods that don't require feature engineering, hyperparameter tuning that gradient boosting models require
+- autoregressive models are **considerably faster** than their gradient boosting or neural network based forecasting solutions
+- `statsforecast` is a time-series forecasting library that utilizes autoregressive approach:
+  - with a simple and intuitive API
+  - is optimized for high performance and provides out-of-the-box compatibility with `Spark`, `Dask`, and `Ray`
+  - has many univariate methods already implemented
 
-## Local Manual Setup
+## Pipelines <a name="pipelines"></a>
 
-The project is using pyenv Python version management. It lets you easily install and switch between multiple versions of Python. To install pyenv, follow [these steps](https://github.com/pyenv/pyenv#installation=) for your operating system.
+`autoregressive-time-series-forecasting` use case currently consists of 4 main steps that include concrete pipelines:
 
-To install a specific Python version use this command:
+- Data Preprocessing (`data_processing`)
+- Forecasting (`forecasting`)
+- Temporal Cross-Validation (`cross_validation`)
+- Forecasting with exogenous variables (`forecasting_with_exo_vars`)
+
+Pipelines are linked with each other with:
+
+- datasets that are stored in project's `/data` directory,
+- artifacts and metadata stored in `MLflow`,
+- configuration files are stored in `/conf` directory
+
+### Data Preprocessing <a name="dataprep"></a>
+
+`kedro run -p data_processing`
+
+The 'data_processing' pipeline preprocesses data and prepares a dataframe for model forecasting.
+
+The pipeline takes in raw data and performs data cleaning and transformation steps to create a prepared dataframe.
+
+The output dataframe contains three columns:
+- 'unique_id': A unique identifier for the time series,
+- 'ds': A time index column that can be either an integer index or a datestamp,
+- 'y': A column representing the target variable or measurement we wish to forecast.
+
+The 'data_processing' pipeline ensures that the resulting dataframe is ready to be used as input to a forecasting model.
+
+### Forecasting <a name="forecasting"></a>
+
+`kedro run -p forecasting`
+
+The 'forecasting' pipeline forecasts time series input, and logs in sample metrics to MLflow.
+
+The pipeline takes in model input, loads a model and fallback model from the `statsforecast` library,
+forecasts `params:forecast_options.horizon` steps ahead, and logs in sample metrics to `MLflow`.
+A fallback model is a secondary model that is designed to be used in case the primary model fails to make predictions.
+
+The output dataframe (forecast) contains three columns:
+- 'unique_id': A unique identifier for the time series,
+- 'ds': A time index column that can be either an integer index or a datestamp,
+- 'params:model.name': A column representing the point predictions for time series.
+
+### Temporal Cross-Validation <a name="cross-validation"></a>
+
+`kedro run -p cross_validation`
+
+The 'cross_validation' pipeline performs temporal cross-validation for multiple models. You can specify which models you want to fit in `src/autoregressive_forecasting/pipelines/cross_validation/models.py` and `conf/base/parameters/cross_validation/yml`.
+
+The pipeline takes in model input, efficiently fits multiple models, and calculates forecasting errors.
+The error metrics are saved to MLflow for easy tracking and analysis.
+
+### Forecasting with exogenous variables <a name="forecasting-exo"></a>
+
+`kedro run -p forecasting_with_exo_vars`
+
+The 'forecasting_with_exogenous_vars' pipeline demonstrates how to use the AutoARIMA model from the `StatsForecast` library to forecast with exogenous variables.
+
+The pipeline:
+- takes in model input,
+- splits it into train and test dataframes,
+- fits two models on the training set (AutoARIMA with exogenous variables; AutoARIMA without exogenous variables),
+- forecasts test dataframe using these 2 models,
+- saves metrics to MLflow.
+
+The output dataframe (forecast_exogenous) contains 5 columns:
+- 'unique_id': A unique identifier for the time series,
+- 'ds': A time index column that can be either an integer index or a datestamp,
+- 'AutoARIMA_exogenous': A column representing the point predictions with exogenous variables for time series,
+- 'AutoARIMA': A column representing the point predictions without exogenous variables for time series,
+- 'y': A column representing the true values for time series.
+
+It is important to note that:
+- to forecast values in the future, you will need to have future exogenous variable values available,
+- exogenous variables must have numeric types,
+- AutoARIMA model is the only model in the `StatsForecast` library that supports forecasting with exogenous variables.
+
+### End-to-end pipelines <a name="forecasting-exo"></a>
+
 ```bash
-pyenv install 3.8.16
-pyenv shell 3.8.16
+kedro run -p end_to_end_forecasting
+kedro run -p end_to_end_cv
+kedro run -p end_to_end_forecasting_with_cv
 ```
 
-### Virtual environment
+The goal of end-to-end pipelines is to automate the entire process and reduce the amount of manual intervention required to take raw data and produce an actionable output.
 
-It is recommended to create a virtual environment in your project:
-```
-python -m venv venv
-source ./venv/bin/activate
-```
+End-to-end pipelines include:
+- `end_to_end_forecasting`, which consists of `data_processing` and `forecasting`
+- `end_to_end_cv`, which consists of `data_processing` and `cross_validation`
+- `end_to_end_forecasting_with_cv`, which consists of `data_processing`, `forecasting` and `cross_validation`
 
-### Installing dependencies with Poetry
+## How to run <a name="howtorun"></a>
 
-To install libraries declared in the pyproject.toml you need to have `Poetry` installed. Install it from [here](https://python-poetry.org/docs/#installing-with-the-official-installer) and then run this command:
+To run this example as is (without changing any configuration), you need to:
+
+1. Create the working environment according to [instructions given in the main GID ML Framework documentation](https://github.com/getindata/gid-ml-framework)
+
+2. Download [data](#data) and put it inside `/data/01_raw` directory
+
+3. Run end-to-end pipelines:
 ```bash
-poetry install
+# run end-to-end forecasting pipeline
+kedro run -p end_to_end_forecasting
+
+# run end-to-end temporal cross-validation pipeline
+kedro run -p end_to_end_cv
+
+# run end-to-end forecasting and temporal cross-validation pipeline
+kedro run -p end_to_end_forecasting_with_cv
 ```
 
-To add and install dependencies with:
+Miscellaneous steps:
+- Run tests from within `autoregressive-time-series-forecasting` project folder to check if everything is properly set up:
 ```bash
-# dependencies
-poetry add <package_name>
-
-# dev dependencies
-poetry add -D <package_name>
+pytest
 ```
-# How to run Kedro
 
-You can run your Kedro project with:
+- Run MLflow and optionally Kedro-Viz:
+```bash
+kedro mflow ui
+kedro viz
+```
+
+You can also run MLflow or Kedro-Viz on a selected port. For Kedro-Viz, you can also visualize only selected pipelines and set up `autoreload` option that refreshes visualizations each time any changes to pipelines are made:
 
 ```bash
-kedro run
+kedro mlflow ui --port 5001
+kedro viz --autoreload --port 4142 --pipeline end_to_end_forecasting
 ```
 
-To run a specific pipeline:
-```bash
-kedro run -p "<PIPELINE_NAME>"
-```
-
-# Kedro plugins
-### [Kedro-Viz](https://github.com/kedro-org/kedro-viz)
-- visualizes Kedro pipelines in an informative way
-- to run, `kedro viz --autoreload` inside project's directory
-- this will run a server on `http://127.0.0.1:4141`
-
-
-### [kedro-mlflow](https://github.com/Galileo-Galilei/kedro-mlflow)
-- lightweight integration of `MLflow` inside `Kedro` projects
-- configuration can be specified inside `conf/<ENV>/mlflow.yml` file
-- by default, experiments are saved inside `mlruns` local directory
-- to see all the local experiments, run `kedro mlflow ui`
+If you are developing inside a Dev Container, even in the cloud, you are still able to access MLflow and Kedro-Viz services through your local browser thanks to VSCode's automatic port forwarding feature.
