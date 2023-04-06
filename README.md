@@ -17,7 +17,7 @@ By releasing this collection of reusable examples we aim to help data scientists
         - [Alternative ways of manual environment creation](#howtostart-local-alt)
     - [Running existing project on GCP (VertexAI)](#howtostart-gcp)
     - [Running existing project on other full-scale environments](#howtostart-other)
-- [Working with GID ML Framework](#wayofwork)
+- [Working with QuickStart ML](#wayofwork)
 
 ## Overview <a name="overview"></a>
 
@@ -49,14 +49,14 @@ QuickStart ML Blueprints is a set of complete **use cases** that involve:
 - example datasets to work with
 
 So far, the following use cases have been implemented:
-- propensity-to-buy classification model on Google Analytics 4 data with additional MLOps components ([ga4-mlops](https://github.com/getindata/gid-ml-framework/tree/main/ga4-mlops))
-- retail recommender system on multimodal data (tabular, images, natural language descriptions) using ranking gradient boosting models ([recommender_ranking](https://github.com/getindata/gid-ml-framework/tree/main/recommender_ranking))
-- e-commerce recommender system on sequential data using Graph Neural Networks ([recommender_gnn](https://github.com/getindata/gid-ml-framework/tree/main/recommender_gnn))
-- time-series forecasting on sales data using fast and scalable autoregressive models ([autoregressive-time-series-forecasting](https://github.com/getindata/gid-ml-framework/tree/main/autoregressive-time-series-forecasting))
+- propensity-to-buy classification model on Google Analytics 4 data with additional MLOps components ([ga4-mlops](https://github.com/getindata/quickstart-ml-blueprints/tree/main/ga4-mlops))
+- retail recommender system on multimodal data (tabular, images, natural language descriptions) using ranking gradient boosting models ([recommender_ranking](https://github.com/getindata/quickstart-ml-blueprints/tree/main/recommender_ranking))
+- e-commerce recommender system on sequential data using Graph Neural Networks ([recommender_gnn](https://github.com/getindata/quickstart-ml-blueprints/tree/main/recommender_gnn))
+- time-series forecasting on sales data using fast and scalable autoregressive models ([autoregressive-time-series-forecasting](https://github.com/getindata/quickstart-ml-blueprints/tree/main/autoregressive-time-series-forecasting))
 
 More use cases are either in works or in plans, including comprehensive time series modeling examples, reinforcement learning, Bayesian models, online ML on data streams, distributed ML and more.
 
-Existing use cases are implemented in a modular, modifiable and extensible way. When creating a new ML solution, example building blocks from other, similar use cases can be used to various extent. In some cases, even small modifications to existing examples can be sufficient to obtain first working prototypes. For example, if the user is facing a problem of predicting churn and plans to approach it using classification algorithms, he can basically take [`ga4-mlops` example](https://github.com/getindata/gid-ml-framework/tree/main/ga4-mlops) as a blueprint, change configuration files to use his datasets, modify data preprocessing nodes and run the rest of the pipeline as is. Since both the flavor of input data (tables with binary target per observation) and problem solving approach (binary classification) are similar, all automatic feature encoding, data imputation, modeling and model explanation steps should be applicable to this new problem - at least in the first iteration, after which all pipelines can be iteratively modified and extended to perform better than the baseline version. More about the way of working with QuickStart ML and pre-implemented use cases can be found in [this section](#wayofwork).
+Existing use cases are implemented in a modular, modifiable and extensible way. When creating a new ML solution, example building blocks from other, similar use cases can be used to various extent. In some cases, even small modifications to existing examples can be sufficient to obtain first working prototypes. For example, if the user is facing a problem of predicting churn and plans to approach it using classification algorithms, he can basically take [`ga4-mlops` example](https://github.com/getindata/quickstart-ml-blueprints/tree/main/ga4-mlops) as a blueprint, change configuration files to use his datasets, modify data preprocessing nodes and run the rest of the pipeline as is. Since both the flavor of input data (tables with binary target per observation) and problem solving approach (binary classification) are similar, all automatic feature encoding, data imputation, modeling and model explanation steps should be applicable to this new problem - at least in the first iteration, after which all pipelines can be iteratively modified and extended to perform better than the baseline version. More about the way of working with QuickStart ML and pre-implemented use cases can be found in [this section](#wayofwork).
 
 ![From generic scheme to specific use cases](./docs/img/use_cases.png)
 
@@ -433,7 +433,7 @@ Connect to host → Add new ssh host → Paste in the generated command → Save
 Host my-workbench
 HostName compute.<compute_id>
 IdentityFile C:\Users\<user>\.ssh\google_compute_engine
-ProxyCommand "C:\\Users\\<user>\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\platform\\bundledpython\\python.exe" "-S" "C:\\Users\\<user>\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\lib\\gcloud.py" compute start-iap-tunnel my-workbench %p --listen-on-stdin --project=gid-ml-framework --zone=<zone> --verbosity=warning
+ProxyCommand "C:\\Users\\<user>\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\platform\\bundledpython\\python.exe" "-S" "C:\\Users\\<user>\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\lib\\gcloud.py" compute start-iap-tunnel my-workbench %p --listen-on-stdin --project=<gcp-project-name> --zone=<zone> --verbosity=warning
 User <gcp_user>
 ```
 
@@ -450,7 +450,7 @@ Sometimes Git refuses to work because of the user mismatch. You can fix that:
 
 ![GCP Firewall setup](./docs/img/vsc_popup.png)
 
-- or using `git config --global --add safe.directory /workspaces/gid-ml-framework`
+- or using `git config --global --add safe.directory /workspaces/<gcp-project-name>`
 
 ### Running existing project on other full-scale environments <a name="howtostart-other"></a>
 
@@ -467,7 +467,7 @@ QuickStart ML Blueprints is a collection of solved use cases structured as modul
 - ...you are free to take from them just as much as you need, with the freedom to modify everything according to your needs, keeping in mind that...
 - ...documentations of all tools that we use, [especially Kedro](https://kedro.readthedocs.io/en/stable/index.html), are your best friends.
 
-Typical procedure of working with GID ML Framework could be presented as follows:
+Typical procedure of working according QuickStart ML approach could be presented as follows:
 
 1. Start a new project using [QuickStart ML Kedro Starter](https://github.com/getindata/quickstart-ml-starter).
 2. Sample your data to reduce its size and speed up initial prototyping.
