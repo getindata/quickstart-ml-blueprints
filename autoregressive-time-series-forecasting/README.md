@@ -15,7 +15,7 @@
 
 ## Overview <a name="overview"></a>
 
-This GID ML Framework use case is supposed to serve as a basic example of a typical time-series forecasting application. This particular showcase features forecasting the sales of 45 stores in different regions and is based on [Walmart Stores Sales](https://www.kaggle.com/competitions/walmart-recruiting-store-sales-forecasting/overview) data.
+This QuickStart ML Blueprints use case is supposed to serve as a basic example of a typical time-series forecasting application. This particular showcase features forecasting the sales of 45 stores in different regions and is based on [Walmart Stores Sales](https://www.kaggle.com/competitions/walmart-recruiting-store-sales-forecasting/overview) data.
 
 Time-series forecasting enables businesses to make informed decisions based on future predictions of key metrics. It helps anticipate future trends, stay ahead of competition and adapt to changing market conditions. Ultimately, it can help improve efficiency, reduce costs, and increase revenue.
 
@@ -142,7 +142,7 @@ End-to-end pipelines include:
 
 To run this example as is (without changing any configuration), you need to:
 
-1. Create the working environment according to [instructions given in the main GID ML Framework documentation](https://github.com/getindata/gid-ml-framework)
+1. Create the working environment according to [instructions given in the main QuickStart ML documentation](https://github.com/getindata/quickstart-ml-blueprints)
 
 2. Download [data](#data) and put it inside `/data/01_raw` directory
 
