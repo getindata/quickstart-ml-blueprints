@@ -59,7 +59,7 @@ Feature engineering:
 
 Candidate generation pipelines:
 - candidate_generation
-    - generates candidates for each customer, some example methods include: [most popular articles](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/blob/main/recommender_ranking/src/gid_ml_framework/pipelines/candidate_generation/nodes.py#L16), [most popular articles by age](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/blob/main/recommender_ranking/src/gid_ml_framework/pipelines/candidate_generation/nodes.py#L127), [previously bought articles](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/blob/docs-restructured-repo/recommender_ranking/src/gid_ml_framework/pipelines/candidate_generation/nodes.py#L223), [articles similar to previously bought using image/text embeddings](https://gitlab.com/getindata/aa-labs/coe/gid-ml-framework/-/blob/docs-restructured-repo/recommender_ranking/src/gid_ml_framework/pipelines/candidate_generation/nodes.py#L357)
+    - generates candidates for each customer, some example methods include: [most popular articles](https://github.com/getindata/quickstart-ml-blueprints/blob/main/recommender_ranking/src/gid_ml_framework/pipelines/candidate_generation/nodes.py#L16), [most popular articles by age](https://github.com/getindata/quickstart-ml-blueprints/blob/main/recommender_ranking/src/gid_ml_framework/pipelines/candidate_generation/nodes.py#L127), [previously bought articles](https://github.com/getindata/quickstart-ml-blueprints/blob/main/recommender_ranking/src/gid_ml_framework/pipelines/candidate_generation/nodes.py#L223), [articles similar to previously bought using image/text embeddings](https://github.com/getindata/quickstart-ml-blueprints/blob/main/recommender_ranking/src/gid_ml_framework/pipelines/candidate_generation/nodes.py#L357)
 - candidate_generation_validation
     - used together with `train_val_split` pipeline, allows to run multiple candidate_generation experiments with the goal of maximizing recall
     - results are logged to `mlflow`
@@ -158,7 +158,7 @@ Setting up:
 2. To use kedro vertexai properly you need to set up gcloud:
     ```
     gcloud auth login --update-adc
-    gcloud config set project gid-ml-framework
+    gcloud config set project <gcp-project-name>
     gcloud auth configure-docker europe-west4-docker.pkg.dev
     ```
 3. You're good to go!
