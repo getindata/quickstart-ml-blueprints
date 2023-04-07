@@ -16,7 +16,7 @@
 
 ## Overview <a name="overview"></a>
 
-This GID ML Framework use case is supposed to serve as a basic example of a typical straightforward application of a ML model to some customer or user data that is gathered on a constant basis and collected as daily snapshot of user activity. This particular showcase features predicting the probability of an e-commerce customer adding a product to the shopping cart during the user session and it is based on [Google Analytics](https://analytics.google.com/analytics/web/provision/#/provision) data. From the perspective of modeling approach this example can be easily translated to other problems, especially in **customer analytics area**, that involve estimating propensity to take some action based on the behavior, e.g.:
+This QuickStart ML Blueprints use case is supposed to serve as a basic example of a typical straightforward application of a ML model to some customer or user data that is gathered on a constant basis and collected as daily snapshot of user activity. This particular showcase features predicting the probability of an e-commerce customer adding a product to the shopping cart during the user session and it is based on [Google Analytics](https://analytics.google.com/analytics/web/provision/#/provision) data. From the perspective of modeling approach this example can be easily translated to other problems, especially in **customer analytics area**, that involve estimating propensity to take some action based on the behavior, e.g.:
 
 - churn prediction in telco,
 - propensity-to-buy models in e-commerce,
@@ -50,7 +50,7 @@ We plan to include an online inference demo on data streams as an extension of t
 
 This blueprint is using the [Google Merchandise Store dataset](https://developers.google.com/analytics/bigquery/web-ecommerce-demo-dataset) that is built with [Google Analytics 4](https://developers.google.com/analytics/devguides/collection/ga4) standard and is publicly available to use and explore. Data schema is available [here](https://support.google.com/analytics/answer/7029846?hl=en).
 
-Usually, when working with GID ML Framework on a use case that relies on some big datasets, we recommend to sample your data and save it either locally or in some database, then use these smaller data samples for initial phase of prototyping to speed up development. With Google Analytics 4 (GA4) data sampling and extracting raw data outside the original BiqQuery storage would be inefficient. GA4 data is divided into separate events that happen during user session and also data schema uses BigQuery specific nested structures that would need to be converted into a flat table before extraction. This would make data export unnecessarily large and push initial aggregations from efficient BiqQuery engine to limited-memory Python environment which is definitely not optimal. Instead, in the presented example, **the first step of the workflow is the Data Preprocessing pipeline, which runs an SQL query that triggers data aggregation and sampling within BigQuery** and then extracts already preprocessed data. For the user this means three things:
+Usually, when working with QuickStart ML on a use case that relies on some big datasets, we recommend to sample your data and save it either locally or in some database, then use these smaller data samples for initial phase of prototyping to speed up development. With Google Analytics 4 (GA4) data sampling and extracting raw data outside the original BiqQuery storage would be inefficient. GA4 data is divided into separate events that happen during user session and also data schema uses BigQuery specific nested structures that would need to be converted into a flat table before extraction. This would make data export unnecessarily large and push initial aggregations from efficient BiqQuery engine to limited-memory Python environment which is definitely not optimal. Instead, in the presented example, **the first step of the workflow is the Data Preprocessing pipeline, which runs an SQL query that triggers data aggregation and sampling within BigQuery** and then extracts already preprocessed data. For the user this means three things:
 
 - you don't need to download or prepare a data sample by yourself to start local development,
 - but you need to configure your Google Cloud account and create a GCP project to access the data, even if you plan to run the rest of the workflow locally or using other cloud provider's infrastructure,
@@ -87,7 +87,7 @@ The order of running those parts for the first time should be pretty straightfor
 - artifacts and metadata stored in MLflow,
 - configuration files and Kedro Data Catalog,
 
-which means for example that once you perform Data Preprocessing and Feature Engineering, you can use artifacts that they produce to run Training multiple times to iterate towards the best model. Details of each workflow parts and the concrete pipelines that can be run (check out the [pipeline registry](https://github.com/getindata/gid-ml-framework/blob/main/ga4-mlops/src/ga4_mlops/pipeline_registry.py) for this Kedro project) are listed and explained below.
+which means for example that once you perform Data Preprocessing and Feature Engineering, you can use artifacts that they produce to run Training multiple times to iterate towards the best model. Details of each workflow parts and the concrete pipelines that can be run (check out the [pipeline registry](https://github.com/getindata/quickstart-ml-blueprints/blob/main/ga4-mlops/src/ga4_mlops/pipeline_registry.py) for this Kedro project) are listed and explained below.
 
 There are also some common auxiliary functions abstracted outside pipelines folders and gathered within two files:
 - `data_preparation_utils.py`, which contains functions for extracting column names based on naming convention, ensuring data types or correcting variable names to contain only allowed characters,
@@ -256,7 +256,7 @@ Summary of executed End to End pipelines in Mlflow along with Explanation pipeli
 
 To run this example as is (without changing any configuration), you need to:
 
-1. Create the working environment according to [instructions given in the main GID ML Framework documentation](https://github.com/getindata/gid-ml-framework)
+1. Create the working environment according to [instructions given in the main QuickStart ML Blueprints documentation](https://github.com/getindata/quickstart-ml-blueprints)
 
 2. Set up GCP project [as shown in "Data" section](#gcp_setup) of this README
 

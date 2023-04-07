@@ -2,7 +2,7 @@
 
 ## Overview
 
-`recommender_gnn` is one of the use cases implemented within GetInData ML Framework. The purpose of this use case is to
+`recommender_gnn` is one of the use cases implemented within QuickStart ML Blueprints. The purpose of this use case is to
 demonstrate the utilization of an example graph network that achieves state-of-the-art results for a recommendation task
 on sequential data. It can also be used as a guide on how to train models using GPU accelerators on Google Cloud
 Platform employing the [kedro-vertexai plugin](https://github.com/getindata/kedro-vertexai). This use case can be also
@@ -295,7 +295,7 @@ To see all datasets, run:
 ```
 
 ### Kedro Project Structure
-- use case implemented within GetInData ML Framework can be found inside `<use_case_name>` directory
+- use case implemented within QuickStart ML Blueprints can be found inside `<use_case_name>` directory
 - Kedro uses the pipeline design pattern, each pipeline is located inside `src/<use_case_name>/pipelines` directory
 - each pipeline has optional YAML parameters, which you can specify inside `conf/<ENV>/parameters` directory
 - to create a new pipeline and run, you must:

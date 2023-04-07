@@ -33,17 +33,17 @@ train.ga4_data:
             {
                 'name': 'start_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210126'}
+                'parameterValue': {'value': '20201121'}
             },
             {
                 'name': 'end_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210128'}
+                'parameterValue': {'value': '20201128'}
             },
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 10000}
+                'parameterValue': {'value': 100000}
             }
         ]
       }
@@ -62,12 +62,12 @@ valid.ga4_data:
             {
                 'name': 'start_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210129'}
+                'parameterValue': {'value': '20201129'}
             },
             {
                 'name': 'end_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210129'}
+                'parameterValue': {'value': '20201129'}
             },
             {
                 'name': 'sample_size',
@@ -90,12 +90,12 @@ test.ga4_data:
             {
                 'name': 'start_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210130'}
+                'parameterValue': {'value': '20201130'}
             },
             {
                 'name': 'end_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210130'}
+                'parameterValue': {'value': '20201130'}
             },
             {
                 'name': 'sample_size',
@@ -118,7 +118,7 @@ predict.ga4_data:
             {
                 'name': 'start_date',
                 'parameterType': {'type': 'STRING'},
-                'parameterValue': {'value': '20210131'}
+                'parameterValue': {'value': '20210126'}
             },
             {
                 'name': 'end_date',
@@ -128,7 +128,7 @@ predict.ga4_data:
             {
                 'name': 'sample_size',
                 'parameterType': {'type': 'INT64'},
-                'parameterValue': {'value': 2000}
+                'parameterValue': {'value': 20000}
             }
         ]
       }
@@ -158,6 +158,26 @@ predict.df:
   <<: *data_args
 
 # FEATURE DATA
+
+train.df_fe:
+  filepath: data/04_feature/df_fe_train.csv
+  layer: feature
+  <<: *data_args
+
+valid.df_fe:
+  filepath: data/04_feature/df_fe_valid.csv
+  layer: feature
+  <<: *data_args
+
+test.df_fe:
+  filepath: data/04_feature/df_fe_test.csv
+  layer: feature
+  <<: *data_args
+
+predict.df_fe:
+  filepath: data/04_feature/df_fe_predict.csv
+  layer: feature
+  <<: *data_args
 
 fitted.imputers:
   data_set:
@@ -251,6 +271,11 @@ calibration_plot:
   <<: *artifact_args
 
 # MODEL OUTPUT
+
+reference_predictions:
+  filepath: data/07_model_output/reference_predictions.csv
+  layer: model_output
+  <<: *data_args
 
 predictions:
   filepath: data/07_model_output/predictions.csv

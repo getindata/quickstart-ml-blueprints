@@ -1,0 +1,63 @@
+## Autoregressive forecasting
+# raw input data
+input:
+  filepath: data/01_raw/train.csv
+  layer: raw
+  type: pandas.CSVDataSet
+  load_args:
+    parse_dates: [Date]
+    dtype:
+      Store: str
+      Dept: str
+      Weekly_Sales: float
+    usecols:
+      - Store
+      - Dept
+      - Date
+      - Weekly_Sales
+  save_args:
+    index: False
+
+# model input
+model_input:
+  layer: model_input
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/model_input.csv
+  save_args:
+    index: False
+  # type: MemoryDataSet
+
+# model output
+forecast:
+  layer: model_output
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/forecast.csv
+  save_args:
+    index: True
+
+
+## Exogenous variables
+input_exogenous:
+  filepath: data/01_raw/train.csv
+  layer: raw
+  type: pandas.CSVDataSet
+  load_args:
+    parse_dates: [Date]
+    dtype:
+      Store: str
+      Dept: str
+      Weekly_Sales: float
+      IsHoliday: int
+    usecols:
+      - Store
+      - Dept
+      - Date
+      - Weekly_Sales
+      - IsHoliday
+
+forecast_exogenous:
+  layer: model_output
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/forecast_exogenous.csv
+  save_args:
+    index: True

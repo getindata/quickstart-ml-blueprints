@@ -1,7 +1,7 @@
 [tool.kedro]
 package_name = "ga4_mlops"
 project_name = "ga4_mlops"
-project_version = "0.18.4"
+kedro_init_version = "0.18.6"
 
 [tool.isort]
 profile = "black"
@@ -23,24 +23,28 @@ description = ""
 authors = ["piotr.chaberski <piotr.chaberski@getindata.com>"]
 
 [tool.poetry.dependencies]
-python = "3.8.12"
-kedro = {version = "0.18.4", extras = ["pandas.GBQQueryDataset"]}
-pandas = "1.5.2"
+python = "~3.8.12"
+kedro = {version = "^0.18.6"}
+pandas = "^1.5.2"
 scikit-learn = "^1.2.0"
-cmake = "^3.25.0"
 xgboost = "^1.7.2"
 category-encoders = "^2.5.1.post0"
 kedro-mlflow = "^0.11.5"
+pandas-gbq = "^0.17.9"
+mlflow = "^1.30"  # updating to 2.* changes request API https://mlflow.org/docs/latest/models.html#deploy-mlflow-models
+kedro-datasets = {version = "^1.0.2", extras = ["pandas.GBQQueryDataSet"]}
 optuna = "^3.0.5"
 shap = "^0.41.0"
 matplotlib = "^3.6.3"
-pytest = "^7.2.1"
-pytest-cov = "^4.0.0"
 
 [tool.poetry.dev-dependencies]
+cmake = "^3.25.0"
 jupyterlab = "^3.5.1"
 kedro-viz = "^5.1.1"
 pre-commit = "^3.0.4"
+numba = "^0.56.4"  #  crashes on lower versions
+pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

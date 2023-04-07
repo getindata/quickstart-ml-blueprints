@@ -2,6 +2,12 @@
 from the Kedro defaults. For further information, including these default values, see
 https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 
+import os
+from datetime import datetime
+
+# Class that manages how configuration is loaded.
+from kedro.config import TemplatedConfigLoader
+
 # Instantiated project hooks.
 # from ga4_mlops.hooks import ProjectHooks
 # HOOKS = (ProjectHooks(),)
@@ -10,7 +16,7 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # DISABLE_HOOKS_FOR_PLUGINS = ("kedro-viz",)
 
 # Class that manages storing KedroSession data.
-# from kedro.framework.session.store import ShelveStore
+# from kedro.framework.session.store import ShelveStore``
 # SESSION_STORE_CLASS = ShelveStore
 # Keyword arguments to pass to the `SESSION_STORE_CLASS` constructor.
 # SESSION_STORE_ARGS = {
@@ -24,13 +30,13 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # Directory that holds configuration.
 # CONF_SOURCE = "conf"
 
-# Class that manages how configuration is loaded.
-# from kedro.config import TemplatedConfigLoader
-# CONFIG_LOADER_CLASS = TemplatedConfigLoader
+CONFIG_LOADER_CLASS = TemplatedConfigLoader
 # Keyword arguments to pass to the `CONFIG_LOADER_CLASS` constructor.
-# CONFIG_LOADER_ARGS = {
-#     "globals_pattern": "*globals.yml",
-# }
+CONFIG_LOADER_ARGS = {
+    "globals_pattern": "*globals.yml",
+    "globals_dict": {
+    },
+}
 
 # Class that manages the Data Catalog.
 # from kedro.io import DataCatalog
