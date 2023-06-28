@@ -1,4 +1,4 @@
-# LLM Raeding Assistant
+# LLM Reading Assistant
 
 ## Overview
 
