@@ -18,7 +18,7 @@ The idea presented in this demo is as simple as follows:
 - When you encounter any incomprehensible term or hard to understand portion of text, you can select it and ask LLM to either explain or summarize it
 - An appropriate prompt will be constructed under the hood, sent via an API and the answer will be returned and printed
 
-![Reading Assistant Streamlit GUI](/img/reading_assistant_gui.png)
+![Reading Assistant Streamlit GUI](./img/reading_assistant_gui.png)
 
 The following demo is just a PoC showing the idea and presenting a specific mix of technologies (see the next chapter) that can be used to build similar solutions. It was build according to [QuickStart ML](https://github.com/getindata/quickstart-ml-blueprints#overview) principles, with just one exception of using paid APIs to commercial black-box Large Language Models from top providers (OpenAI, Google). To be able to reforge it into a production grade solution, a few additional developments would be needed:
 - a more advanced user interface allowing for better user experience using context menus instead of manual copy-paste operations
