@@ -1,0 +1,62 @@
+[tool.kedro]
+package_name = "llm_reading_assistant"
+project_name = "llm-reading-assistant"
+project_version = "0.18.4"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+known_third_party = "kedro"
+
+[tool.pytest.ini_options]
+addopts = """
+--cov-report term-missing \
+--cov src/llm_reading_assistant -ra"""
+pythonpath = [
+  "./src",
+]
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
+
+[tool.poetry]
+name = "llm-reading-assistant"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = ">3.9.7,<3.11"
+pip = "^22.1"
+kedro = "0.18.10"
+kedro-mlflow = "^0.11"
+kedro-docker = "^0.3.0"
+google-cloud-aiplatform = "^1.20.0"
+openai = "^0.27.8"
+streamlit = "^1.23.1"
+
+[tool.poetry.dev-dependencies]
+black = "^22.12"
+flake8 = "^6.0"
+ipython = "^7"
+isort = "^5"
+jupyter = "^1.0"
+jupyter-client = "^7"
+jupyterlab = "^3"
+kedro-viz = "^5"
+notebook = "^6.5.2"
+nbstripout = "^0.6"
+pytest = "^7.2"
+pytest-cov = "^4.0"
+pytest-mock = "^3.10"
+pre-commit = "^3.0.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

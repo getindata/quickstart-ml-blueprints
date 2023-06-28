@@ -1,0 +1,12 @@
+# This is a boilerplate parameters config generated for pipeline 'run_assistant'
+# using Kedro 0.18.10.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://docs.kedro.org/en/0.18.10/kedro_project_setup/configuration.html#parameters
+
+instructions:
+  explain: "Explain the following term or text in maximum 2 sentences: "
+  summarize: "Summarize the following text in maximum 3 sentences: "
+max_tokens:
+  explain: 120
+  summarize: 180
