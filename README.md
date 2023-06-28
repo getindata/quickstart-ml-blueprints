@@ -53,6 +53,7 @@ So far, the following use cases have been implemented:
 - retail recommender system on multimodal data (tabular, images, natural language descriptions) using ranking gradient boosting models ([recommender_ranking](https://github.com/getindata/quickstart-ml-blueprints/tree/main/recommender_ranking))
 - e-commerce recommender system on sequential data using Graph Neural Networks ([recommender_gnn](https://github.com/getindata/quickstart-ml-blueprints/tree/main/recommender_gnn))
 - time-series forecasting on sales data using fast and scalable autoregressive models ([autoregressive-time-series-forecasting](https://github.com/getindata/quickstart-ml-blueprints/tree/main/autoregressive-time-series-forecasting))
+- Large Language Model-based application that helps with reading domain-specific documents by providing explanation and summarization functionalities ([llm-reading-assistant](https://github.com/getindata/quickstart-ml-blueprints/tree/main/llm-reading-assistant))
 
 More use cases are either in works or in plans, including comprehensive time series modeling examples, reinforcement learning, Bayesian models, online ML on data streams, distributed ML and more.
 
@@ -96,6 +97,11 @@ Excerpt of what aspects or building blocks can be retrieved and reused from curr
     - training fast and scalable autoregressive models
     - running temporal cross-validation with multiple models
     - forecasting with exogenous variables
+- `llm-reading-assistant`:
+    - building LLM-based solutions
+    - combining Kedro and Streamlit to build a simple web app
+    - passing Kedro parameters via application
+    - using APIs to LLMs provided by OpenAI (native and via Azure) and Google (via VertexAI)
 
 ## Technologies <a name="technologies"></a>
 
